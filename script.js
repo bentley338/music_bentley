@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSongIndex = 0; // Index lagu yang sedang diputar
     let isPlaying = false; // Status pemutaran (true jika sedang play, false jika pause)
 
-    // --- DATA LAGU (INI ADALAH BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
-    // Pastikan NAMA FILE di 'src' dan 'albumArt' sama PERSIS dengan nama file di folder proyek Anda.
+    // --- DATA LAGU (PASTIKAN NAMA FILE DAN LOKASI BENAR) ---
+    // NAMA FILE di 'src' dan 'albumArt' harus sama PERSIS dengan nama file di folder proyek Anda.
     const songs = [
         {
             title: "Back to Friends",
@@ -284,14 +284,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Pastikan audioPlayer memiliki src sebelum mencoba memutar
         if (!audioPlayer.src || audioPlayer.src === window.location.href) {
             console.warn("Audio source not loaded yet or invalid. Cannot play.");
-            return;
+            return; // Hentikan fungsi jika index tidak valid
         }
 
         audioPlayer.play().catch(error => {
-            console.error("Error playing audio:", error);
             // Ini sering terjadi jika browser memblokir autoplay tanpa interaksi user
-            // Anda bisa menambahkan pesan ke user di sini
-            alert("Pemutaran audio diblokir oleh browser. Silakan sentuh layar untuk memulai.");
+            // atau jika file audio tidak dapat dimuat/ditemukan.
+            console.error("Error playing audio:", error);
+            // Tidak perlu alert, pengguna hanya perlu menyentuh tombol play secara manual.
             isPlaying = false; // Set kembali state ke false
             playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Pastikan ikon play
         });
@@ -427,32 +427,47 @@ document.addEventListener('DOMContentLoaded', () => {
         playlistItems.forEach((item, index) => {
             if (index === activeIndex) {
                 item.classList.add('active');
+                // Auto-scroll playlist agar lagu aktif terlihat (opsional, jika playlist scrollable)
+                // if (playlistUl.scrollHeight > playlistUl.clientHeight) { // Hanya scroll jika ada scrollbar
+                //     const itemTop = item.offsetTop;
+                //     const itemHeight = item.offsetHeight;
+                //     const containerHeight = playlistUl.clientHeight;
+                //     playlistUl.scrollTo({
+                //         top: itemTop - (containerHeight / 2) + (itemHeight / 2),
+                //         behavior: 'smooth'
+                //     });
+                // }
             } else {
                 item.classList.remove('active');
             }
         });
     }
 
-    // Fungsi untuk menampilkan sidebar
+    // Fungsi untuk menampilkan sidebar playlist
     function showPlaylistSidebar() {
         if (window.innerWidth <= 992) {
             playlistSidebar.style.display = 'block'; // Pastikan display: block dulu untuk transisi
+            // Tambahkan timeout kecil sebelum menambah class visible untuk memastikan display diterapkan
+            setTimeout(() => {
+                playlistSidebar.classList.add('visible');
+            }, 10); // Sedikit delay
+        } else {
+            playlistSidebar.classList.add('visible');
         }
-        playlistSidebar.classList.add('visible');
     }
 
-    // Fungsi untuk menyembunyikan sidebar
+    // Fungsi untuk menyembunyikan sidebar playlist
     function hidePlaylistSidebar() {
         playlistSidebar.classList.remove('visible');
         if (window.innerWidth <= 992) {
             // Menggunakan setTimeout untuk memastikan transisi selesai sebelum display: none
             setTimeout(() => {
                 playlistSidebar.style.display = 'none';
-            }, 500); // Sesuaikan dengan durasi transisi CSS
+            }, 500); // Sesuaikan dengan durasi transisi CSS (0.5s = 500ms)
         }
     }
 
-    // Toggle tampilan playlist sidebar
+    // Toggle tampilan playlist sidebar saat tombol "Daftar Lagu" diklik
     togglePlaylistBtn.addEventListener('click', () => {
         if (playlistSidebar.classList.contains('visible')) {
             hidePlaylistSidebar();
@@ -461,14 +476,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Menutup playlist jika klik di luar sidebar (untuk desktop)
+    // Menutup playlist jika klik di luar sidebar (hanya berlaku untuk layar besar)
     document.addEventListener('click', (event) => {
         const isClickInsidePlayer = event.target.closest('.music-player');
         const isClickInsidePlaylist = event.target.closest('.playlist-sidebar');
-        const isTogglePlaylistBtn = event.target.closest('#toggle-playlist');
+        const isTogglePlaylistBtn = event.target.closest('#toggle-playlist'); // Klik tombol toggle itu sendiri
 
-        if (!isClickInsidePlayer && !isClickInsidePlaylist && !isTogglePlaylistBtn && playlistSidebar.classList.contains('visible') && window.innerWidth > 992) {
-            hidePlaylistSidebar(); // Gunakan fungsi hide untuk konsistensi
+        // Jika sidebar visible, dan klik di luar player, di luar playlist, dan bukan di tombol toggle
+        if (playlistSidebar.classList.contains('visible') && window.innerWidth > 992) {
+            if (!isClickInsidePlayer && !isClickInsidePlaylist && !isTogglePlaylistBtn) {
+                hidePlaylistSidebar();
+            }
         }
     });
 
