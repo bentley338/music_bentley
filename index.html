@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Musik Saya: Back To Friends</title>
+    <title>Musik Saya: Back To Friends & Bergema Sampai Selamanya</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="app_icon.png" type="image/png"> 
@@ -18,6 +18,15 @@
     </div>
 
     <div class="container">
+        <header>
+            <h1 class="app-title">
+                <i class="fas fa-compact-disc"></i> Harmoni Nada <i class="fas fa-headphones-alt"></i>
+            </h1>
+            <button id="toggle-playlist" class="btn btn-playlist">
+                <i class="fas fa-list-music"></i> Daftar Lagu
+            </button>
+        </header>
+
         <main class="music-player glass-effect">
             <div class="header-player">
                 <span class="indicator-dot top-left"></span>
@@ -38,51 +47,7 @@
 
             <div class="lyrics-section">
                 <p class="lyrics-text">
-                    <b>🎶 Back to Friends – Sombr</b><br><br>
-
-                    <b>Verse 1</b><br>
-                    Touch my body tender<br>
-                    ’Cause the feeling makes me weak<br>
-                    Kicking off the covers<br>
-                    I see the ceiling while you’re looking down at me<br><br>
-
-                    <b>Chorus</b><br>
-                    How can we go back to being friends<br>
-                    When we just shared a bed?<br>
-                    How can you look at me and pretend<br>
-                    I’m someone you’ve never met?<br><br>
-
-                    <b>Verse 2</b><br>
-                    It was last December<br>
-                    You were layin’ on my chest<br>
-                    I still remember<br>
-                    I was scared to take a breath<br>
-                    Didn’t want you to move your head<br><br>
-
-                    <b>Chorus</b><br>
-                    How can we go back to being friends<br>
-                    When we just shared a bed?<br>
-                    How can you look at me and pretend<br>
-                    I’m someone you’ve never met?<br><br>
-
-                    <b>Bridge</b><br>
-                    The devil in your eyes<br>
-                    Won’t deny the lies you’ve sold<br>
-                    I’m holding on too tight<br>
-                    While you let go<br>
-                    This is casual<br><br>
-
-                    <b>Final Chorus</b><br>
-                    How can we go back to being friends<br>
-                    When we just shared a bed?<br>
-                    How can you look at me and pretend<br>
-                    I’m someone you’ve never met?<br>
-                    How can we go back to being friends<br>
-                    When we just shared a bed?<br>
-                    How can you look at me and pretend<br>
-                    I’m someone you’ve never met?<br>
-                    I’m someone you’ve never met<br>
-                    When we just shared a bed?
+                    Memuat lirik...
                 </p>
             </div>
 
@@ -95,14 +60,14 @@
             </div>
 
             <div class="controls-section">
-                <button id="prev-btn" class="control-btn small-btn" aria-label="Previous Song" style="display: none;"><i class="fas fa-backward"></i></button>
+                <button id="prev-btn" class="control-btn small-btn" aria-label="Previous Song"><i class="fas fa-backward"></i></button>
                 <button id="play-pause-btn" class="control-btn large-btn" aria-label="Play/Pause"><i class="fas fa-play"></i></button>
-                <button id="next-btn" class="control-btn small-btn" aria-label="Next Song" style="display: none;"><i class="fas fa-forward"></i></button>
+                <button id="next-btn" class="control-btn small-btn" aria-label="Next Song"><i class="fas fa-forward"></i></button>
             </div>
 
             <audio id="audio-player"></audio> </main>
 
-        <aside class="playlist-sidebar glass-effect" style="display: none;">
+        <aside class="playlist-sidebar glass-effect">
             <h2 class="playlist-title">Daftar Lagu</h2>
             <ul id="playlist" class="playlist-items">
                 </ul>
