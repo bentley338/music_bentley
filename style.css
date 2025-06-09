@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
 
-/* Variabel Warna Global (Disesuaikan agar lebih mirip gambar awal) */
+/* Variabel Warna Global (Disesuaikan agar lebih mirip gambar akhir) */
 :root {
-    --bg-dark: #000000; /* Latar belakang hitam pekat */
+    --bg-dark: #000000;
     --player-bg-dark: rgba(20, 0, 30, 0.7); /* Background pemutar */
     --player-border: rgba(255, 255, 255, 0.08);
     --primary-text: #EAEAEA;
@@ -14,11 +14,11 @@
     --button-border: #6a1b9a; /* Ungu gelap untuk border tombol */
     --shadow-light: rgba(0,0,0,0.4);
     --shadow-dark: rgba(0, 0, 0, 0.9);
-    --blur-intensity: 10px; /* Lebih sedikit blur untuk menonjolkan background video */
+    --blur-intensity: 10px; /* Sedikit blur untuk menonjolkan background video */
     --border-radius-main: 10px; /* Radius lebih kecil */
     --border-radius-sm: 5px;
 
-    /* Warna Spesifik Playlist dari Gambar Awal */
+    /* Warna Spesifik Playlist dari Gambar Awal (tetap konsisten) */
     --playlist-bg-color: rgba(0, 0, 0, 0.85); /* Hampir hitam transparan untuk sidebar */
     --playlist-item-bg: rgba(40, 40, 40, 0.8); /* Background item lagu */
     --playlist-item-hover-bg: rgba(60, 60, 60, 0.9);
@@ -30,14 +30,14 @@
 html, body {
     margin: 0;
     padding: 0;
-    height: 100%; /* Penting untuk mengisi tinggi viewport */
+    height: 100%;
     overflow: hidden; /* Mencegah scroll di body */
 }
 
 body {
     font-family: 'Poppins', sans-serif; /* Kembali ke Poppins */
     color: var(--primary-text);
-    display: flex;
+    display: flex; /* Untuk memusatkan app-container */
     justify-content: center;
     align-items: center;
     background-color: var(--bg-dark);
@@ -99,32 +99,35 @@ body {
     padding-top: env(safe-area-inset-top, 0px);
     padding-left: env(safe-area-inset-left, 0px);
     padding-right: env(safe-area-inset-right, 0px);
-    box-sizing: border-box;
+    box-sizing: border-box; /* Pastikan padding dihitung dalam ukuran */
     /* Tidak ada flexbox/grid di sini, elemen child akan diposisikan sendiri */
 }
 
-/* Header Aplikasi (Judul dan tombol playlist - Posisi ABSOLUTE di kiri atas) */
+/* Header Aplikasi (Judul dan tombol playlist - Posisi ABSOLUTE di kiri bawah) */
 .app-header {
     position: absolute;
-    top: 20px; /* Jarak dari atas */
-    left: 20px; /* Jarak dari kiri */
+    bottom: calc(50% + 50px); /* Posisikan vertikal di tengah, lalu geser ke bawah sedikit */
+    left: 50px; /* Jarak dari kiri */
+    transform: translateY(50%); /* Geser ke bawah 50% dari tingginya sendiri */
     text-align: left;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     z-index: 20;
     padding: 0;
+    max-width: 300px; /* Batasi lebar agar tidak terlalu panjang */
 }
 
 .app-title {
-    font-family: 'Montserrat', sans-serif; /* Menggunakan Montserrat untuk judul utama */
+    font-family: 'Montserrat', sans-serif;
     font-size: 2.5em; /* Ukuran default desktop */
-    margin: 0;
+    margin: 0 0 10px 0; /* Jarak bawah dari tombol */
     color: var(--primary-text);
     text-shadow: 2px 2px 5px rgba(0,0,0,0.5); /* Shadow seperti gambar awal */
     letter-spacing: 1px;
     font-weight: 800;
     white-space: nowrap;
+    text-align: left; /* Teks rata kiri */
 }
 .app-title .fas {
     color: var(--accent-purple);
@@ -149,7 +152,6 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-top: 15px;
 }
 .btn.btn-playlist:hover {
     background-color: var(--secondary-color); /* Ungu lebih gelap saat hover */
@@ -390,7 +392,7 @@ body {
 }
 
 
-/* Playlist Sidebar (Didesain Ulang 100% Mirip Gambar Awal) */
+/* Playlist Sidebar (Desain 100% Mirip Gambar Awal) */
 .playlist-sidebar {
     position: fixed;
     top: 50%; /* Pusatkan vertikal */
@@ -554,12 +556,9 @@ body {
 
 
 /* Responsive Design */
-/* Desktop Layout (Default, tanpa media query) */
-/* app-container sudah display grid 2 kolom, header di kiri, player di kanan */
-
 @media (max-width: 992px) { /* Untuk perangkat mobile & tablet */
     .app-container {
-        display: flex; /* Kembali ke flexbox untuk mobile */
+        display: flex;
         flex-direction: column; /* Stack vertikal */
         justify-content: flex-start; /* Mulai dari atas */
         align-items: center;
@@ -575,6 +574,7 @@ body {
         width: 100%;
         text-align: center;
         align-items: center;
+        padding-bottom: 10px;
     }
     .app-title {
         font-size: 2em;
@@ -592,7 +592,7 @@ body {
         right: auto;
         transform: none; /* Hapus transformasi */
         max-width: 450px;
-        margin: 0 auto; /* Pusatkan player */
+        margin: 0 auto;
         padding: 25px 30px;
         gap: 20px;
         /* Padding bawah disesuaikan agar tidak tertutup tombol HP */
