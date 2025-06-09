@@ -1,32 +1,32 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Elemen DOM ---
+    // --- Elemen DOM (Pastikan ID di HTML cocok dengan ini) ---
     const audioPlayer = document.getElementById('audio-player');
     const playPauseBtn = document.getElementById('play-pause-btn');
     const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = ruralArea.js" > nextBtn = document.getElementById('next-btn');
+    const nextBtn = document.getElementById('next-btn');
     const progressBar = document.getElementById('progress-bar');
     const currentTimeSpan = document.getElementById('current-time');
     const durationSpan = document.getElementById('duration');
     const currentAlbumArt = document.getElementById('current-album-art');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentArtistName = document.getElementById('current-artist-name');
-    const lyricsText = document.querySelector('.lyrics-text'); // Untuk menampilkan lirik statis
+    const lyricsText = document.querySelector('.lyrics-text'); // Menggunakan querySelector karena ini class, bukan ID
     const playlistUl = document.getElementById('playlist');
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
 
-    // Variabel state
-    let currentSongIndex = 0; // Index lagu saat ini
-    let isPlaying = false; // Status pemutaran
+    // --- Variabel State ---
+    let currentSongIndex = 0; // Index lagu yang sedang diputar
+    let isPlaying = false; // Status pemutaran (true jika sedang play, false jika pause)
 
-    // --- DATA LAGU (SEKARANG ADA 5 LAGU) ---
-    // NAMA FILE HARUS SAMA PERSIS DENGAN YANG ADA DI ROOT FOLDER ANDA!
+    // --- DATA LAGU (INI ADALAH BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
+    // Pastikan NAMA FILE di 'src' dan 'albumArt' sama PERSIS dengan nama file di folder proyek Anda.
     const songs = [
         {
             title: "Back to Friends",
             artist: "Sombr",
-            src: "back_to_friends.mp3",
-            albumArt: "album_art_back_to_friends.jpg",
+            src: "back_to_friends.mp3", // Pastikan ada file ini di root folder
+            albumArt: "album_art_back_to_friends.jpg", // Pastikan ada file ini di root folder
             lyrics: `
                 <b>🎶 Back to Friends – Sombr</b><br><br>
                 <b>Verse 1</b><br>
@@ -72,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Bergema Sampai Selamanya",
             artist: "Nadhif Basalamah",
-            src: "bergema_sampai_selamanya.mp3",
-            albumArt: "album_art_bergema_sampai_selamanya.jpg",
+            src: "bergema_sampai_selamanya.mp3", // Pastikan ada file ini di root folder
+            albumArt: "album_art_bergema_sampai_selamanya.jpg", // Pastikan ada file ini di root folder
             lyrics: `
                 <b>🎶 Bergema Sampai Selamanya – Nadhif Basalamah</b><br><br>
                 <b>Verse 1</b><br>
@@ -109,8 +109,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Ride",
             artist: "SoMo",
-            src: "ride.mp3",
-            albumArt: "album_art_ride.jpg",
+            src: "ride.mp3", // Pastikan ada file ini di root folder
+            albumArt: "album_art_ride.jpg", // Pastikan ada file ini di root folder
             lyrics: `
                 <b>🎶 Ride – SoMo</b><br><br>
                 <b>Verse 1</b><br>
@@ -152,8 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Rumah Kita",
             artist: "God Bless",
-            src: "rumah_kita.mp3",
-            albumArt: "album_art_rumah_kita.jpg",
+            src: "rumah_kita.mp3", // Pastikan ada file ini di root folder
+            albumArt: "album_art_rumah_kita.jpg", // Pastikan ada file ini di root folder
             lyrics: `
                 <b>🎶 Rumah Kita – God Bless</b><br><br>
                 <b>Verse 1</b><br>
@@ -197,8 +197,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Style",
             artist: "Taylor Swift",
-            src: "style.mp3", // Pastikan nama file ini di root folder
-            albumArt: "album_art_style.jpg", // Pastikan nama file ini di root folder
+            src: "style.mp3", // Pastikan ada file ini di root folder
+            albumArt: "album_art_style.jpg", // Pastikan ada file ini di root folder
             lyrics: `
                 <b>🎶 Style – Taylor Swift</b><br><br>
                 <b>Verse 1</b><br>
@@ -250,6 +250,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Memuat data lagu ke pemutar
     function loadSong(songIndex) {
+        // Pastikan songIndex valid
+        if (songIndex < 0 || songIndex >= songs.length) {
+            console.error("Error: songIndex di luar batas array songs.", songIndex);
+            return; // Hentikan fungsi jika index tidak valid
+        }
+
         const song = songs[songIndex];
         audioPlayer.src = song.src;
         currentAlbumArt.src = song.albumArt;
@@ -265,9 +271,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Setel ulang animasi album art saat lagu baru dimuat
         const albumArtImg = document.querySelector('.album-art-img');
         if (albumArtImg) {
-            albumArtImg.style.animation = 'none';
-            void albumArtImg.offsetWidth;
-            albumArtImg.style.animation = '';
+            albumArtImg.style.animation = 'none'; // Hapus animasi sebelumnya
+            void albumArtImg.offsetWidth; // Memaksa reflow untuk me-reset animasi
+            albumArtImg.style.animation = ''; // Menerapkan kembali animasi dari CSS
         }
         // Update active class di playlist
         updatePlaylistActiveState(songIndex);
@@ -275,7 +281,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Memutar lagu
     function playSong() {
-        audioPlayer.play();
+        // Pastikan audioPlayer memiliki src sebelum mencoba memutar
+        if (!audioPlayer.src || audioPlayer.src === window.location.href) {
+            console.warn("Audio source not loaded yet or invalid. Cannot play.");
+            return;
+        }
+
+        audioPlayer.play().catch(error => {
+            console.error("Error playing audio:", error);
+            // Ini sering terjadi jika browser memblokir autoplay tanpa interaksi user
+            // Anda bisa menambahkan pesan ke user di sini
+            alert("Pemutaran audio diblokir oleh browser. Silakan sentuh layar untuk memulai.");
+            isPlaying = false; // Set kembali state ke false
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Pastikan ikon play
+        });
+
         isPlaying = true;
         playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; // Ikon Pause
         playPauseBtn.setAttribute('aria-label', 'Pause');
@@ -348,13 +368,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set durasi total lagu saat metadata dimuat
     audioPlayer.addEventListener('loadedmetadata', () => {
-        durationSpan.textContent = formatTime(audioPlayer.duration);
+        if (!isNaN(audioPlayer.duration)) {
+            durationSpan.textContent = formatTime(audioPlayer.duration);
+        } else {
+            durationSpan.textContent = '0:00'; // Fallback jika durasi tidak tersedia
+        }
     });
 
     // Pindah posisi lagu dengan progress bar
     progressBar.addEventListener('input', () => {
-        const seekTime = (progressBar.value / 100) * audioPlayer.duration;
-        audioPlayer.currentTime = seekTime;
+        if (!isNaN(audioPlayer.duration)) {
+            const seekTime = (progressBar.value / 100) * audioPlayer.duration;
+            audioPlayer.currentTime = seekTime;
+        }
     });
 
     // Otomatis putar lagu berikutnya saat lagu selesai
@@ -446,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Inisialisasi Aplikasi ---
+    // --- Inisialisasi Aplikasi (JALAN SAAT HALAMAN DIMUAT) ---
     loadSong(currentSongIndex); // Muat lagu pertama saat halaman dimuat
     buildPlaylist(); // Bangun daftar lagu
 });
