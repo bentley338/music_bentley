@@ -14,13 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const playlistUl = document.getElementById('playlist');
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
-    const closePlaylistBtn = document.getElementById('close-playlist-btn'); // Tombol tutup baru
+    const closePlaylistBtn = document.getElementById('close-playlist-btn');
 
     // --- Variabel State ---
     let currentSongIndex = 0;
     let isPlaying = false;
 
-    // --- DATA LAGU (PASTIKAN NAMA FILE DAN LOKASI BENAR) ---
+    // --- DATA LAGU (PENTING: PASTIKAN NAMA FILE DI SINI SESUAI DENGAN FILE FISIK ANDA) ---
     const songs = [
         {
             title: "Back to Friends",
@@ -482,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentSongIndex = index;
                 loadSong(currentSongIndex);
                 playSong();
-                hidePlaylistSidebar(); // Sembunyikan sidebar setelah lagu dipilih
+                hidePlaylistSidebar();
             });
             playlistUl.appendChild(li);
         });
