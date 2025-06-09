@@ -14,12 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const playlistUl = document.getElementById('playlist');
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
+    const closePlaylistBtn = document.getElementById('close-playlist-btn'); // Tombol tutup baru
 
     // --- Variabel State ---
     let currentSongIndex = 0;
     let isPlaying = false;
 
-    // --- DATA LAGU (PENTING: PASTIKAN NAMA FILE DI SINI SESUAI DENGAN FILE FISIK ANDA) ---
+    // --- DATA LAGU (PASTIKAN NAMA FILE DAN LOKASI BENAR) ---
     const songs = [
         {
             title: "Back to Friends",
@@ -517,7 +518,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fungsi untuk menampilkan sidebar playlist
     function showPlaylistSidebar() {
-        // Kontrol visibilitas melalui CSS 'width' atau 'transform'
         playlistSidebar.classList.add('visible');
     }
 
@@ -535,22 +535,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Menutup playlist jika klik di luar sidebar (untuk desktop)
+    // Event listener untuk tombol tutup playlist di dalam sidebar
+    closePlaylistBtn.addEventListener('click', () => {
+        hidePlaylistSidebar();
+    });
+
+    // Menutup playlist jika klik di luar sidebar
     document.addEventListener('click', (event) => {
         const isClickInsidePlayer = event.target.closest('.music-player');
         const isClickInsidePlaylist = event.target.closest('#playlist-sidebar');
         const isTogglePlaylistBtn = event.target.closest('#toggle-playlist');
+        const isClosePlaylistBtn = event.target.closest('#close-playlist-btn');
 
-        if (playlistSidebar.classList.contains('visible')) { // Cek jika playlist terlihat
-            // Untuk desktop, sembunyikan jika klik di luar sidebar/player/tombol toggle
-            if (window.innerWidth > 992) { // Hanya berlaku untuk desktop
-                if (!isClickInsidePlayer && !isClickInsidePlaylist && !isTogglePlaylistBtn) {
-                    hidePlaylistSidebar();
-                }
-            } else { // Untuk mobile, sembunyikan jika klik di luar sidebar tapi bukan di tombol toggle
-                if (!isClickInsidePlaylist && !isTogglePlaylistBtn) {
-                    hidePlaylistSidebar();
-                }
+        // Jika sidebar visible, dan klik tidak terjadi di dalam player, di dalam sidebar itu sendiri,
+        // di tombol toggle, atau di tombol close.
+        if (playlistSidebar.classList.contains('visible')) {
+            if (!isClickInsidePlayer && !isClickInsidePlaylist && !isTogglePlaylistBtn && !isClosePlaylistBtn) {
+                hidePlaylistSidebar();
             }
         }
     });
@@ -559,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Inisialisasi Aplikasi ---
     if (songs.length > 0) {
         loadSong(currentSongIndex);
-        buildPlaylist(); // Bangun daftar lagu saat inisialisasi
+        buildPlaylist();
     } else {
         console.error("Tidak ada lagu ditemukan di array 'songs'.");
         currentSongTitle.textContent = "Tidak ada lagu";
