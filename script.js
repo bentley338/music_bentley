@@ -10,17 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentAlbumArt = document.getElementById('current-album-art');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentArtistName = document.getElementById('current-artist-name');
-    const lyricsText = document.querySelector('.lyrics-text'); // Untuk menampilkan lirik statis
+    const lyricsText = document.querySelector('.lyrics-text');
     const playlistUl = document.getElementById('playlist');
-    const togglePlaylistBtn = document.getElementById('toggle-playlist');
-    const playlistSidebar = document.getElementById('playlist-sidebar');
+    const togglePlaylistBtn = document.getElementById('toggle-playlist'); // Pastikan ini terambil dengan benar
+    const playlistSidebar = document.getElementById('playlist-sidebar'); // Pastikan ini terambil dengan benar
 
     // Variabel state
-    let currentSongIndex = 0; // Index lagu saat ini
-    let isPlaying = false; // Status pemutaran
+    let currentSongIndex = 0;
+    let isPlaying = false;
 
-    // --- DATA LAGU (SEKARANG ADA 3 LAGU) ---
-    // NAMA FILE HARUS SAMA PERSIS DENGAN YANG ADA DI ROOT FOLDER ANDA!
+    // --- DATA LAGU ---
     const songs = [
         {
             title: "Back to Friends",
@@ -127,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Sunrise creeping, morning light<br>
                 Another day, another sight<br>
                 No rush, no hurry, take it slow<br>
-                Just enjoying the ride, you know<<br>br>
+                Just enjoying the ride, you know<br><br>
                 <b>Chorus</b><br>
                 So baby, let's just ride<br>
                 Leave the worries far behind<br>
@@ -160,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentAlbumArt.src = song.albumArt;
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
-        lyricsText.innerHTML = song.lyrics; // Mengupdate lirik untuk lagu yang dimuat
+        lyricsText.innerHTML = song.lyrics;
 
         // Reset progress bar dan waktu
         progressBar.value = 0;
@@ -182,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function playSong() {
         audioPlayer.play();
         isPlaying = true;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; // Ikon Pause
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
         playPauseBtn.setAttribute('aria-label', 'Pause');
         const albumArtImg = document.querySelector('.album-art-img');
         if (albumArtImg) {
@@ -194,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function pauseSong() {
         audioPlayer.pause();
         isPlaying = false;
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Ikon Play
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         playPauseBtn.setAttribute('aria-label', 'Play');
         const albumArtImg = document.querySelector('.album-art-img');
         if (albumArtImg) {
@@ -226,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     prevBtn.addEventListener('click', () => {
         currentSongIndex--;
         if (currentSongIndex < 0) {
-            currentSongIndex = songs.length - 1; // Kembali ke lagu terakhir
+            currentSongIndex = songs.length - 1;
         }
         loadSong(currentSongIndex);
         playSong();
@@ -236,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
     nextBtn.addEventListener('click', () => {
         currentSongIndex++;
         if (currentSongIndex > songs.length - 1) {
-            currentSongIndex = 0; // Kembali ke lagu pertama
+            currentSongIndex = 0;
         }
         loadSong(currentSongIndex);
         playSong();
@@ -264,14 +263,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Otomatis putar lagu berikutnya saat lagu selesai
     audioPlayer.addEventListener('ended', () => {
-        nextBtn.click(); // Panggil fungsi klik tombol next
+        nextBtn.click();
     });
 
     // --- Fungsi Playlist ---
 
     // Membangun daftar lagu di sidebar
     function buildPlaylist() {
-        playlistUl.innerHTML = ''; // Kosongkan playlist yang mungkin ada
+        playlistUl.innerHTML = '';
         songs.forEach((song, index) => {
             const li = document.createElement('li');
             li.setAttribute('data-index', index);
@@ -289,16 +288,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Sembunyikan playlist di mobile setelah memilih lagu
                 if (window.innerWidth <= 992) {
                     playlistSidebar.classList.remove('visible');
-                    // Untuk mobile, kita perlu mengatur display: none lagi setelah transisi selesai
-                    playlistSidebar.addEventListener('transitionend', function handler() {
+                    // Menggunakan setTimeout untuk memastikan transisi selesai sebelum display: none
+                    setTimeout(() => {
                         playlistSidebar.style.display = 'none';
-                        playlistSidebar.removeEventListener('transitionend', handler);
-                    });
+                    }, 500); // Sesuaikan dengan durasi transisi CSS (0.5s = 500ms)
                 }
             });
             playlistUl.appendChild(li);
         });
-        updatePlaylistActiveState(currentSongIndex); // Set active state untuk lagu pertama
+        updatePlaylistActiveState(currentSongIndex);
     }
 
     // Update class 'active' di item playlist
@@ -313,23 +311,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Fungsi untuk menampilkan sidebar
+    function showPlaylistSidebar() {
+        if (window.innerWidth <= 992) {
+            playlistSidebar.style.display = 'block'; // Pastikan display: block dulu untuk transisi
+        }
+        playlistSidebar.classList.add('visible');
+    }
+
+    // Fungsi untuk menyembunyikan sidebar
+    function hidePlaylistSidebar() {
+        playlistSidebar.classList.remove('visible');
+        if (window.innerWidth <= 992) {
+            // Menggunakan setTimeout untuk memastikan transisi selesai sebelum display: none
+            setTimeout(() => {
+                playlistSidebar.style.display = 'none';
+            }, 500); // Sesuaikan dengan durasi transisi CSS
+        }
+    }
+
     // Toggle tampilan playlist sidebar
     togglePlaylistBtn.addEventListener('click', () => {
-        // Logika untuk menampilkan/menyembunyikan sidebar di mobile/desktop
         if (playlistSidebar.classList.contains('visible')) {
-            playlistSidebar.classList.remove('visible');
-            // Untuk mobile, kita perlu mengatur display: none lagi setelah transisi selesai
-            if (window.innerWidth <= 992) {
-                playlistSidebar.addEventListener('transitionend', function handler() {
-                    playlistSidebar.style.display = 'none';
-                    playlistSidebar.removeEventListener('transitionend', handler);
-                });
-            }
+            hidePlaylistSidebar();
         } else {
-            if (window.innerWidth <= 992) { // Hanya untuk mobile, tampilkan sebagai block
-                playlistSidebar.style.display = 'block';
-            }
-            playlistSidebar.classList.add('visible');
+            showPlaylistSidebar();
         }
     });
 
@@ -340,12 +346,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const isTogglePlaylistBtn = event.target.closest('#toggle-playlist');
 
         if (!isClickInsidePlayer && !isClickInsidePlaylist && !isTogglePlaylistBtn && playlistSidebar.classList.contains('visible') && window.innerWidth > 992) {
-            playlistSidebar.classList.remove('visible');
-            // Tidak perlu style.display = 'none' untuk desktop karena posisinya fixed
+            hidePlaylistSidebar(); // Gunakan fungsi hide untuk konsistensi
         }
     });
 
     // --- Inisialisasi Aplikasi ---
-    loadSong(currentSongIndex); // Muat lagu pertama saat halaman dimuat
-    buildPlaylist(); // Bangun daftar lagu
+    loadSong(currentSongIndex);
+    buildPlaylist();
 });
