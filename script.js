@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSongIndex = 0;
     let isPlaying = false;
 
-    // --- DATA LAGU (PASTIKAN NAMA FILE DAN LOKASI BENAR) ---
+    // --- DATA LAGU (PENTING: PASTIKAN NAMA FILE DI SINI SESUAI DENGAN FILE FISIK ANDA) ---
     const songs = [
         {
             title: "Back to Friends",
@@ -482,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentSongIndex = index;
                 loadSong(currentSongIndex);
                 playSong();
-                hidePlaylistSidebar(); // Sembunyikan sidebar setelah lagu dipilih
+                hidePlaylistSidebar();
             });
             playlistUl.appendChild(li);
         });
@@ -500,7 +500,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const activeItem = playlistItems[activeIndex];
             activeItem.classList.add('active');
 
-            // Auto-scroll playlist agar lagu aktif terlihat
             const containerHeight = playlistUl.clientHeight;
             const itemHeight = activeItem.offsetHeight;
             const itemTop = activeItem.offsetTop;
@@ -547,15 +546,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const isTogglePlaylistBtn = event.target.closest('#toggle-playlist');
         const isClosePlaylistBtn = event.target.closest('#close-playlist-btn');
 
-        // Jika sidebar visible, dan klik tidak terjadi di dalam player, di dalam sidebar itu sendiri,
-        // di tombol toggle, atau di tombol close.
         if (playlistSidebar.classList.contains('visible')) {
             if (!isClickInsidePlayer && !isClickInsidePlaylist && !isTogglePlaylistBtn && !isClosePlaylistBtn) {
                 hidePlaylistSidebar();
             }
         }
     });
-
 
     // --- Inisialisasi Aplikasi ---
     if (songs.length > 0) {
