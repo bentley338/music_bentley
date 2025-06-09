@@ -311,7 +311,7 @@ body {
 }
 
 .control-btn {
-    background: var(--button-bg);
+    background: rgba(255, 255, 255, 0.1);
     border: 2px solid var(--button-border);
     color: var(--primary-text);
     font-size: 1.5em;
@@ -450,13 +450,13 @@ body {
         max-width: 95%; /* Lebih lebar di mobile */
     }
 
+    .app-title {
+        font-size: 2.2em;
+    }
+
     .music-player {
         padding: 25px 30px;
         gap: 20px;
-    }
-
-    .app-title {
-        font-size: 2.2em;
     }
 
     .album-art-section {
