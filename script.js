@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const playlistUl = document.getElementById('playlist');
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
-    const appWrapper = document.querySelector('.app-wrapper'); // Ambil wrapper utama
 
     // --- Variabel State ---
     let currentSongIndex = 0;
@@ -463,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
         nextBtn.click();
     });
 
-    // --- Fungsi Playlist (Diperbaiki dan Diaktifkan Kembali) ---
+    // --- Fungsi Playlist ---
 
     // Membangun daftar lagu di sidebar playlist
     function buildPlaylist() {
@@ -518,7 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fungsi untuk menampilkan sidebar playlist
     function showPlaylistSidebar() {
-        // Kontrol visibilitas melalui CSS 'width'
+        // Kontrol visibilitas melalui CSS 'width' atau 'transform'
         playlistSidebar.classList.add('visible');
     }
 
@@ -542,13 +541,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const isClickInsidePlaylist = event.target.closest('#playlist-sidebar');
         const isTogglePlaylistBtn = event.target.closest('#toggle-playlist');
 
-        // Untuk desktop, sembunyikan jika klik di luar sidebar/player/tombol toggle
-        if (playlistSidebar.classList.contains('visible') && window.innerWidth > 992) {
-            if (!isClickInsidePlayer && !isClickInsidePlaylist && !isTogglePlaylistBtn) {
-                hidePlaylistSidebar();
+        if (playlistSidebar.classList.contains('visible')) { // Cek jika playlist terlihat
+            // Untuk desktop, sembunyikan jika klik di luar sidebar/player/tombol toggle
+            if (window.innerWidth > 992) { // Hanya berlaku untuk desktop
+                if (!isClickInsidePlayer && !isClickInsidePlaylist && !isTogglePlaylistBtn) {
+                    hidePlaylistSidebar();
+                }
+            } else { // Untuk mobile, sembunyikan jika klik di luar sidebar tapi bukan di tombol toggle
+                if (!isClickInsidePlaylist && !isTogglePlaylistBtn) {
+                    hidePlaylistSidebar();
+                }
             }
         }
     });
+
 
     // --- Inisialisasi Aplikasi ---
     if (songs.length > 0) {
