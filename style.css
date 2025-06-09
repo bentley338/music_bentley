@@ -33,7 +33,7 @@
 html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
+    height: 100%; /* Penting untuk mengisi tinggi viewport */
     overflow: hidden; /* Mencegah scroll di body */
 }
 
@@ -91,13 +91,13 @@ body {
     z-index: -1;
 }
 
-/* App Wrapper - Mengatur layout utama app: sidebar kiri dan player kanan */
+/* App Container - Mengatur layout utama app: sidebar kiri dan player kanan */
 .app-wrapper {
     position: relative;
     width: 100%;
     height: 100vh;
     display: flex; /* Menggunakan Flexbox untuk layout utama */
-    justify-content: flex-end; /* Dorong player ke kanan */
+    justify-content: center; /* Pusatkan konten horizontal */
     align-items: center; /* Pusatkan vertikal */
     box-sizing: border-box;
     /* Padding untuk safe area di perangkat mobile (notch, dll.) */
@@ -107,20 +107,23 @@ body {
     padding-right: env(safe-area-inset-right, 0px);
 }
 
-/* Sidebar Kiri (Logo & Tombol Daftar Lagu) */
-.left-sidebar {
-    position: absolute; /* Posisikan absolut dalam app-wrapper */
-    top: 50%;
-    left: max(20px, env(safe-area-inset-left)); /* Jarak dari kiri, pertimbangkan safe area */
-    transform: translateY(-50%); /* Pusatkan vertikal */
+/* Header Aplikasi (Judul dan tombol playlist - Posisi ABSOLUTE di kiri atas) */
+.app-header {
+    position: absolute;
+    top: 50%; /* Mulai dari tengah vertikal */
+    left: 50%; /* Mulai dari tengah horizontal */
+    transform: translate(-180%, -100%); /* Geser ke kiri & atas untuk posisi di screenshot */
+    text-align: left;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: center; /* Pusatkan kontennya sendiri vertikal */
-    padding: 20px;
-    box-sizing: border-box;
     z-index: 20;
-    background: transparent; /* Transparan penuh */
+    padding: 0;
+    max-width: 300px; /* Batasi lebar */
+    /* Pastikan tidak terpotong di kiri */
+    left: max(20px, env(safe-area-inset-left)); /* Jarak minimal 20px atau safe area */
+    top: calc(50% - 150px); /* Posisikan di atas player dengan jarak */
+    transform: translateY(-50%); /* Pusatkan vertikal terhadap titik top */
 }
 
 .brand-section {
@@ -177,7 +180,7 @@ body {
     color: var(--accent-purple-light);
 }
 
-/* Main Player (Bagian Kanan) */
+/* Music Player (Bagian Kanan, di tengah layar) */
 .music-player {
     padding: 30px 40px;
     display: flex;
@@ -293,7 +296,7 @@ body {
     font-weight: 400;
 }
 
-/* Lirik Section */
+/* Lirik Section (Disesuaikan agar bisa di-scroll penuh) */
 .lyrics-section {
     width: 100%; /* Lebar penuh dalam player */
     text-align: center;
@@ -301,33 +304,40 @@ body {
     padding: 10px 15px; /* Padding lirik */
     background: var(--player-bg-dark); /* Background lirik sama dengan player */
     border-radius: var(--border-radius-medium); /* Radius lirik */
-    max-height: 80px; /* Tinggi lirik seperti screenshot */
-    overflow-y: hidden; /* Sembunyikan scrollbar, lirik hanya tampil sedikit */
+    max-height: 150px; /* Tinggi lirik yang cukup untuk scroll */
+    overflow-y: auto; /* Aktifkan scroll vertikal */
     border: 1px solid var(--player-border);
-    position: relative; /* Untuk gradien overlay */
+    position: relative;
+    text-align: left; /* Rata kiri untuk lirik */
 }
-.lyrics-section::after { /* Gradien di bawah lirik untuk efek fade */
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 30px; /* Tinggi gradien */
-    background: linear-gradient(to top, var(--player-bg-dark), transparent);
-    pointer-events: none; /* Tidak menghalangi teks */
+.lyrics-section::after { /* Hapus gradien overlay di lirik */
+    content: none; 
 }
 .lyrics-text {
     font-size: 0.9em; /* Ukuran font lirik */
     color: var(--secondary-text);
-    line-height: 1.4; /* Spasi antar baris */
+    line-height: 1.5; /* Spasi antar baris */
     margin: 0;
-    /* Hanya tampilkan 2-3 baris pertama */
-    overflow: hidden;
-    text-overflow: ellipsis; /* Tidak ada ellipsis karena overflow hidden saja */
-    display: -webkit-box;
-    -webkit-line-clamp: 3; /* Tampilkan maks 3 baris */
-    -webkit-box-orient: vertical;
+    white-space: pre-wrap; /* Pertahankan spasi dan baris baru di lirik */
+    text-overflow: clip; /* Tidak ada ellipsis */
+    display: block; /* Pastikan tampil sebagai blok */
+    -webkit-line-clamp: unset; /* Hapus batasan baris */
+    -webkit-box-orient: unset; /* Hapus batasan orientasi */
 }
+.lyrics-text b { /* Gaya untuk bold di lirik */
+    color: var(--primary-text);
+}
+.lyrics-text br { /* Pastikan baris baru berfungsi */
+    display: block;
+    content: "";
+    margin-bottom: 0.5em; /* Jarak antar bait */
+}
+
+/* Scrollbar untuk Lirik */
+.lyrics-section::-webkit-scrollbar { width: 6px; }
+.lyrics-section::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 2px; }
+.lyrics-section::-webkit-scrollbar-thumb { background: var(--accent-purple-dark); border-radius: 2px; }
+
 
 /* Progress Bar */
 .progress-bar-section {
@@ -433,7 +443,7 @@ body {
     right: 0;
     width: 0; /* Default: tersembunyi */
     height: 100vh; /* Tinggi penuh */
-    background: var(--playlist-bg-color); /* Latar belakang hitam transparan pekat */
+    background: rgba(0, 0, 0, 0.95); /* Latar belakang hitam transparan pekat */
     backdrop-filter: blur(20px) saturate(150%); /* Efek blur yang kuat */
     -webkit-backdrop-filter: blur(20px) saturate(150%);
     border-left: 1px solid rgba(255, 255, 255, 0.1); /* Border tipis di kiri */
@@ -610,7 +620,7 @@ body {
         padding-left: 15px;
         padding-right: 15px;
     }
-    .left-sidebar {
+    .app-header {
         position: relative; /* Kembali ke flow normal */
         top: auto;
         left: auto;
@@ -621,7 +631,7 @@ body {
         align-items: center;
     }
     .brand-section {
-        margin-bottom: 10px; /* Jarak dari tombol */
+        margin-bottom: 10px;
     }
     .brand-icon {
         font-size: 2.5em;
