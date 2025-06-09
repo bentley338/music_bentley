@@ -1,0 +1,560 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
+/* Menggunakan Roboto untuk kemiripan yang lebih baik */
+
+/* Variabel Warna Global - Dioptimalkan untuk kemiripan 1000% */
+:root {
+    --bg-dark: #0A0A0A; /* Hampir hitam */
+    --player-bg-dark: rgba(20, 0, 30, 0.5); /* Ungu gelap transparan */
+    --player-border: rgba(255, 255, 255, 0.08); /* Border sangat tipis */
+    --primary-text: #EAEAEA; /* Hampir putih */
+    --secondary-text: rgba(255, 255, 255, 0.7); /* Abu-abu terang transparan */
+    --accent-purple: #8A2BE2; /* Ungu kebiruan (mirip dengan foto) */
+    --accent-red: #FF4500;   /* Oranye-merah terang (untuk aksen) */
+    --progress-fill: #FF4500; /* Warna progres bar */
+    --button-bg: rgba(255, 255, 255, 0.1);
+    --button-border: #7B0099; /* Ungu gelap untuk border tombol */
+    --shadow-deep: rgba(0, 0, 0, 0.9);
+    --blur-intensity: 30px; /* Intensitas blur */
+    --border-radius-main: 20px;
+    --border-radius-sm: 8px;
+}
+
+/* Reset dan Styling Dasar */
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif; /* Menggunakan Roboto */
+    color: var(--primary-text);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bg-dark); /* Fallback */
+    position: relative;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Glassmorphism Effect */
+.glass-effect {
+    background: var(--player-bg-dark);
+    backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
+    -webkit-backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
+    border: 1px solid var(--player-border);
+    border-radius: var(--border-radius-main);
+    box-shadow: 0 15px 50px var(--shadow-deep);
+}
+
+/* Video Background */
+.video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -2;
+}
+
+.video-background video {
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    filter: brightness(0.4) contrast(1.2) grayscale(0.1); /* Lebih gelap, kontras, sedikit grayscale */
+}
+
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 15% 30%, rgba(100, 0, 150, 0.4), transparent 50%),
+                radial-gradient(circle at 85% 70%, rgba(255, 50, 0, 0.3), transparent 50%); /* Aksen ungu/merah */
+    z-index: -1;
+}
+
+/* Kontainer Utama */
+.container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center; /* Pusat di tengah */
+    align-items: center;
+    width: 90%;
+    max-width: 600px; /* Fokus pada player di tengah */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Music Player */
+.music-player {
+    padding: 30px 40px; /* Padding lebih lebar horizontal */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    width: 100%;
+    animation: fadeIn 0.8s ease-out forwards;
+    position: relative; /* Untuk positioning titik indikator */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header di dalam player (mirip "Now Playing" di gambar) */
+.header-player {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    padding-bottom: 15px; /* Jarak dari bawah */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Garis pemisah */
+    margin-bottom: 15px;
+}
+
+.player-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2em;
+    font-weight: 500;
+    color: var(--secondary-text);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.indicator-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-red);
+    border-radius: 50%;
+    position: absolute;
+    opacity: 0.8;
+}
+
+.indicator-dot.top-left { top: 0; left: 0; }
+.indicator-dot.top-right { top: 0; right: 0; }
+.indicator-dot.bottom-left { bottom: 0; left: 0; }
+.indicator-dot.bottom-right { bottom: 0; right: 0; }
+
+
+.album-art-section {
+    width: 250px;
+    height: 250px;
+    border-radius: 15px; /* Radius sedikit berbeda */
+    overflow: hidden;
+    box-shadow: 0 8px 25px var(--shadow-deep);
+    position: relative; /* Untuk pseudo-element */
+    display: flex; /* Untuk memusatkan gambar */
+    justify-content: center;
+    align-items: center;
+}
+
+.album-art-section::before {
+    content: '';
+    position: absolute;
+    inset: -5px; /* Membuat border di luar */
+    border-radius: calc(15px + 5px);
+    background: linear-gradient(45deg, var(--accent-purple), var(--accent-red));
+    z-index: -1;
+    filter: blur(10px) opacity(0.6);
+    transition: all 0.3s ease;
+}
+
+.album-art-section:hover::before {
+    filter: blur(15px) opacity(1);
+    inset: -8px;
+}
+
+.album-art-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block; /* Hilangkan space di bawah gambar */
+    transition: transform 0.3s ease;
+}
+
+.album-art-section:hover .album-art-img {
+    transform: scale(1.03); /* Zoom sedikit saat hover */
+}
+
+
+.song-details {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.song-title {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    font-size: 2.2em;
+    color: var(--primary-text);
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.artist-name {
+    margin: 8px 0 0;
+    font-size: 1.1em;
+    color: var(--secondary-text);
+    font-weight: 400;
+}
+
+/* Lirik - Mirip dengan gambar */
+.lyrics-section {
+    width: 90%;
+    text-align: center;
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2); /* Background lirik lebih gelap */
+    border-radius: var(--border-radius-sm);
+    max-height: 120px; /* Batasi tinggi untuk scroll */
+    overflow-y: auto; /* Bisa scroll jika lirik panjang */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.lyrics-text {
+    font-size: 0.95em;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Scrollbar untuk Lirik */
+.lyrics-section::-webkit-scrollbar {
+    width: 6px;
+}
+.lyrics-section::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+    border-radius: 3px;
+}
+.lyrics-section::-webkit-scrollbar-thumb {
+    background: var(--accent-purple);
+    border-radius: 3px;
+}
+
+
+/* Progress Bar */
+.progress-bar-section {
+    width: 100%;
+    text-align: center;
+    margin-top: 25px;
+}
+
+.progress-slider {
+    width: 95%;
+    height: 6px; /* Lebih tipis */
+    -webkit-appearance: none;
+    background: rgba(255, 255, 255, 0.1); /* Track lebih transparan */
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.progress-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--progress-fill); /* Warna thumb */
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.7); /* Glow merah */
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.progress-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(255, 69, 0, 1);
+}
+
+.progress-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--progress-fill);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.7);
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+.progress-slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(255, 69, 0, 1);
+}
+
+.time-info {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9em;
+    color: var(--secondary-text);
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    width: 95%;
+}
+
+/* Kontrol */
+.controls-section {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+    align-items: center;
+}
+
+.control-btn {
+    background: var(--button-bg);
+    border: 2px solid var(--button-border);
+    color: var(--primary-text);
+    font-size: 1.5em;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px var(--shadow-light);
+}
+
+.control-btn.large-btn {
+    font-size: 2.5em;
+    width: 75px;
+    height: 75px;
+    background-color: var(--accent-purple);
+    border-color: var(--accent-purple);
+    box-shadow: 0 6px 20px rgba(138, 43, 226, 0.7); /* Glow ungu */
+}
+
+.control-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--accent-purple);
+    transform: scale(1.08);
+    box-shadow: 0 6px 15px var(--shadow-dark);
+}
+
+.control-btn.large-btn:hover {
+    background-color: var(--accent-red); /* Berubah ke merah saat hover */
+    border-color: var(--accent-red);
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(255, 69, 0, 0.8); /* Glow merah */
+}
+
+/* Playlist Sidebar (Disembunyikan secara default) */
+.playlist-sidebar {
+    /* Styling ini tetap ada jika Anda ingin mengaktifkannya nanti */
+    padding: 25px;
+    width: 100%;
+    max-width: 400px;
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%) translateX(calc(100% + 30px));
+    opacity: 0;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 10;
+}
+
+.playlist-sidebar.visible {
+    transform: translateY(-50%) translateX(0);
+    opacity: 1;
+}
+
+.playlist-title {
+    font-family: 'Montserrat', sans-serif;
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: var(--primary-text);
+    text-align: center;
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+.playlist-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.playlist-items li {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease, border-left-color 0.2s ease;
+    border-left: 5px solid transparent;
+}
+
+.playlist-items li:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.playlist-items li.active {
+    background-color: var(--player-bg-dark);
+    border-left-color: var(--accent-red);
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.4);
+}
+
+.playlist-items li img {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--border-radius-sm);
+    margin-right: 15px;
+    object-fit: cover;
+}
+
+.playlist-items li .playlist-song-info h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: var(--primary-text);
+}
+
+.playlist-items li .playlist-song-info p {
+    margin: 3px 0 0;
+    font-size: 0.9em;
+    color: var(--secondary-text);
+}
+
+/* Scrollbar untuk Playlist */
+.playlist-sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+.playlist-sidebar::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
+.playlist-sidebar::-webkit-scrollbar-thumb {
+    background: var(--accent-purple);
+    border-radius: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+        max-width: 95%; /* Lebih lebar di mobile */
+    }
+
+    .music-player {
+        padding: 25px 30px;
+        gap: 20px;
+    }
+
+    .app-title {
+        font-size: 2.2em;
+    }
+
+    .album-art-section {
+        width: 200px;
+        height: 200px;
+    }
+
+    .song-title {
+        font-size: 1.8em;
+    }
+
+    .artist-name {
+        font-size: 1em;
+    }
+
+    .lyrics-section {
+        margin-top: 15px;
+        padding: 10px;
+        font-size: 0.9em;
+    }
+
+    .controls-section {
+        gap: 20px;
+    }
+
+    .control-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.3em;
+    }
+
+    .control-btn.large-btn {
+        width: 70px;
+        height: 70px;
+        font-size: 2em;
+    }
+
+    .progress-slider {
+        height: 5px;
+    }
+
+    .progress-slider::-webkit-slider-thumb,
+    .progress-slider::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+    }
+
+    .time-info {
+        font-size: 0.8em;
+    }
+
+    /* Playlist sidebar masih disembunyikan untuk 1 lagu */
+    .playlist-sidebar {
+        right: 10px;
+        max-width: calc(100% - 20px);
+    }
+}
+
+@media (max-width: 480px) {
+    .app-title {
+        font-size: 1.8em;
+    }
+
+    .music-player {
+        padding: 20px 25px;
+        gap: 15px;
+    }
+
+    .album-art-section {
+        width: 180px;
+        height: 180px;
+    }
+
+    .song-title {
+        font-size: 1.6em;
+    }
+
+    .artist-name {
+        font-size: 0.9em;
+    }
+
+    .lyrics-section {
+        font-size: 0.85em;
+    }
+
+    .controls-section {
+        gap: 15px;
+    }
+
+    .control-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2em;
+    }
+
+    .control-btn.large-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 1.8em;
+    }
+}
