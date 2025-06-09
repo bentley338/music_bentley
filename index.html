@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Harmoni Nada</title>
+    <title>Harmoni Nada: Koleksi Terbaik</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="app_icon.png" type="image/png"> 
@@ -17,7 +17,9 @@
         <div class="video-overlay"></div>
     </div>
 
-    <div class="app-container"> <header class="app-header">
+    <div class="app-container">
+        
+        <header class="app-header">
             <h1 class="app-title">
                 <i class="fas fa-compact-disc"></i> Harmoni Nada <i class="fas fa-headphones-alt"></i>
             </h1>
@@ -67,11 +69,15 @@
             <audio id="audio-player"></audio>
         </main>
 
-        <aside id="playlist-sidebar" class="playlist-sidebar glass-effect">
-            <h2 class="playlist-title">Daftar Lagu</h2>
+        <aside id="playlist-sidebar" class="playlist-sidebar"> <div class="playlist-header-wrapper">
+                <h2 class="playlist-title">Daftar Lagu</h2>
+                <span class="close-playlist-btn" id="close-playlist-btn">&times;</span> </div>
+            
             <ul id="playlist" class="playlist-items">
                 </ul>
         </aside>
-    </div> <script src="script.js"></script>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
