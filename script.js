@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const audioPlayer = document.getElementById('audio-player');
     const playPauseBtn = document.getElementById('play-pause-btn');
     const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
+    const nextBtn = ruralArea.js" > nextBtn = document.getElementById('next-btn');
     const progressBar = document.getElementById('progress-bar');
     const currentTimeSpan = document.getElementById('current-time');
     const durationSpan = document.getElementById('duration');
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSongIndex = 0; // Index lagu saat ini
     let isPlaying = false; // Status pemutaran
 
-    // --- DATA LAGU (SEKARANG ADA 4 LAGU) ---
+    // --- DATA LAGU (SEKARANG ADA 5 LAGU) ---
     // NAMA FILE HARUS SAMA PERSIS DENGAN YANG ADA DI ROOT FOLDER ANDA!
     const songs = [
         {
@@ -152,8 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Rumah Kita",
             artist: "God Bless",
-            src: "rumah_kita.mp3", // Pastikan nama file ini di root folder
-            albumArt: "album_art_rumah_kita.jpg", // Pastikan nama file ini di root folder
+            src: "rumah_kita.mp3",
+            albumArt: "album_art_rumah_kita.jpg",
             lyrics: `
                 <b>🎶 Rumah Kita – God Bless</b><br><br>
                 <b>Verse 1</b><br>
@@ -192,6 +192,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Outro</b><br>
                 Rumah kita...
                 Rumah kita...
+            `
+        },
+        {
+            title: "Style",
+            artist: "Taylor Swift",
+            src: "style.mp3", // Pastikan nama file ini di root folder
+            albumArt: "album_art_style.jpg", // Pastikan nama file ini di root folder
+            lyrics: `
+                <b>🎶 Style – Taylor Swift</b><br><br>
+                <b>Verse 1</b><br>
+                Midnight, you come and pick me up, no headlights<br>
+                Long drive, could end in burning flames or paradise<br>
+                Fade into view, oh, it's been a while since I have even heard from you<br>
+                (Heard from you)<br><br>
+                <b>Chorus</b><br>
+                I say, "I've heard that you've been out and about with some other girl"<br>
+                (Oh-oh-oh) I say, "What you've heard is true but I<br>
+                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
+                (Oh-oh-oh) saying, "It's gonna be alright"<br>
+                'Cause we never go out of style<br>
+                We never go out of style<br><br>
+                <b>Verse 2</b><br>
+                You got that long hair, slicked back, white T-shirt<br>
+                And I got that good girl faith and a tight little skirt<br>
+                And when we go crashing down, we come back every time<br>
+                'Cause we never go out of style<br>
+                We never go out of style<br><br>
+                <b>Chorus</b><br>
+                I say, "I've heard that you've been out and about with some other girl"<br>
+                (Oh-oh-oh) I say, "What you've heard is true but I<br>
+                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
+                (Oh-oh-oh) saying, "It's gonna be alright"<br>
+                'Cause we never go out of style<br>
+                We never go out of style<br><br>
+                <b>Bridge</b><br>
+                Take me home, just take me home<br>
+                Where there's fire, where there's chaos, and there's love<br>
+                I got a blank space, baby, and I'll write your name<br>
+                But baby, we never go out of style<br><br>
+                <b>Chorus</b><br>
+                I say, "I've heard that you've been out and about with some other girl"<br>
+                (Oh-oh-oh) I say, "What you've heard is true but I<br>
+                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
+                (Oh-oh-oh) saying, "It's gonna be alright"<br>
+                'Cause we never go out of style<br>
+                We never go out of style<br><br>
+                <b>Outro</b><br>
+                Never go out of style<br>
+                We never go out of style<br>
+                Yeah, we never go out of style
             `
         }
     ];
