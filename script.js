@@ -13,13 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlaying = false; // Status pemutaran
 
     // --- DATA LAGU (HANYA SATU LAGU: BACK TO FRIENDS - SOMBR) ---
-    // Pastikan nama file di sini sama persis dengan yang ada di folder Anda.
+    // NAMA FILE HARUS SAMA PERSIS DENGAN YANG ADA DI ROOT FOLDER ANDA!
     const songs = [
         {
             title: "Back to Friends",
             artist: "Sombr",
-            src: "music/back_to_friends.mp3",          // Pastikan nama file MP3 ini di folder 'music'
-            albumArt: "images/album_art_back_to_friends.jpg" // Pastikan nama file JPG/PNG ini di folder 'images'
+            src: "back_to_friends.mp3",          // Path langsung ke file MP3 di root folder
+            albumArt: "album_art_back_to_friends.jpg" // Path langsung ke file JPG/PNG di root folder
         }
     ];
 
@@ -105,8 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set durasi total lagu saat metadata dimuat
     audioPlayer.addEventListener('loadedmetadata', () => {
         durationSpan.textContent = formatTime(audioPlayer.duration);
-        // Jika auto-play diharapkan setelah dimuat, panggil playSong() di sini
-        // Misalnya: playSong(); // Hapus komentar ini jika ingin autoplay
+        // Autoplay saat dimuat pertama kali (jika Anda ingin)
+        // playSong(); // Hapus komentar ini jika ingin autoplay saat halaman dimuat
     });
 
     // Pindah posisi lagu dengan progress bar
@@ -123,5 +123,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Inisialisasi Aplikasi ---
     // Muat lagu pertama (dan satu-satunya) saat halaman dimuat
-    loadSong(currentSongIndex);
+    loadSong(0); // Index lagu pertama selalu 0
 });
