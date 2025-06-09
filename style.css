@@ -3,12 +3,12 @@
 /* Variabel Warna Global */
 :root {
     --bg-dark: #0A0A0A;
-    --player-bg-dark: rgba(20, 0, 30, 0.5);
+    --player-bg-dark: rgba(20, 0, 30, 0.5); /* Background pemutar */
     --player-border: rgba(255, 255, 255, 0.08);
     --primary-text: #EAEAEA;
     --secondary-text: rgba(255, 255, 255, 0.7);
-    --accent-purple: #8A2BE2;
-    --accent-red: #FF4500;
+    --accent-purple: #8A2BE2; /* Warna ungu utama */
+    --accent-red: #FF4500;   /* Warna merah/oranye untuk aksen */
     --progress-fill: #FF4500;
     --button-bg: rgba(255, 255, 255, 0.1);
     --button-border: #7B0099;
@@ -23,7 +23,7 @@
 html, body {
     margin: 0;
     padding: 0;
-    height: 100%; /* Penting untuk memastikan tinggi penuh */
+    height: 100%; /* Penting untuk mengisi tinggi viewport */
     overflow: hidden; /* Mencegah scroll di body */
 }
 
@@ -39,19 +39,25 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Wrapper untuk seluruh aplikasi, untuk mengatasi safe area di mobile */
-.app-wrapper {
+/* Container Utama Aplikasi - Mengatur padding untuk safe area & layout desktop */
+.app-container {
     position: relative;
     width: 100%;
     height: 100vh; /* Tinggi penuh viewport */
     display: flex;
-    flex-direction: column; /* Stack header dan main content */
-    align-items: center;
-    padding: 20px; /* Padding utama untuk konten */
+    justify-content: center; /* Pusatkan konten horizontal */
+    align-items: center; /* Pusatkan konten vertikal */
     box-sizing: border-box;
-    /* safe area padding untuk iPhone X series, dll. */
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-top: env(safe-area-inset-top);
+    /* Padding untuk safe area di perangkat mobile (notch, dll.) */
+    padding-bottom: env(safe-area-inset-bottom, 20px); /* Tambahkan padding default jika env tidak ada */
+    padding-top: env(safe-area-inset-top, 20px);
+    padding-left: env(safe-area-inset-left, 20px);
+    padding-right: env(safe-area-inset-right, 20px);
+
+    /* Layout untuk desktop: header di kiri, player di tengah, playlist di kanan */
+    flex-direction: row;
+    gap: 30px; /* Jarak antara player dan sidebar/header */
+    max-width: 1400px; /* Lebar maksimal keseluruhan aplikasi di desktop */
 }
 
 /* Glassmorphism Effect */
@@ -97,28 +103,27 @@ body {
     z-index: -1;
 }
 
-/* Header Aplikasi (Layout Lama yang Anda Suka) */
+/* Header Aplikasi (Judul dan tombol playlist - Posisinya akan diatur oleh flexbox .app-container) */
 .app-header {
-    position: absolute; /* Posisikan absolut di dalam .app-wrapper */
-    top: 20px;
-    left: 20px; /* Posisikan di kiri atas */
-    text-align: left;
+    flex-shrink: 0; /* Jangan menyusut */
+    text-align: left; /* Teks rata kiri */
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Konten di kiri */
+    align-items: flex-start;
     z-index: 20;
-    padding: 0; /* Hapus padding default header */
+    padding: 0;
+    margin-right: auto; /* Dorong ke kiri di desktop */
 }
 
 .app-title {
     font-family: 'Montserrat', sans-serif;
-    font-size: 2.5em;
+    font-size: 2.5em; /* Ukuran default desktop */
     margin: 0;
     color: var(--primary-text);
     text-shadow: 0 0 15px rgba(224, 187, 228, 0.7), 0 0 5px rgba(0,0,0,0.9);
     letter-spacing: 1px;
     font-weight: 800;
-    white-space: nowrap; /* Mencegah teks wrapping */
+    white-space: nowrap;
 }
 .app-title .fas {
     color: var(--accent-purple);
@@ -155,18 +160,6 @@ body {
     color: var(--accent-red);
 }
 
-/* Main Content Area (untuk layout desktop player + playlist) */
-.main-content {
-    display: flex;
-    flex-grow: 1; /* Agar mengisi ruang yang tersedia */
-    justify-content: center; /* Pusatkan player di tengah */
-    align-items: center;
-    width: 100%;
-    max-width: 1200px; /* Batas lebar konten */
-    padding: 0; /* Padding sudah di app-wrapper */
-    box-sizing: border-box;
-}
-
 /* Music Player */
 .music-player {
     padding: 30px 40px;
@@ -178,8 +171,7 @@ body {
     max-width: 500px; /* Lebar player di desktop */
     animation: fadeIn 0.8s ease-out forwards;
     position: relative;
-    /* Margin otomatis akan memusatkan di main-content */
-    margin: auto;
+    flex-shrink: 0; /* Jangan menyusut */
 }
 
 @keyframes fadeIn {
@@ -275,7 +267,7 @@ body {
     font-weight: 400;
 }
 
-/* Lirik Section - Lirik Statis */
+/* Lirik Section */
 .lyrics-section {
     width: 90%;
     text-align: center;
@@ -293,7 +285,6 @@ body {
     line-height: 1.6;
     margin: 0;
 }
-/* Scrollbar untuk Lirik */
 .lyrics-section::-webkit-scrollbar { width: 6px; }
 .lyrics-section::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 3px; }
 .lyrics-section::-webkit-scrollbar-thumb { background: var(--accent-purple); border-radius: 3px; }
@@ -395,22 +386,24 @@ body {
     box-shadow: 0 8px 25px rgba(255, 69, 0, 0.8);
 }
 
-/* Playlist Sidebar (Didesain Ulang) */
+
+/* Playlist Sidebar (Didesain Ulang untuk Responsifitas) */
 .playlist-sidebar {
-    position: fixed; /* Tetap fixed untuk muncul dari samping */
+    position: fixed;
     top: 0;
     right: 0;
-    width: 0; /* Awalnya lebar 0 */
-    height: 100%;
-    background: rgba(10, 0, 20, 0.85);
+    width: 0; /* Default: tersembunyi */
+    height: 100vh; /* Tinggi penuh */
+    background: rgba(10, 0, 20, 0.95); /* Lebih solid agar overlay background video */
     backdrop-filter: blur(25px) saturate(150%);
     -webkit-backdrop-filter: blur(25px) saturate(150%);
     border-left: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: -10px 0 30px rgba(0, 0, 0, 0.8);
     z-index: 100;
     overflow-x: hidden;
-    transition: width 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    padding-top: 20px; /* Padding dari atas */
+    transition: width 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Animasi lebar */
+    padding-top: env(safe-area-inset-top, 20px); /* Padding safe area */
+    padding-bottom: env(safe-area-inset-bottom, 20px);
     box-sizing: border-box;
     display: block; /* Selalu block agar transisi width berfungsi */
 }
@@ -434,8 +427,7 @@ body {
     list-style: none;
     padding: 0 20px;
     margin: 0;
-    /* Tinggi dinamis untuk scroll, dikurangi padding atas/bawah */
-    max-height: calc(100% - 100px); /* Kurangi 100px untuk padding header/footer sidebar */
+    max-height: calc(100% - 100px); /* Tinggi dinamis */
     overflow-y: auto;
     scroll-behavior: smooth;
 }
@@ -473,10 +465,6 @@ body {
     object-fit: cover;
 }
 
-.playlist-items li .playlist-song-info {
-    flex-grow: 1;
-}
-
 .playlist-items li .playlist-song-info h3 {
     margin: 0;
     font-size: 1.1em;
@@ -497,54 +485,21 @@ body {
 
 
 /* Responsive Design */
-@media (min-width: 993px) { /* Untuk desktop, atur layout player dan playlist di samping */
-    .app-wrapper {
-        flex-direction: row; /* Konten berdampingan */
-        justify-content: space-evenly; /* Rata tengah dengan spasi */
-        align-items: center;
-        padding: 40px; /* Padding lebih besar di desktop */
-    }
-    .app-header {
-        position: absolute; /* Tetap absolut */
-        top: 40px; /* Jarak dari atas */
-        left: 40px; /* Jarak dari kiri */
-    }
-    .main-content {
-        justify-content: center; /* Player di tengah area konten */
-        width: auto; /* Lebar menyesuaikan */
-        flex-grow: 0; /* Tidak perlu mengisi ruang sisa */
-        margin-left: auto; /* Pusatkan player jika tidak ada sidebar */
-        margin-right: auto;
-    }
-    .music-player {
-        max-width: 500px; /* Batas lebar player di desktop */
-        margin: 0; /* Hapus margin auto jika ada sidebar */
-    }
-    .playlist-sidebar {
-        /* Lebar akan diatur oleh .playlist-sidebar.visible */
-        width: 0;
-        height: 100vh; /* Tinggi penuh */
-        padding-top: 40px; /* Sesuaikan padding atas */
-        border-radius: var(--border-radius-main) 0 0 var(--border-radius-main); /* Hanya sudut kiri */
-    }
-    .playlist-sidebar.visible {
-        width: 350px; /* Lebar saat terlihat */
-    }
-}
-
-
 @media (max-width: 992px) { /* Untuk perangkat mobile & tablet */
-    .app-wrapper {
-        padding: 15px;
+    .app-container {
+        flex-direction: column; /* Stack player dan header */
         justify-content: flex-start; /* Konten mulai dari atas */
-        gap: 20px;
+        align-items: center;
+        gap: 20px; /* Jarak antar elemen utama */
+        padding-left: 15px; /* Sesuaikan padding */
+        padding-right: 15px;
     }
     .app-header {
         position: relative; /* Kembali ke flow normal */
         top: auto;
         left: auto;
-        margin-bottom: 20px;
-        width: 100%;
+        margin-bottom: 10px; /* Jarak dari player */
+        width: 100%; /* Ambil lebar penuh */
         text-align: center;
         align-items: center; /* Pusatkan header di mobile */
     }
@@ -555,20 +510,17 @@ body {
     .btn.btn-playlist {
         font-size: 0.9em;
         padding: 8px 15px;
+        margin-top: 0; /* Hapus margin top di mobile agar dekat dengan judul */
     }
 
-    .main-content {
-        flex-direction: column; /* Stack player dan playlist di mobile */
-        align-items: center;
-        flex-grow: 0; /* Tidak perlu fill space */
-        width: 100%; /* Ambil lebar penuh */
-        padding-bottom: 15px; /* Tambahkan padding di bawah main-content */
-    }
     .music-player {
         max-width: 450px;
         margin: 0 auto; /* Pusatkan player */
         padding: 25px 30px;
         gap: 20px;
+        /* Padding bawah disesuaikan agar tidak tertutup tombol HP */
+        padding-bottom: calc(25px + env(safe-area-inset-bottom, 0px)); /* Tambah padding bawah */
+        flex-grow: 1; /* Biarkan player mengisi ruang sisa jika ada */
     }
     .album-art-section {
         width: 200px;
@@ -613,21 +565,21 @@ body {
         font-size: 0.8em;
     }
 
-    /* Playlist Sidebar di mobile */
+    /* Playlist Sidebar di mobile (muncul dari bawah) */
     .playlist-sidebar {
-        position: fixed; /* Tetap fixed */
-        top: 0;
-        left: 0; /* Mulai dari kiri */
-        width: 100%; /* Lebar penuh */
-        height: 100vh; /* Tinggi penuh */
+        position: fixed;
+        top: 0; /* Posisikan di atas, lalu translate ke bawah */
+        left: 0;
+        width: 100%;
+        height: 100vh;
         transform: translateY(100%); /* Sembunyikan ke bawah */
+        transition: transform 0.4s ease-out;
         border-radius: 0;
-        padding: 20px 15px;
-        background: rgba(10, 0, 20, 0.9);
-        border-left: none;
         box-shadow: 0 -5px 15px rgba(0,0,0,0.5); /* Shadow ke atas */
-        transition: transform 0.4s ease-out; /* Transisi yang halus */
-        z-index: 101; /* Pastikan di atas semua */
+        padding-left: env(safe-area-inset-left, 15px); /* Padding safe area */
+        padding-right: env(safe-area-inset-right, 15px);
+        padding-top: env(safe-area-inset-top, 20px);
+        padding-bottom: env(safe-area-inset-bottom, 20px);
     }
     .playlist-sidebar.visible {
         transform: translateY(0); /* Muncul dari bawah */
@@ -638,10 +590,7 @@ body {
     }
     .playlist-items {
         padding: 0 10px;
-        max-height: calc(100vh - 120px); /* Tinggi disesuaikan dengan viewport dan header/footer */
-    }
-    .playlist-items li {
-        padding: 10px 12px;
+        max-height: calc(100vh - 120px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); /* Tinggi dinamis, kurangi padding */
     }
     .playlist-items li img {
         width: 45px;
@@ -692,6 +641,6 @@ body {
         font-size: 1.8em;
     }
     .playlist-items {
-        max-height: calc(100vh - 100px); /* Sesuaikan lagi di layar sangat kecil */
+        max-height: calc(100vh - 100px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); /* Sesuaikan lagi */
     }
 }
