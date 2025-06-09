@@ -221,16 +221,18 @@ body {
     max-height: 120px; /* Batasi tinggi untuk scroll */
     overflow-y: auto; /* Bisa scroll jika lirik panjang */
     border: 1px solid rgba(255, 255, 255, 0.05);
+    scroll-behavior: smooth; /* Untuk auto-scroll yang halus */
 }
 
-.lyrics-text {
+.lyrics-text { 
     font-size: 0.95em;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.8); /* Warna default lirik */
     line-height: 1.6;
     margin: 0;
+    /* Tidak ada class .active untuk lirik statis */
 }
 
-/* Scrollbar untuk Lirik */
+/* Scrollbar untuk Lirik (tetap sama) */
 .lyrics-section::-webkit-scrollbar {
     width: 6px;
 }
