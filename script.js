@@ -19,8 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSongIndex = 0; // Index lagu saat ini
     let isPlaying = false; // Status pemutaran
 
-    // --- DATA LAGU (SEKARANG ADA 4 LAGU) ---
-    // NAMA FILE HARUS SAMA PERSIS DENGAN YANG ADA DI ROOT FOLDER ANDA!
+    // --- DATA LAGU ---
     const songs = [
         {
             title: "Back to Friends",
@@ -152,8 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Rumah Kita",
             artist: "God Bless",
-            src: "rumah_kita.mp3", // Pastikan nama file ini di root folder
-            albumArt: "album_art_rumah_kita.jpg", // Pastikan nama file ini di root folder
+            src: "rumah_kita.mp3",
+            albumArt: "album_art_rumah_kita.jpg",
             lyrics: `
                 <b>🎶 Rumah Kita – God Bless</b><br><br>
                 <b>Verse 1</b><br>
@@ -333,11 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 playSong();
                 // Sembunyikan playlist di mobile setelah memilih lagu
                 if (window.innerWidth <= 992) {
-                    playlistSidebar.classList.remove('visible');
-                    // Menggunakan setTimeout untuk memastikan transisi selesai sebelum display: none
-                    setTimeout(() => {
-                        playlistSidebar.style.display = 'none';
-                    }, 500); // Sesuaikan dengan durasi transisi CSS (0.5s = 500ms)
+                    hidePlaylistSidebar();
                 }
             });
             playlistUl.appendChild(li);
@@ -359,21 +354,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fungsi untuk menampilkan sidebar
     function showPlaylistSidebar() {
-        if (window.innerWidth <= 992) {
-            playlistSidebar.style.display = 'block'; // Pastikan display: block dulu untuk transisi
-        }
+        playlistSidebar.style.display = 'block'; // Pastikan display: block dulu untuk transisi
         playlistSidebar.classList.add('visible');
     }
 
     // Fungsi untuk menyembunyikan sidebar
     function hidePlaylistSidebar() {
         playlistSidebar.classList.remove('visible');
-        if (window.innerWidth <= 992) {
-            // Menggunakan setTimeout untuk memastikan transisi selesai sebelum display: none
-            setTimeout(() => {
-                playlistSidebar.style.display = 'none';
-            }, 500); // Sesuaikan dengan durasi transisi CSS
-        }
+        setTimeout(() => {
+            playlistSidebar.style.display = 'none';
+        }, 500); // Sesuaikan dengan durasi transisi CSS
     }
 
     // Toggle tampilan playlist sidebar
