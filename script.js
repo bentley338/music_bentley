@@ -243,6 +243,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 We never go out of style<br>
                 Yeah, we never go out of style
             `
+        },
+        {
+            title: "Message In A Bottle",
+            artist: "Taylor Swift",
+            src: "message_in_a_bottle.mp3", // Pastikan ada file ini di root folder
+            albumArt: "album_art_message_in_a_bottle.jpg", // Pastikan ada file ini di root folder
+            lyrics: `
+                <b>🎶 Message In A Bottle – Taylor Swift</b><br><br>
+                <b>Verse 1</b><br>
+                I was ridin' in a getaway car<br>
+                I was crying in a getaway car<br>
+                I was dying in a getaway car<br>
+                Said goodbye to the girl you used to be<br><br>
+                <b>Chorus</b><br>
+                Message in a bottle is all I can give<br>
+                To remind you of what we had, what we've lived<br>
+                Across the ocean, my love will still flow<br>
+                Hoping that someday you'll know<br><br>
+                <b>Verse 2</b><br>
+                Sunrise on the water, a new day starts<br>
+                Still missing you, still breaking my heart<br>
+                Every wave whispers your name to me<br>
+                A silent prayer across the sea<br><br>
+                <b>Chorus</b><br>
+                Message in a bottle is all I can give<br>
+                To remind you of what we had, what we've lived<br>
+                Across the ocean, my love will still flow<br>
+                Hoping that someday you'll know<br><br>
+                <b>Bridge</b><br>
+                And the years go by, still I send my plea<br>
+                Hoping this message finds you, eventually<br>
+                A single teardrop, lost in the blue<br>
+                A simple promise, my love, to you<br><br>
+                <b>Chorus</b><br>
+                Message in a bottle is all I can give<br>
+                To remind you of what we had, what we've lived<br>
+                Across the ocean, my love will still flow<br>
+                Hoping that someday you'll know<br><br>
+                <b>Outro</b><br>
+                Message in a bottle...<br>
+                My love, my love...
+            `
         }
     ];
 
@@ -485,12 +527,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // Jika sidebar visible, dan klik di luar player, di luar playlist, dan bukan di tombol toggle
         if (playlistSidebar.classList.contains('visible') && window.innerWidth > 992) {
             if (!isClickInsidePlayer && !isClickInsidePlaylist && !isTogglePlaylistBtn) {
-                hidePlaylistSidebar();
+                hidePlaylistSidebar(); // Gunakan fungsi hide untuk konsistensi
             }
         }
     });
 
     // --- Inisialisasi Aplikasi (JALAN SAAT HALAMAN DIMUAT) ---
-    loadSong(currentSongIndex); // Muat lagu pertama saat halaman dimuat
-    buildPlaylist(); // Bangun daftar lagu
+    // Pastikan ada lagu di array songs sebelum mencoba memuatnya
+    if (songs.length > 0) {
+        loadSong(currentSongIndex); // Muat lagu pertama saat halaman dimuat
+        buildPlaylist(); // Bangun daftar lagu
+    } else {
+        console.error("Tidak ada lagu ditemukan di array 'songs'.");
+        currentSongTitle.textContent = "Tidak ada lagu";
+        currentArtistName.textContent = "Silakan tambahkan lagu di script.js";
+        lyricsText.innerHTML = "Silakan tambahkan file MP3 dan gambar album di folder yang sama, lalu update array 'songs' di script.js.";
+    }
 });
