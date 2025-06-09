@@ -2,24 +2,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Elemen DOM ---
     const audioPlayer = document.getElementById('audio-player');
     const playPauseBtn = document.getElementById('play-pause-btn');
-    const prevBtn = document.getElementById('prev-btn'); // Diaktifkan
-    const nextBtn = document.getElementById('next-btn'); // Diaktifkan
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
     const progressBar = document.getElementById('progress-bar');
     const currentTimeSpan = document.getElementById('current-time');
     const durationSpan = document.getElementById('duration');
     const currentAlbumArt = document.getElementById('current-album-art');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentArtistName = document.getElementById('current-artist-name');
-    const lyricsText = document.querySelector('.lyrics-text'); // Untuk menampilkan lirik statis
-    const playlistUl = document.getElementById('playlist'); // Diaktifkan
-    const togglePlaylistBtn = document.getElementById('toggle-playlist'); // Diaktifkan
-    const playlistSidebar = document.getElementById('playlist-sidebar'); // Diaktifkan
+    const lyricsText = document.querySelector('.lyrics-text');
+    const playlistUl = document.getElementById('playlist');
+    const togglePlaylistBtn = document.getElementById('toggle-playlist');
+    const playlistSidebar = document.getElementById('playlist-sidebar');
 
     // Variabel state
-    let currentSongIndex = 0; // Index lagu saat ini
-    let isPlaying = false; // Status pemutaran
+    let currentSongIndex = 0;
+    let isPlaying = false;
 
-    // --- DATA LAGU (SEKARANG ADA 2 LAGU) ---
+    // --- DATA LAGU (SEKARANG ADA 3 LAGU) ---
     // NAMA FILE HARUS SAMA PERSIS DENGAN YANG ADA DI ROOT FOLDER ANDA!
     const songs = [
         {
@@ -72,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Bergema Sampai Selamanya",
             artist: "Nadhif Basalamah",
-            src: "bergema_sampai_selamanya.mp3", // Pastikan nama file ini di root folder
-            albumArt: "album_art_bergema_sampai_selamanya.jpg", // Pastikan nama file ini di root folder
+            src: "bergema_sampai_selamanya.mp3",
+            albumArt: "album_art_bergema_sampai_selamanya.jpg",
             lyrics: `
                 <b>🎶 Bergema Sampai Selamanya – Nadhif Basalamah</b><br><br>
                 <b>Verse 1</b><br>
@@ -104,6 +104,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Outro</b><br>
                 Bergema... sampai selamanya...<br>
                 Oh-oh-oh...
+            `
+        },
+        {
+            title: "Ride",
+            artist: "SoMo",
+            src: "ride.mp3", // Pastikan nama file ini di root folder
+            albumArt: "album_art_ride.jpg", // Pastikan nama file ini di root folder
+            lyrics: `
+                <b>🎶 Ride – SoMo</b><br><br>
+                <b>Verse 1</b><br>
+                I'm riding high, I'm riding low<br>
+                I'm going where the wind don't blow<br>
+                Just cruising, feeling good tonight<br>
+                Everything is working out just right<br><br>
+                <b>Chorus</b><br>
+                So baby, let's just ride<br>
+                Leave the worries far behind<br>
+                Every moment, every single stride<br>
+                Yeah, we're living in the moment, you and I<br><br>
+                <b>Verse 2</b><br>
+                Sunrise creeping, morning light<br>
+                Another day, another sight<br>
+                No rush, no hurry, take it slow<br>
+                Just enjoying the ride, you know<br><br>
+                <b>Chorus</b><br>
+                So baby, let's just ride<br>
+                Leave the worries far behind<br>
+                Every moment, every single stride<br>
+                Yeah, we're living in the moment, you and I<br><br>
+                <b>Bridge</b><br>
+                Don't look back, no regrets<br>
+                Just open roads and sunsets<br>
+                This feeling's more than I can say<br>
+                Let's keep on riding, come what may<br><br>
+                <b>Chorus</b><br>
+                So baby, let's just ride<br>
+                Leave the worries far behind<br>
+                Every moment, every single stride<br>
+                Yeah, we're living in the moment, you and I<br><br>
+                <b>Outro</b><br>
+                Just ride, ride, ride<br>
+                With you by my side<br>
+                Yeah, we ride...
             `
         }
     ];
