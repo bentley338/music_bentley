@@ -10,16 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentAlbumArt = document.getElementById('current-album-art');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentArtistName = document.getElementById('current-artist-name');
-    const lyricsText = document.querySelector('.lyrics-text');
+    const lyricsText = document.querySelector('.lyrics-text'); // Untuk menampilkan lirik statis
     const playlistUl = document.getElementById('playlist');
-    const togglePlaylistBtn = document.getElementById('toggle-playlist'); // Pastikan ini terambil dengan benar
-    const playlistSidebar = document.getElementById('playlist-sidebar'); // Pastikan ini terambil dengan benar
+    const togglePlaylistBtn = document.getElementById('toggle-playlist');
+    const playlistSidebar = document.getElementById('playlist-sidebar');
 
     // Variabel state
-    let currentSongIndex = 0;
-    let isPlaying = false;
+    let currentSongIndex = 0; // Index lagu saat ini
+    let isPlaying = false; // Status pemutaran
 
-    // --- DATA LAGU ---
+    // --- DATA LAGU (SEKARANG ADA 4 LAGU) ---
+    // NAMA FILE HARUS SAMA PERSIS DENGAN YANG ADA DI ROOT FOLDER ANDA!
     const songs = [
         {
             title: "Back to Friends",
@@ -147,6 +148,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 With you by my side<br>
                 Yeah, we ride...
             `
+        },
+        {
+            title: "Rumah Kita",
+            artist: "God Bless",
+            src: "rumah_kita.mp3", // Pastikan nama file ini di root folder
+            albumArt: "album_art_rumah_kita.jpg", // Pastikan nama file ini di root folder
+            lyrics: `
+                <b>🎶 Rumah Kita – God Bless</b><br><br>
+                <b>Verse 1</b><br>
+                Hanya bilik bambu<br>
+                Tempat tinggal kita<br>
+                Tanpa hiasan, tanpa lukisan<br>
+                Hanya jendela, tanpa tiang<br><br>
+                <b>Chorus</b><br>
+                Rumah kita, rumah kita<br>
+                Lebih baik, lebih baik<br>
+                Lebih dari istana<br>
+                Rumah kita, rumah kita<br>
+                Tempat kita berbagi cerita<br><br>
+                <b>Verse 2</b><br>
+                Ada tawa, ada tangis<br>
+                Ada suka, ada duka<br>
+                Semua bersatu di sini<br>
+                Dalam hangatnya keluarga<br><br>
+                <b>Chorus</b><br>
+                Rumah kita, rumah kita<br>
+                Lebih baik, lebih baik<br>
+                Lebih dari istana<br>
+                Rumah kita, rumah kita<br>
+                Tempat kita berbagi cerita<br><br>
+                <b>Bridge</b><br>
+                Takkan ada yang bisa mengganti<br>
+                Hangatnya pelukmu, ibu<br>
+                Tawa riang adik kakakku<br>
+                Di rumah kita, tempat berlindung<br><br>
+                <b>Chorus</b><br>
+                Rumah kita, rumah kita<br>
+                Lebih baik, lebih baik<br>
+                Lebih dari istana<br>
+                Rumah kita, rumah kita<br>
+                Tempat kita berbagi cerita<br><br>
+                <b>Outro</b><br>
+                Rumah kita...
+                Rumah kita...
+            `
         }
     ];
 
@@ -159,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentAlbumArt.src = song.albumArt;
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
-        lyricsText.innerHTML = song.lyrics;
+        lyricsText.innerHTML = song.lyrics; // Mengupdate lirik untuk lagu yang dimuat
 
         // Reset progress bar dan waktu
         progressBar.value = 0;
@@ -181,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function playSong() {
         audioPlayer.play();
         isPlaying = true;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; // Ikon Pause
         playPauseBtn.setAttribute('aria-label', 'Pause');
         const albumArtImg = document.querySelector('.album-art-img');
         if (albumArtImg) {
@@ -193,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function pauseSong() {
         audioPlayer.pause();
         isPlaying = false;
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Ikon Play
         playPauseBtn.setAttribute('aria-label', 'Play');
         const albumArtImg = document.querySelector('.album-art-img');
         if (albumArtImg) {
@@ -225,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
     prevBtn.addEventListener('click', () => {
         currentSongIndex--;
         if (currentSongIndex < 0) {
-            currentSongIndex = songs.length - 1;
+            currentSongIndex = songs.length - 1; // Kembali ke lagu terakhir
         }
         loadSong(currentSongIndex);
         playSong();
@@ -235,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
     nextBtn.addEventListener('click', () => {
         currentSongIndex++;
         if (currentSongIndex > songs.length - 1) {
-            currentSongIndex = 0;
+            currentSongIndex = 0; // Kembali ke lagu pertama
         }
         loadSong(currentSongIndex);
         playSong();
@@ -263,14 +309,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Otomatis putar lagu berikutnya saat lagu selesai
     audioPlayer.addEventListener('ended', () => {
-        nextBtn.click();
+        nextBtn.click(); // Panggil fungsi klik tombol next
     });
 
     // --- Fungsi Playlist ---
 
     // Membangun daftar lagu di sidebar
     function buildPlaylist() {
-        playlistUl.innerHTML = '';
+        playlistUl.innerHTML = ''; // Kosongkan playlist yang mungkin ada
         songs.forEach((song, index) => {
             const li = document.createElement('li');
             li.setAttribute('data-index', index);
@@ -296,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             playlistUl.appendChild(li);
         });
-        updatePlaylistActiveState(currentSongIndex);
+        updatePlaylistActiveState(currentSongIndex); // Set active state untuk lagu pertama
     }
 
     // Update class 'active' di item playlist
@@ -351,6 +397,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Inisialisasi Aplikasi ---
-    loadSong(currentSongIndex);
-    buildPlaylist();
+    loadSong(currentSongIndex); // Muat lagu pertama saat halaman dimuat
+    buildPlaylist(); // Bangun daftar lagu
 });
