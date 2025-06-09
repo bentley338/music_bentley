@@ -14,13 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const playlistUl = document.getElementById('playlist');
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
-    const headerElement = document.querySelector('header'); // Ambil elemen header
+    const appWrapper = document.querySelector('.app-wrapper'); // Ambil wrapper utama
 
     // --- Variabel State ---
     let currentSongIndex = 0;
     let isPlaying = false;
 
-    // --- DATA LAGU (PASTIKAN NAMA FILE DAN LOKASI BENAR) ---
+    // --- DATA LAGU (PENTING: PASTIKAN NAMA FILE DI SINI SESUAI DENGAN FILE FISIK ANDA) ---
     const songs = [
         {
             title: "Back to Friends",
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
             void albumArtImg.offsetWidth;
             albumArtImg.style.animation = '';
         }
-        updatePlaylistActiveState(songIndex); // Diaktifkan kembali untuk playlist
+        updatePlaylistActiveState(songIndex);
     }
 
     // Memutar lagu
@@ -463,11 +463,11 @@ document.addEventListener('DOMContentLoaded', () => {
         nextBtn.click();
     });
 
-    // --- Fungsi Playlist (Didesain ulang dan diaktifkan kembali) ---
+    // --- Fungsi Playlist (Diperbaiki dan Diaktifkan Kembali) ---
 
     // Membangun daftar lagu di sidebar playlist
     function buildPlaylist() {
-        playlistUl.innerHTML = ''; // Kosongkan playlist lama
+        playlistUl.innerHTML = '';
         songs.forEach((song, index) => {
             const li = document.createElement('li');
             li.setAttribute('data-index', index);
@@ -492,26 +492,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update class 'active' pada item playlist dan auto-scroll
     function updatePlaylistActiveState(activeIndex) {
         const playlistItems = playlistUl.querySelectorAll('li');
-        if (!playlistItems.length) return; // Jika playlist kosong, keluar
+        if (!playlistItems.length) return;
 
-        // Hapus class 'active' dari semua item
         playlistItems.forEach(item => item.classList.remove('active'));
 
-        // Tambahkan class 'active' ke item yang sesuai
         if (activeIndex >= 0 && activeIndex < playlistItems.length) {
             const activeItem = playlistItems[activeIndex];
             activeItem.classList.add('active');
 
-            // Auto-scroll playlist agar lagu aktif terlihat (jika playlist scrollable)
-            // Ini membantu jika daftar lagu sangat panjang
+            // Auto-scroll playlist agar lagu aktif terlihat
             const containerHeight = playlistUl.clientHeight;
             const itemHeight = activeItem.offsetHeight;
             const itemTop = activeItem.offsetTop;
 
-            // Hitung posisi scroll yang diinginkan (item aktif di tengah container)
             const scrollTo = itemTop - (containerHeight / 2) + (itemHeight / 2);
 
-            // Scroll hanya jika perlu dan ada scrollbar
             if (playlistUl.scrollHeight > playlistUl.clientHeight) {
                 playlistUl.scrollTo({
                     top: scrollTo,
@@ -523,8 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fungsi untuk menampilkan sidebar playlist
     function showPlaylistSidebar() {
-        // Untuk mobile/desktop, kita akan mengontrol 'width' dan 'transform' CSS
-        // Properti 'display' akan selalu 'block' di CSS untuk memungkinkan transisi 'width'
+        // Kontrol visibilitas melalui CSS 'width'
         playlistSidebar.classList.add('visible');
     }
 
@@ -545,11 +539,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Menutup playlist jika klik di luar sidebar (untuk desktop)
     document.addEventListener('click', (event) => {
         const isClickInsidePlayer = event.target.closest('.music-player');
-        const isClickInsidePlaylist = event.target.closest('#playlist-sidebar'); // Menggunakan ID untuk memastikan
+        const isClickInsidePlaylist = event.target.closest('#playlist-sidebar');
         const isTogglePlaylistBtn = event.target.closest('#toggle-playlist');
 
-        // Jika sidebar visible, dan klik terjadi di luar player, di luar sidebar itu sendiri, DAN bukan di tombol toggle
-        // Ini berlaku untuk desktop karena mobile memiliki perilaku yang berbeda (swipe/click pada konten lain)
+        // Untuk desktop, sembunyikan jika klik di luar sidebar/player/tombol toggle
         if (playlistSidebar.classList.contains('visible') && window.innerWidth > 992) {
             if (!isClickInsidePlayer && !isClickInsidePlaylist && !isTogglePlaylistBtn) {
                 hidePlaylistSidebar();
@@ -560,7 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Inisialisasi Aplikasi ---
     if (songs.length > 0) {
         loadSong(currentSongIndex);
-        buildPlaylist(); // Pastikan playlist dibangun saat inisialisasi
+        buildPlaylist(); // Bangun daftar lagu saat inisialisasi
     } else {
         console.error("Tidak ada lagu ditemukan di array 'songs'.");
         currentSongTitle.textContent = "Tidak ada lagu";
