@@ -10,14 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentAlbumArt = document.getElementById('current-album-art');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentArtistName = document.getElementById('current-artist-name');
-    const lyricsText = document.querySelector('.lyrics-text');
+    const lyricsText = document.querySelector('.lyrics-text'); // Untuk menampilkan lirik statis
     const playlistUl = document.getElementById('playlist');
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
 
     // Variabel state
-    let currentSongIndex = 0;
-    let isPlaying = false;
+    let currentSongIndex = 0; // Index lagu saat ini
+    let isPlaying = false; // Status pemutaran
 
     // --- DATA LAGU (SEKARANG ADA 3 LAGU) ---
     // NAMA FILE HARUS SAMA PERSIS DENGAN YANG ADA DI ROOT FOLDER ANDA!
@@ -109,8 +109,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Ride",
             artist: "SoMo",
-            src: "ride.mp3", // Pastikan nama file ini di root folder
-            albumArt: "album_art_ride.jpg", // Pastikan nama file ini di root folder
+            src: "ride.mp3",
+            albumArt: "album_art_ride.jpg",
             lyrics: `
                 <b>🎶 Ride – SoMo</b><br><br>
                 <b>Verse 1</b><br>
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Sunrise creeping, morning light<br>
                 Another day, another sight<br>
                 No rush, no hurry, take it slow<br>
-                Just enjoying the ride, you know<br><br>
+                Just enjoying the ride, you know<<br>br>
                 <b>Chorus</b><br>
                 So baby, let's just ride<br>
                 Leave the worries far behind<br>
@@ -289,6 +289,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Sembunyikan playlist di mobile setelah memilih lagu
                 if (window.innerWidth <= 992) {
                     playlistSidebar.classList.remove('visible');
+                    // Untuk mobile, kita perlu mengatur display: none lagi setelah transisi selesai
+                    playlistSidebar.addEventListener('transitionend', function handler() {
+                        playlistSidebar.style.display = 'none';
+                        playlistSidebar.removeEventListener('transitionend', handler);
+                    });
                 }
             });
             playlistUl.appendChild(li);
@@ -310,7 +315,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Toggle tampilan playlist sidebar
     togglePlaylistBtn.addEventListener('click', () => {
-        playlistSidebar.classList.toggle('visible');
+        // Logika untuk menampilkan/menyembunyikan sidebar di mobile/desktop
+        if (playlistSidebar.classList.contains('visible')) {
+            playlistSidebar.classList.remove('visible');
+            // Untuk mobile, kita perlu mengatur display: none lagi setelah transisi selesai
+            if (window.innerWidth <= 992) {
+                playlistSidebar.addEventListener('transitionend', function handler() {
+                    playlistSidebar.style.display = 'none';
+                    playlistSidebar.removeEventListener('transitionend', handler);
+                });
+            }
+        } else {
+            if (window.innerWidth <= 992) { // Hanya untuk mobile, tampilkan sebagai block
+                playlistSidebar.style.display = 'block';
+            }
+            playlistSidebar.classList.add('visible');
+        }
     });
 
     // Menutup playlist jika klik di luar sidebar (untuk desktop)
@@ -321,6 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!isClickInsidePlayer && !isClickInsidePlaylist && !isTogglePlaylistBtn && playlistSidebar.classList.contains('visible') && window.innerWidth > 992) {
             playlistSidebar.classList.remove('visible');
+            // Tidak perlu style.display = 'none' untuk desktop karena posisinya fixed
         }
     });
 
