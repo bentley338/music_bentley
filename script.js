@@ -15,12 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
     const closePlaylistBtn = document.getElementById('close-playlist-btn');
+    const sidebarOverlay = document.getElementById('sidebar-overlay'); // Ambil overlay baru
 
     // --- Variabel State ---
     let currentSongIndex = 0;
     let isPlaying = false;
 
-    // --- DATA LAGU (PASTIKAN NAMA FILE DAN LOKASI BENAR) ---
+    // --- DATA LAGU (PENTING: PASTIKAN NAMA FILE DI SINI SESUAI DENGAN FILE FISIK ANDA) ---
     const songs = [
         {
             title: "Back to Friends",
@@ -547,7 +548,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const isClosePlaylistBtn = event.target.closest('#close-playlist-btn');
 
         if (playlistSidebar.classList.contains('visible')) {
-            // Sembunyikan hanya jika klik di luar semua elemen terkait playlist
             if (!isClickInsidePlayer && !isClickInsidePlaylist && !isTogglePlaylistBtn && !isClosePlaylistBtn) {
                 hidePlaylistSidebar();
             }
