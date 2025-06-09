@@ -2,45 +2,36 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Harmoni Nada</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musik Saya: Back To Friends & Bergema Sampai Selamanya</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Font Awesome untuk ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Icon aplikasi, jika ada, harus di root folder -->
     <link rel="icon" href="app_icon.png" type="image/png"> 
 </head>
 <body>
-    <!-- Bagian Video Latar Belakang -->
     <div class="video-background">
         <video id="background-video" autoplay loop muted playsinline>
-            <!-- Ganti dengan URL/path ke video background Anda yang paling keren dan sesuai tema -->
             <source src="abstract_wave_bg.mp4" type="video/mp4">
-            Your browser does not support the video tag.
+            Browser Anda tidak mendukung video HTML5.
         </video>
         <div class="video-overlay"></div>
     </div>
 
-    <!-- Kontainer Utama Aplikasi (untuk menampung sidebar kiri dan player kanan) -->
-    <div class="app-wrapper">
-        
-        <!-- Sidebar Kiri (Menampung Logo/Judul dan Tombol Daftar Lagu) -->
-        <aside class="left-sidebar">
-            <div class="brand-section">
-                <i class="fas fa-compact-disc brand-icon"></i>
-                <h1 class="brand-text">Harmoni<br>Nada <i class="fas fa-headphones-alt"></i></h1>
-            </div>
+    <div class="container">
+        <header>
+            <h1 class="app-title">
+                <i class="fas fa-compact-disc"></i> Harmoni Nada <i class="fas fa-headphones-alt"></i>
+            </h1>
             <button id="toggle-playlist" class="btn btn-playlist">
-                Daftar Lagu
+                <i class="fas fa-list-music"></i> Daftar Lagu
             </button>
-        </aside>
+        </header>
 
-        <!-- Main Player (Bagian Kanan) -->
         <main class="music-player glass-effect">
             <div class="header-player">
                 <span class="indicator-dot top-left"></span>
                 <span class="indicator-dot top-right"></span>
-                <h3 class="player-title">NOW PLAYING</h3>
+                <h3 class="player-title">Now Playing</h3>
                 <span class="indicator-dot bottom-left"></span>
                 <span class="indicator-dot bottom-right"></span>
             </div>
@@ -50,14 +41,12 @@
             </div>
 
             <div class="song-details">
-                <h2 id="current-song-title" class="song-title">Judul Lagu</h2>
-                <p id="current-artist-name" class="artist-name">Nama Artis</p>
+                <h2 id="current-song-title" class="song-title">Back to Friends</h2>
+                <p id="current-artist-name" class="artist-name">Sombr</p>
             </div>
 
-            <!-- Bagian Lirik (Hanya menampilkan baris awal sesuai screenshot) -->
             <div class="lyrics-section">
                 <p class="lyrics-text">
-                    <!-- Lirik akan diisi oleh JavaScript -->
                     Memuat lirik...
                 </p>
             </div>
@@ -76,27 +65,15 @@
                 <button id="next-btn" class="control-btn small-btn" aria-label="Next Song"><i class="fas fa-forward"></i></button>
             </div>
 
-            <audio id="audio-player"></audio>
-        </main>
+            <audio id="audio-player"></audio> </main>
 
-        <!-- Overlay untuk menutup layar saat playlist sidebar terbuka (di mobile) -->
-        <div id="sidebar-overlay" class="sidebar-overlay"></div>
-
-        <!-- Playlist Sidebar (Muncul dari kanan, desain mirip gambar awal) -->
-        <aside id="playlist-sidebar" class="playlist-sidebar glass-effect">
-            <div class="playlist-header-wrapper">
-                <h2 class="playlist-title">Daftar Lagu</h2>
-                <span class="close-playlist-btn" id="close-playlist-btn">&times;</span>
-            </div>
-            
+        <aside class="playlist-sidebar glass-effect">
+            <h2 class="playlist-title">Daftar Lagu</h2>
             <ul id="playlist" class="playlist-items">
-                <!-- Lagu akan dimuat di sini oleh JavaScript -->
-            </ul>
+                </ul>
         </aside>
+    </div>
 
-    </div> <!-- End of .app-wrapper -->
-
-    <!-- JavaScript File -->
     <script src="script.js"></script>
 </body>
 </html>
