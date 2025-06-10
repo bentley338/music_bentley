@@ -66,11 +66,17 @@
             <audio id="audio-player"></audio>
         </main>
 
-        <aside class="playlist-sidebar glass-effect">
-            <h2 class="playlist-title">Daftar Putar</h2>
+        <aside id="playlist-sidebar" class="playlist-sidebar glass-effect">
+            <div class="playlist-header"> <h2 class="playlist-title">Daftar Putar</h2>
+                <button id="close-playlist-btn" class="control-btn small-btn" aria-label="Close Playlist">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
             <ul id="playlist" class="playlist-items">
                 </ul>
         </aside>
+
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
     </div>
 
     <script src="script.js"></script>
