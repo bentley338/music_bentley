@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // === Elemen DOM ===
+    // --- Elemen DOM (Pastikan ID di HTML cocok dengan ini) ---
     const audioPlayer = document.getElementById('audio-player');
     const playPauseBtn = document.getElementById('play-pause-btn');
     const prevBtn = document.getElementById('prev-btn');
@@ -7,263 +7,584 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressBar = document.getElementById('progress-bar');
     const currentTimeSpan = document.getElementById('current-time');
     const durationSpan = document.getElementById('duration');
+    const currentAlbumArt = document.getElementById('current-album-art');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentArtistName = document.getElementById('current-artist-name');
-    const currentAlbumArt = document.getElementById('current-album-art');
-    const lyricsText = document.getElementById('lyrics-text'); // Pastikan id ini ada di HTML
-    const togglePlaylistBtn = document.getElementById('toggle-playlist');
-    const playlistSidebar = document.querySelector('.playlist-sidebar');
+    const lyricsText = document.getElementById('lyrics-text'); // Menggunakan ID karena sudah ditambahkan di HTML
     const playlistUl = document.getElementById('playlist');
-    const backgroundVideo = document.getElementById('background-video');
+    const togglePlaylistBtn = document.getElementById('toggle-playlist');
+    const playlistSidebar = document.getElementById('playlist-sidebar');
+    const closePlaylistBtn = document.getElementById('close-playlist-btn');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const backgroundVideo = document.getElementById('background-video'); // Tambahkan ini jika kamu ingin mengontrol video latar belakang
 
-    // === Data Lagu (Daftar Putar) ===
-    const playlist = [
-        {
-            title: 'Back to Friends',
-            artist: 'Sombr',
-            albumArt: 'album_art_back_to_friends.jpg',
-            audioSrc: 'Sombr_Back_to_Friends.mp3', // Ganti dengan path audio yang benar
-            lyrics: `(Verse 1)
-Masih teringat canda tawa kita
-Dulu selalu bersama tanpa ada celah
-Cerita dan mimpi yang kita rajut indah
-Takkan pudar walau waktu terus melangkah
-
-(Chorus)
-Ku ingin kembali ke masa itu, teman
-Dimana riang gembira tak pernah usai
-Kembali ke teman, kembali ke cerita
-Back to friends, dan bergema sampai selamanya
-
-(Verse 2)
-Jalan kita berbeda, sibuk dengan dunia
-Namun hati ini tak pernah lupa
-Ikatan batin yang takkan pernah sirna
-Selalu ada walau jarak memisah kita
-
-(Chorus)
-Ku ingin kembali ke masa itu, teman
-Dimana riang gembira tak pernah usai
-Kembali ke teman, kembali ke cerita
-Back to friends, dan bergema sampai selamanya
-
-(Bridge)
-Mungkin tak seperti dulu, tapi semangat itu
-Kan selalu membara di dalam kalbu
-Mari kita ciptakan kenangan baru
-Bersama lagi, mengukir kisah yang syahdu
-
-(Chorus)
-Ku ingin kembali ke masa itu, teman
-Dimana riang gembira tak pernah usai
-Kembali ke teman, kembali ke cerita
-Back to friends, dan bergema sampai selamanya
-
-(Outro)
-Oh, teman-teman, selalu di hati
-Bergema sampai selamanya, takkan mati
-Kembali ke teman... selamanya...
-`
-        },
-        {
-            title: 'Bergema Sampai Selamanya',
-            artist: 'Sombr', // Contoh artis lain
-            albumArt: 'album_art_bergema_selamanya.jpg', // Ganti dengan gambar lain
-            audioSrc: 'Sombr_Bergema_Sampai_Selamanya.mp3', // Ganti dengan path audio yang benar
-            lyrics: `(Verse 1)
-Di dalam sunyi, ku dengar namamu
-Bergema di relung hati yang pilu
-Setiap detik, setiap waktu
-Kau selalu ada, di setiap langkahku
-
-(Chorus)
-Bergema sampai selamanya, cintaku
-Takkan pudar, walau badai menerpa
-Bergema sampai selamanya, rinduku
-Kau adalah bintang di gelapnya jiwa
-
-(Verse 2)
-Kenangan indah, takkan terlupakan
-Tersimpan rapi dalam sanubari
-Setiap senyum, setiap tatapan
-Mengukir kisah abadi yang takkan mati
-
-(Chorus)
-Bergema sampai selamanya, cintaku
-Takkan pudar, walau badai menerpa
-Bergema sampai selamanya, rinduku
-Kau adalah bintang di gelapnya jiwa
-
-(Bridge)
-Waktu boleh berlalu, dunia boleh berubah
-Namun cinta ini takkan pernah lelah
-Terus bersemi, terus tumbuh merekah
-Dalam hati ini, selamanya kau tinggallah
-
-(Chorus)
-Bergema sampai selamanya, cintaku
-Takkan pudar, walau badai menerpa
-Bergema sampai selamanya, rinduku
-Kau adalah bintang di gelapnya jiwa
-
-(Outro)
-Selamanya... bergema...
-Cinta ini... takkan sirna...
-`
-        },
-        // Tambahkan lagu lain di sini
-        {
-            title: 'Another Song Title',
-            artist: 'Another Artist',
-            albumArt: 'album_art_placeholder.jpg',
-            audioSrc: 'another_song.mp3',
-            lyrics: `Lirik untuk lagu lain...
-Baris 1
-Baris 2
-Baris 3`
-        }
-    ];
-
+    // --- Variabel State ---
     let currentSongIndex = 0;
     let isPlaying = false;
 
-    // === Fungsi Pembantu ===
+    // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
+    // Saya telah mengembalikan semua 6 lagu yang kamu berikan sebelumnya.
+    // Pastikan NAMA FILE di properti 'src' (untuk MP3) dan 'albumArt' (untuk JPG/PNG)
+    // sama PERSIS (termasuk huruf besar/kecil dan ekstensinya) dengan nama file di folder proyek Anda.
+    // Semua file MP3, JPG/PNG, dan MP4 video background harus berada di folder yang sama dengan index.html, style.css, dan script.js.
+    const playlist = [ // Mengganti 'songs' menjadi 'playlist' agar konsisten
+        {
+            title: "Back to Friends",
+            artist: "Sombr",
+            src: "back_to_friends.mp3", // Pastikan ada file ini di root folder
+            albumArt: "album_art_back_to_friends.jpg", // Pastikan ada file ini di root folder
+            lyrics: `
+                <b>🎶 Back to Friends – Sombr</b><br><br>
+                <b>Verse 1</b><br>
+                Touch my body tender<br>
+                ’Cause the feeling makes me weak<br>
+                Kicking off the covers<br>
+                I see the ceiling while you’re looking down at me<br><br>
+                <b>Chorus</b><br>
+                How can we go back to being friends<br>
+                When we just shared a bed?<br>
+                How can you look at me and pretend<br>
+                I’m someone you’ve never met?<br><br>
+                <b>Verse 2</b><br>
+                It was last December<br>
+                You were layin’ on my chest<br>
+                I still remember<br>
+                I was scared to take a breath<br>
+                Didn’t want you to move your head<br><br>
+                <b>Chorus</b><br>
+                How can we go back to being friends<br>
+                When we just shared a bed?<br>
+                How can you look at me and pretend<br>
+                I’m someone you’ve never met?<br><br>
+                <b>Bridge</b><br>
+                The devil in your eyes<br>
+                Won’t deny the lies you’ve sold<br>
+                I’m holding on too tight<br>
+                While you let go<br>
+                This is casual<br><br>
+                <b>Final Chorus</b><br>
+                How can we go back to being friends<br>
+                When we just shared a bed?<br>
+                How can you look at me and pretend<br>
+                I’m someone you’ve never met?<br>
+                How can we go back to being friends<br>
+                When we just shared a bed?<br>
+                How can you look at me and pretend<br>
+                I’m someone you’ve never met?<br>
+                I’m someone you’ve never met<br>
+                When we just shared a bed?
+            `
+        },
+        {
+            title: "Bergema Sampai Selamanya",
+            artist: "Nadhif Basalamah",
+            src: "bergema_sampai_selamanya.mp3", // Pastikan ada file ini di root folder
+            albumArt: "album_art_bergema_sampai_selamanya.jpg", // Pastikan ada file ini di root folder
+            lyrics: `
+                <b>🎶 Bergema Sampai Selamanya – Nadhif Basalamah</b><br><br>
+                <b>Verse 1</b><br>
+                Dengarkan hati bicara<br>
+                Di setiap desah napasmu<br>
+                Ada cerita yang takkan pudar<br>
+                Di setiap langkah kakimu<br><br>
+                <b>Chorus</b><br>
+                Bergema sampai selamanya<br>
+                Cinta kita takkan sirna<br>
+                Di setiap nada yang tercipta<br>
+                Hanyalah namamu yang ada<br><br>
+                <b>Verse 2</b><br>
+                Waktu terus berjalan<br>
+                Namun rasa ini takkan lekang<br>
+                Seperti bintang yang takkan padam<br>
+                Bersinarlah di setiap malam<br><br>
+                <b>Chorus</b><br>
+                Bergema sampai selamanya<br>
+                Cinta kita takkan sirna<br>
+                Di setiap nada yang tercipta<br>
+                Hanyalah namamu yang ada<br><br>
+                <b>Bridge</b><br>
+                Tiada akhir bagi kisah kita<br>
+                Terukir abadi di jiwa<br>
+                Kan selalu ada, kan selalu nyata<br>
+                Janji yang takkan pernah pudar<br><br>
+                <b>Chorus</b><br>
+                Bergema sampai selamanya<br>
+                Cinta kita takkan sirna<br>
+                Di setiap nada yang tercipta<br>
+                Hanyalah namamu yang ada<br><br>
+                <b>Outro</b><br>
+                Bergema... sampai selamanya...<br>
+                Oh-oh-oh...
+            `
+        },
+        {
+            title: "Ride",
+            artist: "SoMo",
+            src: "ride.mp3", // Pastikan ada file ini di root folder
+            albumArt: "album_art_ride.jpg", // Pastikan ada file ini di root folder
+            lyrics: `
+                <b>🎶 Ride – SoMo</b><br><br>
+                <b>Verse 1</b><br>
+                I'm riding high, I'm riding low<br>
+                I'm going where the wind don't blow<br>
+                Just cruising, feeling good tonight<br>
+                Everything is working out just right<br><br>
+                <b>Chorus</b><br>
+                So baby, let's just ride<br>
+                Leave the worries far behind<br>
+                Every moment, every single stride<br>
+                Yeah, we're living in the moment, you and I<br><br>
+                <b>Verse 2</b><br>
+                Sunrise creeping, morning light<br>
+                Another day, another sight<br>
+                No rush, no hurry, take it slow<br>
+                Just enjoying the ride, you know<br><br>
+                <b>Chorus</b><br>
+                So baby, let's just ride<br>
+                Leave the worries far behind<br>
+                Every moment, every single stride<br>
+                Yeah, we're living in the moment, you and I<br><br>
+                <b>Bridge</b><br>
+                Don't look back, no regrets<br>
+                Just open roads and sunsets<br>
+                This feeling's more than I can say<br>
+                Let's keep on riding, come what may<br><br>
+                <b>Chorus</b><br>
+                So baby, let's just ride<br>
+                Leave the worries far behind<br>
+                Every moment, every single stride<br>
+                Yeah, we're living in the moment, you and I<br><br>
+                <b>Outro</b><br>
+                Just ride, ride, ride<br>
+                With you by my side<br>
+                Yeah, we ride...
+            `
+        },
+        {
+            title: "Rumah Kita",
+            artist: "God Bless",
+            src: "rumah_kita.mp3", // Pastikan ada file ini di root folder
+            albumArt: "album_art_rumah_kita.jpg", // Pastikan ada file ini di root folder
+            lyrics: `
+                <b>🎶 Rumah Kita – God Bless</b><br><br>
+                <b>Verse 1</b><br>
+                Hanya bilik bambu<br>
+                Tempat tinggal kita<br>
+                Tanpa hiasan, tanpa lukisan<br>
+                Hanya jendela, tanpa tiang<br><br>
+                <b>Chorus</b><br>
+                Rumah kita, rumah kita<br>
+                Lebih baik, lebih baik<br>
+                Lebih dari istana<br>
+                Rumah kita, rumah kita<br>
+                Tempat kita berbagi cerita<br><br>
+                <b>Verse 2</b><br>
+                Ada tawa, ada tangis<br>
+                Ada suka, ada duka<br>
+                Semua bersatu di sini<br>
+                Dalam hangatnya keluarga<br><br>
+                <b>Chorus</b><br>
+                Rumah kita, rumah kita<br>
+                Lebih baik, lebih baik<br>
+                Lebih dari istana<br>
+                Rumah kita, rumah kita<br>
+                Tempat kita berbagi cerita<br><br>
+                <b>Bridge</b><br>
+                Takkan ada yang bisa mengganti<br>
+                Hangatnya pelukmu, ibu<br>
+                Tawa riang adik kakakku<br>
+                Di rumah kita, tempat berlindung<br><br>
+                <b>Chorus</b><br>
+                Rumah kita, rumah kita<br>
+                Lebih baik, lebih baik<br>
+                Lebih dari istana<br>
+                Rumah kita, rumah kita<br>
+                Tempat kita berbagi cerita<br><br>
+                <b>Outro</b><br>
+                Rumah kita...<br>
+                Rumah kita...
+            `
+        },
+        {
+            title: "Style",
+            artist: "Taylor Swift",
+            src: "style.mp3", // Pastikan ada file ini di root folder
+            albumArt: "album_art_style.jpg", // Pastikan ada file ini di root folder
+            lyrics: `
+                <b>🎶 Style – Taylor Swift</b><br><br>
+                <b>Verse 1</b><br>
+                Midnight, you come and pick me up, no headlights<br>
+                Long drive, could end in burning flames or paradise<br>
+                Fade into view, oh, it's been a while since I have even heard from you<br>
+                (Heard from you)<br><br>
+                <b>Chorus</b><br>
+                I say, "I've heard that you've been out and about with some other girl"<br>
+                (Oh-oh-oh) I say, "What you've heard is true but I<br>
+                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
+                (Oh-oh-oh) saying, "It's gonna be alright"<br>
+                'Cause we never go out of style<br>
+                We never go out of style<br><br>
+                <b>Verse 2</b><br>
+                You got that long hair, slicked back, white T-shirt<br>
+                And I got that good girl faith and a tight little skirt<br>
+                And when we go crashing down, we come back every time<br>
+                'Cause we never go out of style<br>
+                We never go out of style<br><br>
+                <b>Chorus</b><br>
+                I say, "I've heard that you've been out and about with some other girl"<br>
+                (Oh-oh-oh) I say, "What you've heard is true but I<br>
+                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
+                (Oh-oh-oh) saying, "It's gonna be alright"<br>
+                'Cause we never go out of style<br>
+                We never go out of style<br><br>
+                <b>Bridge</b><br>
+                Take me home, just take me home<br>
+                Where there's fire, where there's chaos, and there's love<br>
+                I got a blank space, baby, and I'll write your name<br>
+                But baby, we never go out of style<br><br>
+                <b>Chorus</b><br>
+                I say, "I've heard that you've been out and about with some other girl"<br>
+                (Oh-oh-oh) I say, "What you've heard is true but I<br>
+                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
+                (Oh-oh-oh) saying, "It's gonna be alright"<br>
+                'Cause we never go out of style<br>
+                We never go out of style<br><br>
+                <b>Outro</b><br>
+                Never go out of style<br>
+                We never go out of style<br>
+                Yeah, we never go out of style
+            `
+        },
+        {
+            title: "Message In A Bottle",
+            artist: "Taylor Swift",
+            src: "message_in_a_bottle.mp3", // Pastikan ada file ini di root folder
+            albumArt: "album_art_message_in_a_bottle.jpg", // Pastikan ada file ini di root folder
+            lyrics: `
+                <b>🎶 Message In A Bottle – Taylor Swift</b><br><br>
+                <b>Verse 1</b><br>
+                I was ridin' in a getaway car<br>
+                I was crying in a getaway car<br>
+                I was dying in a getaway car<br>
+                Said goodbye to the girl you used to be<br><br>
+                <b>Chorus</b><br>
+                Message in a bottle is all I can give<br>
+                To remind you of what we had, what we've lived<br>
+                Across the ocean, my love will still flow<br>
+                Hoping that someday you'll know<br><br>
+                <b>Verse 2</b><br>
+                Sunrise on the water, a new day starts<br>
+                Still missing you, still breaking my heart<br>
+                Every wave whispers your name to me<br>
+                A silent prayer across the sea<br><br>
+                <b>Chorus</b><br>
+                Message in a bottle is all I can give<br>
+                To remind you of what we had, what we've lived<br>
+                Across the ocean, my love will still flow<br>
+                Hoping that someday you'll know<br><br>
+                <b>Bridge</b><br>
+                And the years go by, still I send my plea<br>
+                Hoping this message finds you, eventually<br>
+                A single teardrop, lost in the blue<br>
+                A simple promise, my love, to you<br><br>
+                <b>Chorus</b><br>
+                Message in a bottle is all I can give<br>
+                To remind you of what we had, what we've lived<br>
+                Across the ocean, my love will still flow<br>
+                Hoping that someday you'll know<br><br>
+                <b>Outro</b><br>
+                Message in a bottle...<br>
+                My love, my love...
+            `
+        },
+        {
+            title: "Supernatural",
+            artist: "Ariana Grande",
+            src: "supernatural.mp3", // Pastikan ada file ini di root folder
+            albumArt: "album_art_supernatural.jpg", // Pastikan ada file ini di root folder
+            lyrics: `
+                <b>🎶 Supernatural – Ariana Grande</b><br><br>
+                <b>Verse 1</b><br>
+                You're my supernatural, my magic<br>
+                Every touch, a dream, a sweet habit<br>
+                In your eyes, a universe I find<br>
+                Leaving all my worries far behind<br><br>
+                <b>Chorus</b><br>
+                Oh, this love is supernatural<br>
+                Something beautiful, something so true<br>
+                Like a melody, forever new<br>
+                Supernatural, just me and you<br><br>
+                <b>Verse 2</b><br>
+                Whispers in the dark, a gentle breeze<br>
+                Floating through the stars, with such ease<br>
+                Every moment with you feels divine<br>
+                Lost in this love, forever mine<br><br>
+                <b>Chorus</b><br>
+                Oh, this love is supernatural<br>
+                Something beautiful, something so true<br>
+                Like a melody, forever new<br>
+                Supernatural, just me and you<br><br>
+                <b>Bridge</b><br>
+                No explanation, no words can define<br>
+                This connection, truly one of a kind<br>
+                Beyond the logic, beyond the known<br>
+                In this love, we're never alone<br><br>
+                <b>Chorus</b><br>
+                Oh, this love is supernatural<br>
+                Something beautiful, something so true<br>
+                Like a melody, forever new<br>
+                Supernatural, just me and you<br><br>
+                <b>Outro</b><br>
+                Supernatural...<br>
+                Oh, so natural with you...
+            `
+        }
+    ];
 
-    // Format waktu (misal: 150 detik -> 2:30)
-    function formatTime(seconds) {
-        const minutes = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-    }
+    // --- Fungsi Utama Pemutar Musik ---
 
-    // Muat lagu ke player
+    // Memuat data lagu ke pemutar (album art, judul, artis, lirik)
     function loadSong(songIndex) {
-        const song = playlist[songIndex];
-        currentSongTitle.textContent = song.title;
-        currentArtistName.textContent = song.artist;
-        currentAlbumArt.src = song.albumArt;
-        audioPlayer.src = song.audioSrc;
-        // Memecah lirik per baris dan membungkusnya dengan tag <p>
-        lyricsText.innerHTML = song.lyrics.split('\n').map(line => `<p>${line}</p>`).join('');
-        updatePlaylistHighlight(songIndex); // Sorot lagu di daftar putar
-
-        // Memastikan video background sesuai dengan mood lagu jika diinginkan
-        // Contoh sederhana: jika ada video untuk setiap lagu, ganti src video di sini
-        // backgroundVideo.src = song.backgroundVideo || 'abstract_wave_bg.mp4';
-        // backgroundVideo.load();
-    }
-
-    // Toggle play/pause
-    function togglePlayPause() {
-        if (isPlaying) {
-            audioPlayer.pause();
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        } else {
-            audioPlayer.play();
-            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        // Validasi songIndex untuk menghindari error jika index tidak valid
+        if (songIndex < 0 || songIndex >= playlist.length) {
+            console.error("Error: songIndex di luar batas array playlist. Index:", songIndex, "Ukuran array:", playlist.length);
+            currentSongTitle.textContent = "Lagu tidak ditemukan";
+            currentArtistName.textContent = "Pilih lagu lain atau cek data";
+            lyricsText.innerHTML = "<p>Terjadi kesalahan saat memuat lirik.</p>";
+            audioPlayer.src = ""; // Kosongkan sumber audio untuk mencegah error putar
+            currentAlbumArt.src = "album_art_default.jpg"; // Ganti dengan gambar default/error
+            pauseSong(); // Pastikan pemutar berhenti jika error
+            return;
         }
-        isPlaying = !isPlaying;
+
+        const song = playlist[songIndex]; // Menggunakan 'playlist'
+        audioPlayer.src = song.src; // Mengatur sumber audio (file MP3)
+        currentAlbumArt.src = song.albumArt; // Mengatur gambar album art
+        currentSongTitle.textContent = song.title; // Mengatur judul lagu
+        currentArtistName.textContent = song.artist; // Mengatur nama artis
+        lyricsText.innerHTML = song.lyrics; // Mengupdate lirik untuk lagu yang dimuat (statis)
+
+        // Reset progress bar dan waktu ke 0:00
+        progressBar.value = 0;
+        currentTimeSpan.textContent = '0:00';
+        durationSpan.textContent = '0:00';
+
+        // Setel ulang animasi album art saat lagu baru dimuat
+        const albumArtImg = document.querySelector('.album-art-img');
+        if (albumArtImg) {
+            albumArtImg.style.animation = 'none'; // Hapus animasi sebelumnya (agar animasi mulai dari awal lagi)
+            void albumArtImg.offsetWidth; // Memaksa browser untuk me-reflow, penting untuk me-reset animasi CSS
+            albumArtImg.style.animation = ''; // Menerapkan kembali animasi dari CSS default
+        }
+        // Update class 'active' di playlist untuk menyorot lagu yang sedang diputar
+        updatePlaylistActiveState(songIndex);
     }
 
-    // Mainkan lagu berikutnya
-    function playNextSong() {
-        currentSongIndex = (currentSongIndex + 1) % playlist.length;
-        loadSong(currentSongIndex);
-        if (isPlaying) {
-            audioPlayer.play();
-        } else {
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Pastikan ikon play jika tidak otomatis play
+    // Memutar lagu
+    function playSong() {
+        // Cek apakah sumber audio sudah dimuat atau valid.
+        if (!audioPlayer.src || audioPlayer.src === window.location.href) {
+            console.warn("Audio source not loaded yet or invalid. Cannot play.");
+            return;
+        }
+
+        // Coba putar audio. .play() mengembalikan Promise, jadi tangani jika ada error.
+        audioPlayer.play().catch(error => {
+            // Error ini sering terjadi jika browser memblokir autoplay tanpa interaksi pengguna pertama.
+            console.error("Error playing audio (autoplay blocked?):", error);
+            isPlaying = false; // Jika play gagal, set state kembali ke false
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Pastikan ikon tetap play
+        });
+
+        isPlaying = true; // Set state ke 'sedang bermain'
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; // Ganti ikon ke ikon pause
+        playPauseBtn.setAttribute('aria-label', 'Pause'); // Update aria-label untuk aksesibilitas
+        const albumArtImg = document.querySelector('.album-art-img');
+        if (albumArtImg) {
+            albumArtImg.style.animationPlayState = 'running'; // Lanjutkan animasi putar album art
         }
     }
 
-    // Mainkan lagu sebelumnya
-    function playPrevSong() {
-        currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
-        loadSong(currentSongIndex);
-        if (isPlaying) {
-            audioPlayer.play();
-        } else {
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Pastikan ikon play jika tidak otomatis play
+    // Menjeda lagu
+    function pauseSong() {
+        audioPlayer.pause(); // Jeda audio
+        isPlaying = false; // Set state ke 'tidak bermain'
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Ganti ikon ke ikon play
+        playPauseBtn.setAttribute('aria-label', 'Play'); // Update aria-label
+        const albumArtImg = document.querySelector('.album-art-img');
+        if (albumArtImg) {
+            albumArtImg.style.animationPlayState = 'paused'; // Jeda animasi putar album art
         }
     }
 
-    // Perbarui tampilan daftar putar
-    function renderPlaylist() {
-        playlistUl.innerHTML = ''; // Kosongkan daftar putar yang ada
-        playlist.forEach((song, index) => {
-            const li = document.createElement('li');
-            li.setAttribute('data-index', index);
+    // Fungsi untuk memformat waktu dari detik menjadi 'MM:SS'
+    function formatTime(seconds) {
+        if (isNaN(seconds) || seconds < 0) return '0:00'; // Tangani nilai tidak valid
+        const minutes = Math.floor(seconds / 60); // Hitung menit
+        const remainingSeconds = Math.floor(seconds % 60); // Hitung sisa detik
+        const formattedSeconds = remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds; // Tambahkan '0' di depan jika < 10
+        return `${minutes}:${formattedSeconds}`; // Gabungkan jadi string 'MM:SS'
+    }
+
+    // --- Event Listeners (Untuk Interaksi Pengguna) ---
+
+    // Event listener untuk tombol Play/Pause
+    playPauseBtn.addEventListener('click', () => {
+        if (isPlaying) {
+            pauseSong(); // Jika sedang play, maka pause
+        } else {
+            playSong(); // Jika sedang pause, maka play
+        }
+    });
+
+    // Event listener untuk tombol Lagu Sebelumnya
+    prevBtn.addEventListener('click', () => {
+        currentSongIndex--; // Kurangi index lagu
+        if (currentSongIndex < 0) {
+            currentSongIndex = playlist.length - 1; // Jika sudah lagu pertama, kembali ke lagu terakhir (loop)
+        }
+        loadSong(currentSongIndex); // Muat lagu baru
+        playSong(); // Putar lagu baru
+    });
+
+    // Event listener untuk tombol Lagu Berikutnya
+    nextBtn.addEventListener('click', () => {
+        currentSongIndex++; // Tambah index lagu
+        if (currentSongIndex > playlist.length - 1) {
+            currentSongIndex = 0; // Jika sudah lagu terakhir, kembali ke lagu pertama (loop)
+        }
+        loadSong(currentSongIndex); // Muat lagu baru
+        playSong(); // Putar lagu baru
+    });
+
+    // Event listener saat waktu lagu berjalan (untuk update progress bar dan waktu)
+    audioPlayer.addEventListener('timeupdate', () => {
+        if (!isNaN(audioPlayer.duration)) { // Pastikan durasi audio sudah tersedia (bukan NaN)
+            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100; // Hitung persentase progress
+            progressBar.value = progress; // Update nilai progress bar
+            currentTimeSpan.textContent = formatTime(audioPlayer.currentTime); // Update waktu yang sedang berjalan
+        }
+    });
+
+    // Event listener saat metadata audio (seperti durasi) dimuat
+    audioPlayer.addEventListener('loadedmetadata', () => {
+        if (!isNaN(audioPlayer.duration)) { // Pastikan durasi tersedia
+            durationSpan.textContent = formatTime(audioPlayer.duration); // Tampilkan total durasi lagu
+        } else {
+            durationSpan.textContent = '0:00'; // Fallback jika durasi tidak tersedia
+        }
+    });
+
+    // Event listener saat progress bar diubah pengguna (seek lagu)
+    progressBar.addEventListener('input', () => {
+        if (!isNaN(audioPlayer.duration)) { // Pastikan durasi tersedia
+            const seekTime = (progressBar.value / 100) * audioPlayer.duration; // Hitung waktu berdasarkan posisi slider
+            audioPlayer.currentTime = seekTime; // Atur posisi lagu
+        }
+    });
+
+    // Event listener saat lagu selesai diputar
+    audioPlayer.addEventListener('ended', () => {
+        nextBtn.click(); // Secara otomatis putar lagu berikutnya
+    });
+
+    // --- Fungsi Playlist ---
+
+    // Membangun daftar lagu di sidebar playlist
+    function buildPlaylist() {
+        playlistUl.innerHTML = ''; // Kosongkan playlist lama sebelum membangun yang baru
+        playlist.forEach((song, index) => { // Iterasi setiap lagu di array 'playlist'
+            const li = document.createElement('li'); // Buat elemen <li> baru untuk setiap lagu
+            li.setAttribute('data-index', index); // Simpan index lagu sebagai data attribute
             li.innerHTML = `
-                <img src="${song.albumArt}" alt="${song.title}">
+                <img src="${song.albumArt}" alt="${song.title} Album Art">
                 <div class="playlist-song-info">
                     <h3>${song.title}</h3>
                     <p>${song.artist}</p>
                 </div>
             `;
-            if (index === currentSongIndex) {
-                li.classList.add('active');
-            }
-            li.addEventListener('click', () => {
-                currentSongIndex = index;
-                loadSong(currentSongIndex);
-                if (!isPlaying) { // Jika tidak sedang bermain, mulai mainkan
-                    togglePlayPause();
-                }
-                // Opsional: sembunyikan sidebar setelah memilih lagu di mobile
-                // if (window.innerWidth <= 768) {
-                //     playlistSidebar.classList.remove('visible');
-                // }
+            li.addEventListener('click', () => { // Event listener saat item lagu di playlist diklik
+                currentSongIndex = index; // Atur index lagu saat ini ke lagu yang diklik
+                loadSong(currentSongIndex); // Muat lagu tersebut
+                playSong(); // Putar lagu tersebut
+                hidePlaylistSidebar(); // Sembunyikan sidebar setelah lagu dipilih
             });
-            playlistUl.appendChild(li);
+            playlistUl.appendChild(li); // Tambahkan item lagu ke daftar playlist
         });
+        updatePlaylistActiveState(currentSongIndex); // Atur status 'active' untuk lagu yang sedang dimuat
     }
 
-    // Sorot lagu yang sedang diputar di daftar putar
-    function updatePlaylistHighlight(activeIndex) {
-        document.querySelectorAll('.playlist-items li').forEach((item, index) => {
-            if (index === activeIndex) {
-                item.classList.add('active');
-            } else {
-                item.classList.remove('active');
+    // Update class 'active' pada item playlist untuk menyorot lagu yang sedang diputar
+    function updatePlaylistActiveState(activeIndex) {
+        const playlistItems = playlistUl.querySelectorAll('li'); // Dapatkan semua item lagu di playlist
+        if (!playlistItems.length) return; // Jika tidak ada item, keluar
+
+        playlistItems.forEach(item => item.classList.remove('active')); // Hapus class 'active' dari semua item
+
+        // Tambahkan class 'active' jika ini adalah lagu yang sedang aktif
+        if (activeIndex >= 0 && activeIndex < playlistItems.length) {
+            const activeItem = playlistItems[activeIndex];
+            activeItem.classList.add('active');
+
+            // Auto-scroll playlist agar lagu aktif terlihat (jika playlist sangat panjang)
+            const containerHeight = playlistUl.clientHeight; // Tinggi container playlist yang terlihat
+            const itemHeight = activeItem.offsetHeight; // Tinggi satu item lagu
+            const itemTop = activeItem.offsetTop; // Posisi vertikal item aktif dari atas container
+
+            // Hitung posisi scroll yang diinginkan (item aktif di tengah container)
+            const scrollTo = itemTop - (containerHeight / 2) + (itemHeight / 2);
+
+            // Scroll hanya jika ada scrollbar (tinggi konten > tinggi container)
+            if (playlistUl.scrollHeight > playlistUl.clientHeight) {
+                playlistUl.scrollTo({
+                    top: scrollTo,
+                    behavior: 'smooth' // Gulir dengan animasi halus
+                });
             }
-        });
+        }
     }
 
-    // === Event Listeners ===
+    // Fungsi untuk menampilkan sidebar playlist
+    function showPlaylistSidebar() {
+        playlistSidebar.classList.add('visible'); // Tambahkan class 'visible' untuk animasi slide-in
+        sidebarOverlay.classList.add('visible'); // Tampilkan overlay gelap
+    }
 
-    playPauseBtn.addEventListener('click', togglePlayPause);
-    prevBtn.addEventListener('click', playPrevSong);
-    nextBtn.addEventListener('click', playNextSong);
+    // Fungsi untuk menyembunyikan sidebar playlist
+    function hidePlaylistSidebar() {
+        playlistSidebar.classList.remove('visible'); // Hapus class 'visible' untuk animasi slide-out
+        sidebarOverlay.classList.remove('visible'); // Sembunyikan overlay gelap
+    }
 
-    // Update progress bar dan waktu saat lagu diputar
-    audioPlayer.addEventListener('timeupdate', () => {
-        const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-        progressBar.value = isNaN(progress) ? 0 : progress; // Hindari NaN sebelum durasi dimuat
-        currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
-    });
-
-    // Update total durasi setelah metadata dimuat
-    audioPlayer.addEventListener('loadedmetadata', () => {
-        durationSpan.textContent = formatTime(audioPlayer.duration);
-    });
-
-    // Seek lagu saat progress bar digeser
-    progressBar.addEventListener('input', () => {
-        const seekTime = (progressBar.value / 100) * audioPlayer.duration;
-        audioPlayer.currentTime = seekTime;
-    });
-
-    // Otomatis putar lagu berikutnya saat lagu selesai
-    audioPlayer.addEventListener('ended', () => {
-        playNextSong();
-    });
-
-    // Toggle tampilan playlist sidebar
+    // Event listener untuk tombol "Daftar Putar" (Toggle Playlist)
     togglePlaylistBtn.addEventListener('click', () => {
-        playlistSidebar.classList.toggle('visible');
+        if (playlistSidebar.classList.contains('visible')) {
+            hidePlaylistSidebar(); // Jika sedang terlihat, sembunyikan
+        } else {
+            showPlaylistSidebar(); // Jika tidak terlihat, tampilkan
+        }
     });
 
-    // === Inisialisasi Aplikasi ===
-    loadSong(currentSongIndex); // Muat lagu pertama saat aplikasi dimulai
-    renderPlaylist(); // Render daftar putar
+    // Event listener untuk tombol tutup playlist di dalam sidebar
+    closePlaylistBtn.addEventListener('click', () => {
+        hidePlaylistSidebar();
+    });
+
+    // Menutup playlist jika klik di luar sidebar (pada overlay)
+    sidebarOverlay.addEventListener('click', () => {
+        hidePlaylistSidebar();
+    });
+
+    // --- Inisialisasi Aplikasi (Fungsi yang Berjalan Saat Halaman Dimuat) ---
+    // Pastikan ada lagu di array 'playlist' sebelum mencoba memuatnya
+    if (playlist.length > 0) {
+        loadSong(currentSongIndex); // Muat lagu pertama saat halaman dimuat
+        buildPlaylist(); // Bangun daftar lagu
+    } else {
+        // Jika tidak ada lagu, tampilkan pesan di UI
+        console.error("Tidak ada lagu ditemukan di array 'playlist'.");
+        currentSongTitle.textContent = "Tidak ada lagu";
+        currentArtistName.textContent = "Silakan tambahkan lagu di script.js";
+        lyricsText.innerHTML = "<p>Silakan tambahkan file MP3 dan gambar album di folder yang sama, lalu update array 'playlist' di script.js.</p>";
+    }
 });
