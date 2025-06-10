@@ -93,6 +93,62 @@ body {
     box-sizing: border-box;
 }
 
+/* Header Aplikasi (tempat judul Harmoni Nada dan tombol Daftar Putar) */
+header {
+    position: absolute;
+    top: 20px; /* Sesuaikan posisi header jika perlu */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 600px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 5; /* Pastikan di atas player utama */
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.app-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2em;
+    font-weight: 800;
+    color: var(--primary-text);
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.app-title .fas {
+    font-size: 0.8em;
+    color: var(--accent-purple);
+}
+
+.btn-playlist {
+    background: var(--button-bg);
+    border: 1px solid var(--button-border);
+    color: var(--primary-text);
+    padding: 10px 15px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap; /* Mencegah teks putus */
+}
+
+.btn-playlist:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--accent-purple);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+
 /* Music Player */
 .music-player {
     padding: 30px 40px; /* Padding lebih lebar horizontal */
@@ -224,20 +280,22 @@ body {
     scroll-behavior: smooth; /* Untuk auto-scroll yang halus */
 }
 
-.lyrics-text {
+/* Styling untuk paragraf lirik di dalam lyrics-text */
+.lyrics-text p {
     font-size: 0.95em;
     color: rgba(255, 255, 255, 0.8); /* Warna default lirik */
     line-height: 1.6;
-    margin: 0;
-    /* Tidak ada class .active untuk lirik statis */
+    margin: 0; /* Hapus margin default paragraf */
+    padding: 2px 0; /* Sedikit padding vertikal antar baris lirik */
 }
 
-/* Tambahan untuk lirik yang aktif (opsional, jika ingin menyorot lirik yang sedang berjalan) */
-.lyrics-text span.active-lyric {
+/* Gaya untuk lirik aktif (opsional, jika ingin menyorot) */
+.lyrics-text p.active-lyric {
     color: var(--accent-red); /* Warna menyorot */
     font-weight: 700;
     transition: color 0.3s ease;
 }
+
 
 /* Scrollbar untuk Lirik (tetap sama) */
 .lyrics-section::-webkit-scrollbar {
@@ -358,37 +416,67 @@ body {
     box-shadow: 0 8px 25px rgba(255, 69, 0, 0.8); /* Glow merah */
 }
 
-/* Playlist Sidebar (Disembunyikan secara default) */
+/* Playlist Sidebar */
 .playlist-sidebar {
-    /* Styling ini tetap ada jika Anda ingin mengaktifkannya nanti */
     padding: 25px;
     width: 100%;
     max-width: 400px;
     position: fixed;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%) translateX(calc(100% + 30px));
+    right: 0; /* Mulai dari kanan layar */
+    top: 0; /* Dari atas layar */
+    height: 100%; /* Ambil seluruh tinggi layar */
+    transform: translateX(100%); /* Sembunyikan ke kanan secara default */
     opacity: 0;
     transition: transform 0.5s ease-out, opacity 0.5s ease-out;
-    max-height: 80vh;
+    max-height: 100vh; /* Sesuaikan jika ingin lebih kecil */
     overflow-y: auto;
-    z-index: 10;
+    z-index: 100; /* Pastikan di atas semua elemen lain */
+    box-sizing: border-box; /* Pastikan padding masuk dalam lebar/tinggi */
 }
 
 .playlist-sidebar.visible {
-    transform: translateY(-50%) translateX(0);
+    transform: translateX(0); /* Geser ke kiri untuk menampilkan */
     opacity: 1;
+}
+
+.playlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-right: 10px; /* Beri sedikit ruang agar tombol tidak terlalu pinggir */
 }
 
 .playlist-title {
     font-family: 'Montserrat', sans-serif;
-    margin-top: 0;
-    margin-bottom: 25px;
+    margin: 0;
     color: var(--primary-text);
-    text-align: center;
     font-size: 1.8em;
     font-weight: 700;
 }
+
+#close-playlist-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--button-border);
+    color: var(--primary-text);
+    font-size: 1.2em;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+#close-playlist-btn:hover {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.7);
+}
+
 
 .playlist-items {
     list-style: none;
@@ -452,6 +540,26 @@ body {
     border-radius: 4px;
 }
 
+/* Overlay untuk sidebar */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Latar belakang gelap transparan */
+    z-index: 99; /* Di bawah sidebar tapi di atas konten utama */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+
+.sidebar-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
@@ -459,8 +567,18 @@ body {
         max-width: 95%; /* Lebih lebar di mobile */
     }
 
+    header {
+        top: 15px;
+        padding: 0 15px;
+    }
+
     .app-title {
-        font-size: 2.2em;
+        font-size: 1.8em; /* Sedikit lebih kecil di mobile */
+    }
+
+    .btn-playlist {
+        padding: 8px 12px;
+        font-size: 0.8em;
     }
 
     .music-player {
@@ -517,16 +635,23 @@ body {
         font-size: 0.8em;
     }
 
-    /* Playlist sidebar masih disembunyikan untuk 1 lagu */
+    /* Playlist sidebar di mobile akan memenuhi sebagian besar lebar */
     .playlist-sidebar {
-        right: 10px;
-        max-width: calc(100% - 20px);
+        right: 0;
+        width: 80%; /* Ambil 80% lebar layar */
+        max-width: none; /* Hapus batasan max-width */
+    }
+
+    #close-playlist-btn {
+        font-size: 1em;
+        width: 35px;
+        height: 35px;
     }
 }
 
 @media (max-width: 480px) {
     .app-title {
-        font-size: 1.8em;
+        font-size: 1.5em;
     }
 
     .music-player {
@@ -565,5 +690,9 @@ body {
         width: 60px;
         height: 60px;
         font-size: 1.8em;
+    }
+
+    .playlist-sidebar {
+        width: 90%; /* Lebih lebar lagi di layar sangat kecil */
     }
 }
