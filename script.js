@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentAlbumArt = document.getElementById('current-album-art');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentArtistName = document.getElementById('current-artist-name');
-    const lyricsText = document.getElementById('lyrics-text'); // Menggunakan ID karena sudah ditambahkan di HTML
+    const lyricsText = document.getElementById('lyrics-text');
     const playlistUl = document.getElementById('playlist');
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlaying = false;
 
     // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
-    // Saya telah mengembalikan semua 6 lagu yang kamu berikan sebelumnya.
+    // Saya telah mengembalikan semua 6 lagu yang kamu berikan sebelumnya + Favorite Lesson.
     // Pastikan NAMA FILE di properti 'src' (untuk MP3) dan 'albumArt' (untuk JPG/PNG)
     // sama PERSIS (termasuk huruf besar/kecil dan ekstensinya) dengan nama file di folder proyek Anda.
     // Semua file MP3, JPG/PNG, dan MP4 video background harus berada di folder yang sama dengan index.html, style.css, dan script.js.
@@ -33,8 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Sombr",
             src: "back_to_friends.mp3", // Pastikan ada file ini di root folder
             albumArt: "album_art_back_to_friends.jpg", // Pastikan ada file ini di root folder
-            lyrics: `
-                <b>🎶 Back to Friends – Sombr</b><br><br>
+            lyrics: `<b>🎶 Back to Friends – Sombr</b><br><br>
                 <b>Verse 1</b><br>
                 Touch my body tender<br>
                 ’Cause the feeling makes me weak<br>
@@ -80,8 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Nadhif Basalamah",
             src: "bergema_sampai_selamanya.mp3", // Pastikan ada file ini di root folder
             albumArt: "album_art_bergema_sampai_selamanya.jpg", // Pastikan ada file ini di root folder
-            lyrics: `
-                <b>🎶 Bergema Sampai Selamanya – Nadhif Basalamah</b><br><br>
+            lyrics: `<b>🎶 Bergema Sampai Selamanya – Nadhif Basalamah</b><br><br>
                 <b>Verse 1</b><br>
                 Dengarkan hati bicara<br>
                 Di setiap desah napasmu<br>
@@ -122,8 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "SoMo",
             src: "ride.mp3", // Pastikan ada file ini di root folder
             albumArt: "album_art_ride.jpg", // Pastikan ada file ini di root folder
-            lyrics: `
-                <b>🎶 Ride – SoMo</b><br><br>
+            lyrics: `<b>🎶 Ride – SoMo</b><br><br>
                 <b>Verse 1</b><br>
                 I'm riding high, I'm riding low<br>
                 I'm going where the wind don't blow<br>
@@ -165,8 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "God Bless",
             src: "rumah_kita.mp3", // Pastikan ada file ini di root folder
             albumArt: "album_art_rumah_kita.jpg", // Pastikan ada file ini di root folder
-            lyrics: `
-                <b>🎶 Rumah Kita – God Bless</b><br><br>
+            lyrics: `<b>🎶 Rumah Kita – God Bless</b><br><br>
                 <b>Verse 1</b><br>
                 Hanya bilik bambu<br>
                 Tempat tinggal kita<br>
@@ -210,8 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "style.mp3", // Pastikan ada file ini di root folder
             albumArt: "album_art_style.jpg", // Pastikan ada file ini di root folder
-            lyrics: `
-                <b>🎶 Style – Taylor Swift</b><br><br>
+            lyrics: `<b>🎶 Style – Taylor Swift</b><br><br>
                 <b>Verse 1</b><br>
                 Midnight, you come and pick me up, no headlights<br>
                 Long drive, could end in burning flames or paradise<br>
@@ -260,8 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "message_in_a_bottle.mp3", // Pastikan ada file ini di root folder
             albumArt: "album_art_message_in_a_bottle.jpg", // Pastikan ada file ini di root folder
-            lyrics: `
-                <b>🎶 Message In A Bottle – Taylor Swift</b><br><br>
+            lyrics: `<b>🎶 Message In A Bottle – Taylor Swift</b><br><br>
                 <b>Verse 1</b><br>
                 I was ridin' in a getaway car<br>
                 I was crying in a getaway car<br>
@@ -302,8 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Ariana Grande",
             src: "supernatural.mp3", // Pastikan ada file ini di root folder
             albumArt: "album_art_supernatural.jpg", // Pastikan ada file ini di root folder
-            lyrics: `
-                <b>🎶 Supernatural – Ariana Grande</b><br><br>
+            lyrics: `<b>🎶 Supernatural – Ariana Grande</b><br><br>
                 <b>Verse 1</b><br>
                 You're my supernatural, my magic<br>
                 Every touch, a dream, a sweet habit<br>
@@ -338,7 +331,63 @@ document.addEventListener('DOMContentLoaded', () => {
                 Supernatural...<br>
                 Oh, so natural with you...
             `
+        },
+        // === LAGU BARU: FAVORITE LESSON ===
+        {
+            title: "Favorite Lesson",
+            artist: "Yaeow",
+            src: "favorite_lesson.mp3", // PASTIKAN NAMA FILE MP3 INI SAMA PERSIS dengan yang kamu miliki
+            albumArt: "album_art_favorite_lesson.jpg", // PASTIKAN NAMA FILE GAMBAR INI SAMA PERSIS dengan yang kamu miliki
+            lyrics: `<b>🎶 Favorite Lesson – Yaeow</b><br><br>
+                <b>Verse 1</b><br>
+                Always telling me that I should find the time for me<br>
+                Working tirelessly until I lose my energy<br>
+                You’re the only one who really knows the things I need<br>
+                And darling, I’m the same with you<br><br>
+                <b>Chorus</b><br>
+                ‘Cause every lesson you ever taught me<br>
+                Has always been the best<br>
+                I’m so grateful that you’re always with me<br>
+                Always put me to the test<br>
+                Every lesson you ever taught me<br>
+                Has always been the best<br>
+                I’m so grateful that you’re always with me<br>
+                Always put me to the test<br><br>
+                <b>Verse 2</b><br>
+                Building something from the ground up, you always help me see<br>
+                That even when it’s tough, it’s worth the struggle, endlessly<br>
+                You’re the guiding light that always keeps me on my feet<br>
+                And darling, I’m the same with you<br><br>
+                <b>Chorus</b><br>
+                ‘Cause every lesson you ever taught me<br>
+                Has always been the best<br>
+                I’m so grateful that you’re always with me<br>
+                Always put me to the test<br>
+                Every lesson you ever taught me<br>
+                Has always been the best<br>
+                I’m so grateful that you’re always with me<br>
+                Always put me to the test<br><br>
+                <b>Bridge</b><br>
+                Through highs and lows, you’re always there<br>
+                A bond like ours is truly rare<br>
+                No matter what, we’ll always share<br>
+                This journey, with no fear<br><br>
+                <b>Chorus</b><br>
+                ‘Cause every lesson you ever taught me<br>
+                Has always been the best<br>
+                I’m so grateful that you’re always with me<br>
+                Always put me to the test<br>
+                Every lesson you ever taught me<br>
+                Has always been the best<br>
+                I’m so grateful that you’re always with me<br>
+                Always put me to the test<br><br>
+                <b>Outro</b><br>
+                Favorite lesson... favorite lesson...<br>
+                You’re the best... you’re the best...
+            `
         }
+        // Jangan lupa koma (,) di akhir setiap objek lagu, kecuali objek terakhir dalam array.
+        // Jika Favorite Lesson adalah lagu terakhir, tidak perlu koma setelahnya.
     ];
 
     // --- Fungsi Utama Pemutar Musik ---
