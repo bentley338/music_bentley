@@ -19,19 +19,24 @@
 
     <div class="container">
         <header>
-            <h1 class="app-title">
-                <i class="fas fa-compact-disc"></i> Harmoni Nada <i class="fas fa-headphones-alt"></i>
-            </h1>
-            <button id="toggle-playlist" class="btn btn-playlist">
-                <i class="fas fa-list-music"></i> Daftar Putar
-            </button>
+            <div class="app-branding">
+                <h1 id="app-title-new" class="app-title-new">
+                    <i class="fas fa-music"></i> MelodyVerse
+                </h1>
+            </div>
+
+            <div class="playlist-toggle-wrapper">
+                <button id="toggle-playlist" class="btn btn-playlist">
+                    <i class="fas fa-list-music"></i> Daftar Putar
+                </button>
+            </div>
         </header>
 
         <main class="music-player glass-effect">
             <div class="header-player">
                 <span class="indicator-dot top-left"></span>
                 <span class="indicator-dot top-right"></span>
-                <h3 class="player-title">Now Playing</h3>
+                <h3 class="player-title">NOW PLAYING</h3>
                 <span class="indicator-dot bottom-left"></span>
                 <span class="indicator-dot bottom-right"></span>
             </div>
@@ -67,7 +72,8 @@
         </main>
 
         <aside id="playlist-sidebar" class="playlist-sidebar glass-effect">
-            <div class="playlist-header"> <h2 class="playlist-title">Daftar Putar</h2>
+            <div class="playlist-header">
+                <h2 class="playlist-title">Daftar Putar</h2>
                 <button id="close-playlist-btn" class="control-btn small-btn" aria-label="Close Playlist">
                     <i class="fas fa-times"></i>
                 </button>
