@@ -93,25 +93,31 @@ body {
     box-sizing: border-box;
 }
 
-/* Header Aplikasi (tempat judul Harmoni Nada dan tombol Daftar Putar) */
+/* HEADER APLIKASI (Judul dan Tombol Daftar Putar) */
 header {
     position: absolute;
-    top: 20px; /* Sesuaikan posisi header jika perlu */
-    left: 50%;
-    transform: translateX(-50%);
+    top: 20px; /* Sesuaikan posisi header dari atas */
     width: 90%;
     max-width: 600px;
-    display: flex;
-    justify-content: space-between;
+    display: flex; /* Menggunakan flexbox untuk penataan */
+    justify-content: space-between; /* Memisahkan branding dan tombol */
     align-items: center;
-    z-index: 5; /* Pastikan di atas player utama */
-    padding: 0 20px;
+    z-index: 5;
+    padding: 0 20px; /* Padding samping agar tidak terlalu mepet */
     box-sizing: border-box;
 }
 
-.app-title {
+/* Styling untuk judul baru */
+.app-branding {
+    /* Ini akan menampung judul, bisa diatur secara terpisah */
+    flex-grow: 1; /* Agar mengambil ruang yang tersisa */
+    text-align: left; /* Teks rata kiri */
+    margin-right: 20px; /* Jarak antara judul dan tombol */
+}
+
+.app-title-new { /* Kelas baru untuk judul */
     font-family: 'Montserrat', sans-serif;
-    font-size: 2em;
+    font-size: 2.2em; /* Ukuran font lebih besar */
     font-weight: 800;
     color: var(--primary-text);
     text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
@@ -121,9 +127,15 @@ header {
     gap: 10px;
 }
 
-.app-title .fas {
+.app-title-new .fas {
     font-size: 0.8em;
     color: var(--accent-purple);
+}
+
+/* Pastikan posisi tombol Daftar Putar tetap seperti semula relatif terhadap kanan */
+.playlist-toggle-wrapper {
+    /* Wrapper ini bisa kamu gunakan untuk memposisikan tombol daftar putar secara spesifik */
+    /* Saat ini tidak perlu styling khusus karena flexbox header sudah menanganinya */
 }
 
 .btn-playlist {
@@ -159,6 +171,7 @@ header {
     width: 100%;
     animation: fadeIn 0.8s ease-out forwards;
     position: relative; /* Untuk positioning titik indikator */
+    margin-top: 100px; /* Jarak dari header ke player utama */
 }
 
 @keyframes fadeIn {
@@ -166,7 +179,7 @@ header {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Header di dalam player (mirip "Now Playing" di gambar) */
+/* Header di dalam player (mirip "NOW PLAYING" di gambar) */
 .header-player {
     display: flex;
     justify-content: space-between;
@@ -567,12 +580,14 @@ header {
         max-width: 95%; /* Lebih lebar di mobile */
     }
 
+    /* Penyesuaian header di mobile */
     header {
         top: 15px;
         padding: 0 15px;
+        /* Flexbox di header sudah cukup baik untuk memposisikan judul dan tombol */
     }
 
-    .app-title {
+    .app-title-new {
         font-size: 1.8em; /* Sedikit lebih kecil di mobile */
     }
 
@@ -584,6 +599,7 @@ header {
     .music-player {
         padding: 25px 30px;
         gap: 20px;
+        margin-top: 80px; /* Sesuaikan jarak dari header di mobile */
     }
 
     .album-art-section {
@@ -650,7 +666,7 @@ header {
 }
 
 @media (max-width: 480px) {
-    .app-title {
+    .app-title-new {
         font-size: 1.5em;
     }
 
