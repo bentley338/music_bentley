@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlaying = false;
 
     // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
-    // Saya telah mengembalikan semua lagu sebelumnya + So High School.
+    // Saya telah mengembalikan semua lagu sebelumnya + Photograph.
     // Pastikan NAMA FILE di properti 'src' (untuk MP3) dan 'albumArt' (untuk JPG/PNG)
     // sama PERSIS (termasuk huruf besar/kecil dan ekstensinya) dengan nama file di folder proyek Anda.
     // Semua file MP3, JPG/PNG, dan MP4 video background harus berada di folder yang sama dengan index.html, style.css, dan script.js.
@@ -385,12 +385,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 You’re the best... you’re the best...
             `
         },
-        // === LAGU BARU: SO HIGH SCHOOL ===
         {
             title: "So High School",
             artist: "Taylor Swift",
-            src: "so_high_school.mp3", // PASTIKAN NAMA FILE MP3 INI SAMA PERSIS
-            albumArt: "album_art_so_high_school.jpg", // PASTIKAN NAMA FILE GAMBAR INI SAMA PERSIS
+            src: "so_high_school.mp3",
+            albumArt: "album_art_so_high_school.jpg",
             lyrics: `<b>🎶 So High School – Taylor Swift</b><br><br>
                 <b>Verse 1</b><br>
                 I feel like I'm back in high school again<br>
@@ -426,8 +425,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 So high school...<br>
                 Yeah, with you, it's so high school...
             `
+        },
+        // === LAGU BARU: PHOTOGRAPH ===
+        {
+            title: "Photograph",
+            artist: "Ed Sheeran",
+            src: "photograph.mp3", // PASTIKAN NAMA FILE MP3 INI SAMA PERSIS
+            albumArt: "album_art_photograph.jpg", // PASTIKAN NAMA FILE GAMBAR INI SAMA PERSIS
+            lyrics: `<b>🎶 Photograph – Ed Sheeran</b><br><br>
+                <b>Verse 1</b><br>
+                Loving can hurt, loving can hurt sometimes<br>
+                But it's the only thing that I know<br>
+                When it's good, when it's good, it's so good, it's so good<br>
+                'Til it goes bad, 'til it goes bad, 'til it goes bad<br>
+                But still, I know, that I know, that I know<br>
+                Good things come to those who wait, no, never give up on you<br><br>
+                <b>Chorus</b><br>
+                And if you hurt me, that's okay, baby, only words bleed<br>
+                Inside these pages you just hold me<br>
+                And I won't ever let you go<br>
+                Wait for me to come home<br><br>
+                <b>Verse 2</b><br>
+                Loving can heal, loving can mend your soul<br>
+                And it's the only thing that I know<br>
+                I swear it will get easier,<br>
+                Remember that with every piece of you<br>
+                And it's the only thing we take with us when we die<br><br>
+                <b>Chorus</b><br>
+                And if you hurt me, that's okay, baby, only words bleed<br>
+                Inside these pages you just hold me<br>
+                And I won't ever let you go<br>
+                Wait for me to come home<br><br>
+                <b>Bridge</b><br>
+                You could fit me inside the necklace you got when you were sixteen<br>
+                Next to your heartbeat where I should be<br>
+                Keep it deep within your soul<br>
+                And if you want to, take a look at me now<br>
+                Oh, oh, oh, yeah, I'll be there, I'll be there<br>
+                Always when you need me, every moment I'll be waiting<br>
+                Forever with you, every single day<br><br>
+                <b>Chorus</b><br>
+                And if you hurt me, that's okay, baby, only words bleed<br>
+                Inside these pages you just hold me<br>
+                And I won't ever let you go<br>
+                Wait for me to come home<br><br>
+                <b>Outro</b><br>
+                You can fit me inside the necklace you got when you were sixteen<br>
+                Next to your heartbeat where I should be<br>
+                Keep it deep within your soul<br>
+                And if you want to, take a look at me now
+            `
         }
-        // Jika ini adalah lagu terakhir, tidak perlu koma setelahnya.
     ];
 
     // --- Fungsi Utama Pemutar Musik ---
