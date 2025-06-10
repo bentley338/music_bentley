@@ -23,16 +23,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlaying = false;
 
     // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
-    // Saya telah mengembalikan semua 6 lagu yang kamu berikan sebelumnya + Favorite Lesson.
+    // Saya telah mengembalikan semua lagu sebelumnya + So High School.
     // Pastikan NAMA FILE di properti 'src' (untuk MP3) dan 'albumArt' (untuk JPG/PNG)
     // sama PERSIS (termasuk huruf besar/kecil dan ekstensinya) dengan nama file di folder proyek Anda.
     // Semua file MP3, JPG/PNG, dan MP4 video background harus berada di folder yang sama dengan index.html, style.css, dan script.js.
-    const playlist = [ // Mengganti 'songs' menjadi 'playlist' agar konsisten
+    const playlist = [
         {
             title: "Back to Friends",
             artist: "Sombr",
-            src: "back_to_friends.mp3", // Pastikan ada file ini di root folder
-            albumArt: "album_art_back_to_friends.jpg", // Pastikan ada file ini di root folder
+            src: "back_to_friends.mp3",
+            albumArt: "album_art_back_to_friends.jpg",
             lyrics: `<b>🎶 Back to Friends – Sombr</b><br><br>
                 <b>Verse 1</b><br>
                 Touch my body tender<br>
@@ -77,8 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Bergema Sampai Selamanya",
             artist: "Nadhif Basalamah",
-            src: "bergema_sampai_selamanya.mp3", // Pastikan ada file ini di root folder
-            albumArt: "album_art_bergema_sampai_selamanya.jpg", // Pastikan ada file ini di root folder
+            src: "bergema_sampai_selamanya.mp3",
+            albumArt: "album_art_bergema_sampai_selamanya.jpg",
             lyrics: `<b>🎶 Bergema Sampai Selamanya – Nadhif Basalamah</b><br><br>
                 <b>Verse 1</b><br>
                 Dengarkan hati bicara<br>
@@ -118,8 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Ride",
             artist: "SoMo",
-            src: "ride.mp3", // Pastikan ada file ini di root folder
-            albumArt: "album_art_ride.jpg", // Pastikan ada file ini di root folder
+            src: "ride.mp3",
+            albumArt: "album_art_ride.jpg",
             lyrics: `<b>🎶 Ride – SoMo</b><br><br>
                 <b>Verse 1</b><br>
                 I'm riding high, I'm riding low<br>
@@ -160,8 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Rumah Kita",
             artist: "God Bless",
-            src: "rumah_kita.mp3", // Pastikan ada file ini di root folder
-            albumArt: "album_art_rumah_kita.jpg", // Pastikan ada file ini di root folder
+            src: "rumah_kita.mp3",
+            albumArt: "album_art_rumah_kita.jpg",
             lyrics: `<b>🎶 Rumah Kita – God Bless</b><br><br>
                 <b>Verse 1</b><br>
                 Hanya bilik bambu<br>
@@ -204,8 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Style",
             artist: "Taylor Swift",
-            src: "style.mp3", // Pastikan ada file ini di root folder
-            albumArt: "album_art_style.jpg", // Pastikan ada file ini di root folder
+            src: "style.mp3",
+            albumArt: "album_art_style.jpg",
             lyrics: `<b>🎶 Style – Taylor Swift</b><br><br>
                 <b>Verse 1</b><br>
                 Midnight, you come and pick me up, no headlights<br>
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Cause we never go out of style<br>
                 We never go out of style<br><br>
                 <b>Verse 2</b><br>
-                You got that long hair, slicked back, white T-shirt<br>
+                You got that long hair, slick back, white T-shirt<br>
                 And I got that good girl faith and a tight little skirt<br>
                 And when we go crashing down, we come back every time<br>
                 'Cause we never go out of style<br>
@@ -253,8 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Message In A Bottle",
             artist: "Taylor Swift",
-            src: "message_in_a_bottle.mp3", // Pastikan ada file ini di root folder
-            albumArt: "album_art_message_in_a_bottle.jpg", // Pastikan ada file ini di root folder
+            src: "message_in_a_bottle.mp3",
+            albumArt: "album_art_message_in_a_bottle.jpg",
             lyrics: `<b>🎶 Message In A Bottle – Taylor Swift</b><br><br>
                 <b>Verse 1</b><br>
                 I was ridin' in a getaway car<br>
@@ -294,8 +294,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Supernatural",
             artist: "Ariana Grande",
-            src: "supernatural.mp3", // Pastikan ada file ini di root folder
-            albumArt: "album_art_supernatural.jpg", // Pastikan ada file ini di root folder
+            src: "supernatural.mp3",
+            albumArt: "album_art_supernatural.jpg",
             lyrics: `<b>🎶 Supernatural – Ariana Grande</b><br><br>
                 <b>Verse 1</b><br>
                 You're my supernatural, my magic<br>
@@ -332,12 +332,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 Oh, so natural with you...
             `
         },
-        // === LAGU BARU: FAVORITE LESSON ===
         {
             title: "Favorite Lesson",
             artist: "Yaeow",
-            src: "favorite_lesson.mp3", // PASTIKAN NAMA FILE MP3 INI SAMA PERSIS dengan yang kamu miliki
-            albumArt: "album_art_favorite_lesson.jpg", // PASTIKAN NAMA FILE GAMBAR INI SAMA PERSIS dengan yang kamu miliki
+            src: "favorite_lesson.mp3",
+            albumArt: "album_art_favorite_lesson.jpg",
             lyrics: `<b>🎶 Favorite Lesson – Yaeow</b><br><br>
                 <b>Verse 1</b><br>
                 Always telling me that I should find the time for me<br>
@@ -385,9 +384,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 Favorite lesson... favorite lesson...<br>
                 You’re the best... you’re the best...
             `
+        },
+        // === LAGU BARU: SO HIGH SCHOOL ===
+        {
+            title: "So High School",
+            artist: "Taylor Swift",
+            src: "so_high_school.mp3", // PASTIKAN NAMA FILE MP3 INI SAMA PERSIS
+            albumArt: "album_art_so_high_school.jpg", // PASTIKAN NAMA FILE GAMBAR INI SAMA PERSIS
+            lyrics: `<b>🎶 So High School – Taylor Swift</b><br><br>
+                <b>Verse 1</b><br>
+                I feel like I'm back in high school again<br>
+                Butterflies every time you walk in<br>
+                Like a freshman, crushin' hard, don't pretend<br>
+                This feeling's got me spinnin' 'round the bend<br><br>
+                <b>Chorus</b><br>
+                Oh, you got me feeling so high school<br>
+                Got me skipping through the halls with you<br>
+                Every moment's golden, shiny, and new<br>
+                Yeah, this love is so high school<br><br>
+                <b>Verse 2</b><br>
+                Passing notes and whispering in class<br>
+                Hoping this feeling will forever last<br>
+                Every glance, a secret, a sweet little blast<br>
+                This story's moving way too fast<br><br>
+                <b>Chorus</b><br>
+                Oh, you got me feeling so high school<br>
+                Got me skipping through the halls with you<br>
+                Every moment's golden, shiny, and new<br>
+                Yeah, this love is so high school<br><br>
+                <b>Bridge</b><br>
+                No homework, no drama, just you and me<br>
+                Living out a teenage dream, wild and free<br>
+                Like the first dance, under the gym lights<br>
+                Holding onto these magical nights<br><br>
+                <b>Chorus</b><br>
+                Oh, you got me feeling so high school<br>
+                Got me skipping through the halls with you<br>
+                Every moment's golden, shiny, and new<br>
+                Yeah, this love is so high school<br><br>
+                <b>Outro</b><br>
+                So high school...<br>
+                Yeah, with you, it's so high school...
+            `
         }
-        // Jangan lupa koma (,) di akhir setiap objek lagu, kecuali objek terakhir dalam array.
-        // Jika Favorite Lesson adalah lagu terakhir, tidak perlu koma setelahnya.
+        // Jika ini adalah lagu terakhir, tidak perlu koma setelahnya.
     ];
 
     // --- Fungsi Utama Pemutar Musik ---
