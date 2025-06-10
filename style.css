@@ -224,12 +224,19 @@ body {
     scroll-behavior: smooth; /* Untuk auto-scroll yang halus */
 }
 
-.lyrics-text { 
+.lyrics-text {
     font-size: 0.95em;
     color: rgba(255, 255, 255, 0.8); /* Warna default lirik */
     line-height: 1.6;
     margin: 0;
     /* Tidak ada class .active untuk lirik statis */
+}
+
+/* Tambahan untuk lirik yang aktif (opsional, jika ingin menyorot lirik yang sedang berjalan) */
+.lyrics-text span.active-lyric {
+    color: var(--accent-red); /* Warna menyorot */
+    font-weight: 700;
+    transition: color 0.3s ease;
 }
 
 /* Scrollbar untuk Lirik (tetap sama) */
