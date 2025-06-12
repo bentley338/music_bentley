@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlaying = false;
 
     // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
-    // Saya telah mengembalikan semua lagu sebelumnya + Photograph.
+    // Saya telah mengembalikan semua lagu sebelumnya + You'll Be In My Heart.
     // Pastikan NAMA FILE di properti 'src' (untuk MP3) dan 'albumArt' (untuk JPG/PNG)
     // sama PERSIS (termasuk huruf besar/kecil dan ekstensinya) dengan nama file di folder proyek Anda.
     // Semua file MP3, JPG/PNG, dan MP4 video background harus berada di folder yang sama dengan index.html, style.css, dan script.js.
@@ -320,7 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Bridge</b><br>
                 No explanation, no words can define<br>
                 This connection, truly one of a kind<br>
-                Beyond the logic, beyond the known<br>
+                Beyond the logic, beyond the known<<br>
                 In this love, we're never alone<br><br>
                 <b>Chorus</b><br>
                 Oh, this love is supernatural<br>
@@ -426,12 +426,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 Yeah, with you, it's so high school...
             `
         },
-        // === LAGU BARU: PHOTOGRAPH ===
         {
             title: "Photograph",
             artist: "Ed Sheeran",
-            src: "photograph.mp3", // PASTIKAN NAMA FILE MP3 INI SAMA PERSIS
-            albumArt: "album_art_photograph.jpg", // PASTIKAN NAMA FILE GAMBAR INI SAMA PERSIS
+            src: "photograph.mp3",
+            albumArt: "album_art_photograph.jpg",
             lyrics: `<b>🎶 Photograph – Ed Sheeran</b><br><br>
                 <b>Verse 1</b><br>
                 Loving can hurt, loving can hurt sometimes<br>
@@ -474,6 +473,71 @@ document.addEventListener('DOMContentLoaded', () => {
                 Next to your heartbeat where I should be<br>
                 Keep it deep within your soul<br>
                 And if you want to, take a look at me now
+            `
+        },
+        // === LAGU BARU: YOU'LL BE IN MY HEART ===
+        {
+            title: "You'll Be In My Heart",
+            artist: "Niki", // Atau nama artis yang benar jika bukan Niki
+            src: "youll_be_in_my_heart.mp3", // PASTIKAN NAMA FILE MP3 INI SAMA PERSIS
+            albumArt: "album_art_youll_be_in_my_heart.jpg", // PASTIKAN NAMA FILE GAMBAR INI SAMA PERSIS
+            lyrics: `<b>🎶 You'll Be In My Heart – Niki</b><br><br>
+                <b>Verse 1</b><br>
+                Come stop your crying<br>
+                It'll be alright<br>
+                Just take my hand<br>
+                Hold it tight<br>
+                I will protect you<br>
+                From all around you<br>
+                I will be here<br>
+                Don't you cry<br><br>
+                <b>Chorus</b><br>
+                For one so small<br>
+                You seem so strong<br>
+                My arms will hold you<br>
+                Keep you safe and warm<br>
+                This bond between us<br>
+                Can't be broken<br>
+                I will be here, don't you cry<br>
+                'Cause you'll be in my heart<br>
+                Yes, you'll be in my heart<br>
+                From this day on<br>
+                Now and forever more<br><br>
+                <b>Verse 2</b><br>
+                Why can't they understand the way we feel?<br>
+                They just don't trust what they can't explain<br>
+                I know we're different but deep inside us<br>
+                We're not that different at all<br><br>
+                <b>Chorus</b><br>
+                For one so small<br>
+                You seem so strong<br>
+                My arms will hold you<br>
+                Keep you safe and warm<br>
+                This bond between us<br>
+                Can't be broken<br>
+                I will be here, don't you cry<br>
+                'Cause you'll be in my heart<br>
+                Yes, you'll be in my heart<br>
+                From this day on<br>
+                Now and forever more<br><br>
+                <b>Bridge</b><br>
+                You'll be in my heart<br>
+                No matter what they say<br>
+                You'll be in my heart<br>
+                Always<br>
+                I'll be there, always there<br>
+                For one so small, you seem so strong<br>
+                My arms will hold you, keep you safe and warm<br>
+                This bond between us can't be broken<br>
+                I will be here, don't you cry<br><br>
+                <b>Outro</b><br>
+                'Cause you'll be in my heart<br>
+                Yes, you'll be in my heart<br>
+                From this day on<br>
+                Now and forever more<br>
+                Oh, you'll be in my heart<br>
+                You'll be in my heart<br>
+                Now and forever more
             `
         }
     ];
