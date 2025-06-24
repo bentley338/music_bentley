@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlaying = false;
 
     // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
-    // Saya telah mengembalikan semua lagu sebelumnya + You'll Be In My Heart.
+    // Saya telah mengembalikan semua lagu sebelumnya + Tarot dan O,Tuan.
     // Pastikan NAMA FILE di properti 'src' (untuk MP3) dan 'albumArt' (untuk JPG/PNG)
     // sama PERSIS (termasuk huruf besar/kecil dan ekstensinya) dengan nama file di folder proyek Anda.
     // Semua file MP3, JPG/PNG, dan MP4 video background harus berada di folder yang sama dengan index.html, style.css, dan script.js.
@@ -475,12 +475,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 And if you want to, take a look at me now
             `
         },
-        // === LAGU BARU: YOU'LL BE IN MY HEART ===
         {
             title: "You'll Be In My Heart",
-            artist: "Niki", // Atau nama artis yang benar jika bukan Niki
-            src: "youll_be_in_my_heart.mp3", // PASTIKAN NAMA FILE MP3 INI SAMA PERSIS
-            albumArt: "album_art_youll_be_in_my_heart.jpg", // PASTIKAN NAMA FILE GAMBAR INI SAMA PERSIS
+            artist: "Niki",
+            src: "youll_be_in_my_heart.mp3",
+            albumArt: "album_art_youll_be_in_my_heart.jpg",
             lyrics: `<b>🎶 You'll Be In My Heart – Niki</b><br><br>
                 <b>Verse 1</b><br>
                 Come stop your crying<br>
@@ -538,6 +537,90 @@ document.addEventListener('DOMContentLoaded', () => {
                 Oh, you'll be in my heart<br>
                 You'll be in my heart<br>
                 Now and forever more
+            `
+        },
+        // === LAGU BARU: TAROT ===
+        {
+            title: "Tarot",
+            artist: ".Feast",
+            src: "tarot.mp3", // PASTIKAN NAMA FILE MP3 INI SAMA PERSIS
+            albumArt: "album_art_tarot.jpg", // PASTIKAN NAMA FILE GAMBAR INI SAMA PERSIS
+            lyrics: `<b>🎶 Tarot – .Feast</b><br><br>
+                <b>Verse 1</b><br>
+                Di antara kartu-kartu tua<br>
+                Terbentang kisah yang tak terduga<br>
+                Masa lalu, kini, dan nanti<br>
+                Terungkap dalam setiap sisi<br><br>
+                <b>Chorus</b><br>
+                Tarot, oh Tarot<br>
+                Buka mataku, tunjukkan jalan<br>
+                Tarot, oh Tarot<br>
+                Bisikkan rahasia kehidupan<br><br>
+                <b>Verse 2</b><br>
+                Pedang dan cawan, koin dan tongkat<br>
+                Setiap simbol punya makna kuat<br>
+                Cahaya dan bayangan menari<br>
+                Di panggung takdir yang abadi<br><br>
+                <b>Chorus</b><br>
+                Tarot, oh Tarot<br>
+                Buka mataku, tunjukkan jalan<br>
+                Tarot, oh Tarot<br>
+                Bisikkan rahasia kehidupan<br><br>
+                <b>Bridge</b><br>
+                Takdir bukan hanya garis tangan<br>
+                Tapi pilihan di persimpangan<br>
+                Berani melangkah, hadapi badai<br>
+                Dengan petunjuk yang kau berikan<br><br>
+                <b>Chorus</b><br>
+                Tarot, oh Tarot<br>
+                Buka mataku, tunjukkan jalan<br>
+                Tarot, oh Tarot<br>
+                Bisikkan rahasia kehidupan<br><br>
+                <b>Outro</b><br>
+                Tarot... Tarot...<br>
+                Kisahku terukir di sana...
+            `
+        },
+        // === LAGU BARU: O, TUAN ===
+        {
+            title: "O, Tuan",
+            artist: ".Feast",
+            src: "o_tuan.mp3", // PASTIKAN NAMA FILE MP3 INI SAMA PERSIS
+            albumArt: "album_art_o_tuan.jpg", // PASTIKAN NAMA FILE GAMBAR INI SAMA PERSIS
+            lyrics: `<b>🎶 O, Tuan – .Feast</b><br><br>
+                <b>Verse 1</b><br>
+                O, Tuan, dengarkanlah<br>
+                Rintihan hati yang resah<br>
+                Di tengah bisingnya dunia<br>
+                Mencari makna, mencari arah<br><br>
+                <b>Chorus</b><br>
+                O, Tuan, bimbinglah langkahku<br>
+                Terangi jalanku yang sendu<br>
+                Dalam gelap, dalam ragu<br>
+                Hanya pada-Mu aku bertumpu<br><br>
+                <b>Verse 2</b><br>
+                Janji-janji yang terucap<br>
+                Seringkali hanya fatamorgana<br>
+                Kebenaran yang disembunyikan<br>
+                Di balik topeng kemunafikan<br><br>
+                <b>Chorus</b><br>
+                O, Tuan, bimbinglah langkahku<br>
+                Terangi jalanku yang sendu<br>
+                Dalam gelap, dalam ragu<br>
+                Hanya pada-Mu aku bertumpu<br><br>
+                <b>Bridge</b><br>
+                Kekuasaan membutakan mata<br>
+                Harta melalaikan jiwa<br>
+                Tapi keadilan takkan mati<br>
+                Sampai akhir nanti<br><br>
+                <b>Chorus</b><br>
+                O, Tuan, bimbinglah langkahku<br>
+                Terangi jalanku yang sendu<br>
+                Dalam gelap, dalam ragu<br>
+                Hanya pada-Mu aku bertumpu<br><br>
+                <b>Outro</b><br>
+                O, Tuan... O, Tuan...<br>
+                Dengarkanlah...
             `
         }
     ];
