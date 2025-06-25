@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlaying = false;
 
     // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
+    // Pastikan NAMA FILE di properti 'src' (untuk MP3) dan 'albumArt' (untuk JPG/PNG)
+    // sama PERSIS (termasuk huruf besar/kecil dan ekstensinya) dengan nama file di folder proyek Anda.
+    // Semua file MP3, JPG/PNG, dan MP4 video background harus berada di folder yang sama dengan index.html, style.css, dan script.js.
     const playlist = [
         {
             title: "Back to Friends",
@@ -55,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 The devil in your eyes<br>
                 Won’t deny the lies you’ve sold<br>
                 I’m holding on too tight<br>
-                While you let go<<br>
+                While you let go<br>
                 This is casual<br><br>
                 <b>Final Chorus</b><br>
                 How can we go back to being friends<br>
@@ -535,12 +538,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 Now and forever more
             `
         },
-        // === LAGU BARU: TAROT ===
         {
             title: "Tarot",
             artist: ".Feast",
-            src: "tarot.mp3", // PASTIKAN NAMA FILE MP3 INI SAMA PERSIS
-            albumArt: "album_art_tarot.jpg", // PASTIKAN NAMA FILE GAMBAR INI SAMA PERSIS
+            src: "tarot.mp3",
+            albumArt: "album_art_tarot.jpg",
             lyrics: `<b>🎶 Tarot – .Feast</b><br><br>
                 <b>Verse 1</b><br>
                 Di antara kartu-kartu tua<br>
@@ -577,12 +579,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 Kisahku terukir di sana...
             `
         },
-        // === LAGU BARU: O, TUAN ===
         {
             title: "O, Tuan",
             artist: ".Feast",
-            src: "o_tuan.mp3", // PASTIKAN NAMA FILE MP3 INI SAMA PERSIS
-            albumArt: "album_art_o_tuan.jpg", // PASTIKAN NAMA FILE GAMBAR INI SAMA PERSIS
+            src: "o_tuan.mp3",
+            albumArt: "album_art_o_tuan.jpg",
             lyrics: `<b>🎶 O, Tuan – .Feast</b><br><br>
                 <b>Verse 1</b><br>
                 O, Tuan, dengarkanlah<br>
@@ -625,20 +626,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Memuat data lagu ke pemutar (album art, judul, artis, lirik)
     function loadSong(songIndex) {
-        // Validasi songIndex untuk menghindari error jika index tidak valid
         if (songIndex < 0 || songIndex >= playlist.length) {
             console.error("Error: songIndex di luar batas array playlist. Index:", songIndex, "Ukuran array:", playlist.length);
             currentSongTitle.textContent = "Lagu tidak ditemukan";
             currentArtistName.textContent = "Pilih lagu lain atau cek data";
             lyricsText.innerHTML = "<p>Terjadi kesalahan saat memuat lirik.</p>";
-            audioPlayer.src = ""; // Kosongkan sumber audio untuk mencegah error putar
-            currentAlbumArt.src = "album_art_default.jpg"; // Ganti dengan gambar default/error
-            pauseSong(); // Pastikan pemutar berhenti jika error
+            audioPlayer.src = "";
+            currentAlbumArt.src = "album_art_default.jpg";
+            pauseSong();
             return;
         }
 
         const song = playlist[songIndex];
         audioPlayer.src = song.src;
+        audioPlayer.load(); // Panggil .load() secara eksplisit setiap kali src berubah
         currentAlbumArt.src = song.albumArt;
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
@@ -661,7 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song.title,
                 artist: song.artist,
-                album: 'Custom Playlist', // Anda bisa ganti ini jika punya nama album
+                album: 'Custom Playlist',
                 artwork: [
                     { src: song.albumArt, sizes: '96x96', type: 'image/jpeg' },
                     { src: song.albumArt, sizes: '128x128', type: 'image/jpeg' },
@@ -672,7 +673,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 ]
             });
 
-            // Handle actions (play, pause, nexttrack, previoustrack)
+            // Pastikan action handlers diatur sekali saja atau diatur ulang
+            // agar tidak ada duplikasi listener
             navigator.mediaSession.setActionHandler('play', () => {
                 playSong();
             });
@@ -685,35 +687,45 @@ document.addEventListener('DOMContentLoaded', () => {
             navigator.mediaSession.setActionHandler('previoustrack', () => {
                 playPrevSong();
             });
-            // Anda juga bisa menambahkan setActionHandler untuk 'seekbackward', 'seekforward', dll.
         }
     }
 
     // Memutar lagu
     function playSong() {
+        // Cek jika audioPlayer.src valid sebelum mencoba play
         if (!audioPlayer.src || audioPlayer.src === window.location.href) {
-            console.warn("Audio source not loaded yet or invalid. Cannot play.");
+            console.warn("Audio source not loaded or invalid. Cannot play.");
             return;
         }
 
-        audioPlayer.play().catch(error => {
-            console.error("Error playing audio (autoplay blocked?):", error);
+        // Coba putar audio dan tangani Promise
+        audioPlayer.play().then(() => {
+            isPlaying = true;
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            playPauseBtn.setAttribute('aria-label', 'Pause');
+            const albumArtImg = document.querySelector('.album-art-img');
+            if (albumArtImg) {
+                albumArtImg.style.animationPlayState = 'running';
+            }
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'playing';
+            }
+        }).catch(error => {
+            console.error("Error playing audio:", error);
             isPlaying = false;
             playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'paused';
+            }
+            // Notifikasi pengguna jika pemutaran otomatis diblokir
+            if (error.name === "NotAllowedError" || error.name === "AbortError") {
+                // NotAllowedError: Browser memblokir autoplay
+                // AbortError: Pengguna mungkin menghentikan pemutaran terlalu cepat
+                console.log("Autoplay diblokir atau pemutaran dibatalkan. Sentuh tombol play untuk memulai.");
+                // Jika ingin memberi tahu user secara visual:
+                // alert("Pemutaran otomatis diblokir. Silakan sentuh tombol play untuk memulai.");
+            }
         });
-
-        isPlaying = true;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        playPauseBtn.setAttribute('aria-label', 'Pause');
-        const albumArtImg = document.querySelector('.album-art-img');
-        if (albumArtImg) {
-            albumArtImg.style.animationPlayState = 'running';
-        }
-
-        // Update Media Session state
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.playbackState = 'playing';
-        }
     }
 
     // Menjeda lagu
@@ -726,8 +738,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (albumArtImg) {
             albumArtImg.style.animationPlayState = 'paused';
         }
-
-        // Update Media Session state
         if ('mediaSession' in navigator) {
             navigator.mediaSession.playbackState = 'paused';
         }
@@ -746,10 +756,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function playNextSong() {
         currentSongIndex = (currentSongIndex + 1) % playlist.length;
         loadSong(currentSongIndex);
-        if (isPlaying) { // Putar jika sebelumnya sedang bermain
+        if (isPlaying) { // Pertahankan status play jika sedang bermain
             playSong();
         } else {
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Pastikan ikon play jika tidak otomatis play
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         }
     }
 
@@ -757,10 +767,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function playPrevSong() {
         currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
         loadSong(currentSongIndex);
-        if (isPlaying) { // Putar jika sebelumnya sedang bermain
+        if (isPlaying) { // Pertahankan status play jika sedang bermain
             playSong();
         } else {
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Pastikan ikon play jika tidak otomatis play
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         }
     }
 
@@ -821,7 +831,7 @@ document.addEventListener('DOMContentLoaded', () => {
             li.addEventListener('click', () => {
                 currentSongIndex = index;
                 loadSong(currentSongIndex);
-                playSong();
+                playSong(); // Panggil play() setelah loadSong
                 hidePlaylistSidebar();
             });
             playlistUl.appendChild(li);
