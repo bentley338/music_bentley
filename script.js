@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Kan selalu ada, kan selalu nyata<br>
                 Janji yang takkan pernah pudar<br><br>
                 <b>Chorus</b><br>
-                Bergema sampai selamanya<br>
+                Bergema sampai selamanya<<br>
                 Cinta kita takkan sirna<br>
                 Di setiap nada yang tercipta<br>
                 Hanyalah namamu yang ada<br><br>
@@ -618,6 +618,88 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Outro</b><br>
                 O, Tuan... O, Tuan...<br>
                 Dengarkanlah...
+            `
+        },
+        {
+            title: "Ramai Sepi Bersama",
+            artist: "Hindia",
+            src: "ramai_sepi_bersama.mp3",
+            albumArt: "album_art_ramai_sepi_bersama.jpg",
+            lyrics: `<b>🎶 Ramai Sepi Bersama – Hindia</b><br><br>
+                <b>Verse 1</b><br>
+                Di tengah ramai, aku sendiri<br>
+                Mencari arti, di antara bising<br>
+                Dunia berputar, tak henti-henti<br>
+                Namun hatiku, masih terasing<br><br>
+                <b>Chorus</b><br>
+                Ramai sepi bersama, dalam riuh kota<br>
+                Kita mencari makna, di antara fatamorgana<br>
+                Ramai sepi bersama, dalam hening jiwa<br>
+                Berharap menemukan, damai yang nyata<br><br>
+                <b>Verse 2</b><br>
+                Wajah-wajah asing, silih berganti<br>
+                Senyum dan tawa, hanya ilusi<br>
+                Ingin ku bicara, namun tak berani<br>
+                Terjebak dalam, sunyi yang abadi<br><br>
+                <b>Chorus</b><br>
+                Ramai sepi bersama, dalam riuh kota<br>
+                Kita mencari makna, di antara fatamorgana<br>
+                Ramai sepi bersama, dalam hening jiwa<br>
+                Berharap menemukan, damai yang nyata<br><br>
+                <b>Bridge</b><br>
+                Mungkin ini jalan, yang harus kutempuh<br>
+                Menyelami diri, di antara keruh<br>
+                Mencari cahaya, di ujung keluh<br>
+                Agar tak lagi, merasa rapuh<br><br>
+                <b>Chorus</b><br>
+                Ramai sepi bersama, dalam riuh kota<br>
+                Kita mencari makna, di antara fatamorgana<br>
+                Ramai sepi bersama, dalam hening jiwa<br>
+                Berharap menemukan, damai yang nyata<br><br>
+                <b>Outro</b><br>
+                Ramai sepi... bersama...<br>
+                Hindia...
+            `
+        },
+        {
+            title: "Everything U Are",
+            artist: "Hindia",
+            src: "everything_u_are.mp3",
+            albumArt: "album_art_everything_u_are.jpg",
+            lyrics: `<b>🎶 Everything U Are – Hindia</b><br><br>
+                <b>Verse 1</b><br>
+                In your eyes, I see a universe untold<br>
+                A story waiting, brave and bold<br>
+                Every whisper, every gentle sigh<br>
+                Reflects the truth beneath the sky<br><br>
+                <b>Chorus</b><br>
+                'Cause everything you are, is everything I need<br>
+                A guiding star, planting a hopeful seed<br>
+                In every beat, my heart finds its release<br>
+                Everything you are, brings me inner peace<br><br>
+                <b>Verse 2</b><br>
+                Through fragile moments, and darkest nights<br>
+                Your spirit shines, with endless lights<br>
+                A symphony of grace, a gentle art<br>
+                You're etched forever, deep within my heart<br><br>
+                <b>Chorus</b><br>
+                'Cause everything you are, is everything I need<<br>
+                A guiding star, planting a hopeful seed<br>
+                In every beat, my heart finds its release<br>
+                Everything you are, brings me inner peace<br><br>
+                <b>Bridge</b><br>
+                No words can capture, no song can define<br>
+                The depth of beauty, truly divine<br>
+                A masterpiece, uniquely made<br>
+                In every shade, a love displayed<br><br>
+                <b>Chorus</b><br>
+                'Cause everything you are, is everything I need<br>
+                A guiding star, planting a hopeful seed<br>
+                In every beat, my heart finds its release<br>
+                Everything you are, brings me inner peace<br><br>
+                <b>Outro</b><br>
+                Everything you are...<br>
+                Oh, everything you are...
             `
         }
     ];
