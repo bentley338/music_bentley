@@ -16,17 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const playlistSidebar = document.getElementById('playlist-sidebar');
     const closePlaylistBtn = document.getElementById('close-playlist-btn');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
-    const backgroundVideo = document.getElementById('background-video'); // Tambahkan ini jika kamu ingin mengontrol video latar belakang
+    const backgroundVideo = document.getElementById('background-video');
 
     // --- Variabel State ---
     let currentSongIndex = 0;
     let isPlaying = false;
 
     // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
-    // Saya telah mengembalikan semua lagu sebelumnya + Tarot dan O,Tuan.
-    // Pastikan NAMA FILE di properti 'src' (untuk MP3) dan 'albumArt' (untuk JPG/PNG)
-    // sama PERSIS (termasuk huruf besar/kecil dan ekstensinya) dengan nama file di folder proyek Anda.
-    // Semua file MP3, JPG/PNG, dan MP4 video background harus berada di folder yang sama dengan index.html, style.css, dan script.js.
     const playlist = [
         {
             title: "Back to Friends",
@@ -59,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 The devil in your eyes<br>
                 Won’t deny the lies you’ve sold<br>
                 I’m holding on too tight<br>
-                While you let go<br>
+                While you let go<<br>
                 This is casual<br><br>
                 <b>Final Chorus</b><br>
                 How can we go back to being friends<br>
@@ -436,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Loving can hurt, loving can hurt sometimes<br>
                 But it's the only thing that I know<br>
                 When it's good, when it's good, it's so good, it's so good<br>
-                'Til it goes bad, 'til it goes bad, 'til it goes bad<br>
+                'Til it goes bad, 'til it goes bad, 'Til it goes bad<br>
                 But still, I know, that I know, that I know<br>
                 Good things come to those who wait, no, never give up on you<br><br>
                 <b>Chorus</b><br>
@@ -641,145 +637,180 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const song = playlist[songIndex]; // Menggunakan 'playlist'
-        audioPlayer.src = song.src; // Mengatur sumber audio (file MP3)
-        currentAlbumArt.src = song.albumArt; // Mengatur gambar album art
-        currentSongTitle.textContent = song.title; // Mengatur judul lagu
-        currentArtistName.textContent = song.artist; // Mengatur nama artis
-        lyricsText.innerHTML = song.lyrics; // Mengupdate lirik untuk lagu yang dimuat (statis)
+        const song = playlist[songIndex];
+        audioPlayer.src = song.src;
+        currentAlbumArt.src = song.albumArt;
+        currentSongTitle.textContent = song.title;
+        currentArtistName.textContent = song.artist;
+        lyricsText.innerHTML = song.lyrics;
 
-        // Reset progress bar dan waktu ke 0:00
         progressBar.value = 0;
         currentTimeSpan.textContent = '0:00';
         durationSpan.textContent = '0:00';
 
-        // Setel ulang animasi album art saat lagu baru dimuat
         const albumArtImg = document.querySelector('.album-art-img');
         if (albumArtImg) {
-            albumArtImg.style.animation = 'none'; // Hapus animasi sebelumnya (agar animasi mulai dari awal lagi)
-            void albumArtImg.offsetWidth; // Memaksa browser untuk me-reflow, penting untuk me-reset animasi CSS
-            albumArtImg.style.animation = ''; // Menerapkan kembali animasi dari CSS default
+            albumArtImg.style.animation = 'none';
+            void albumArtImg.offsetWidth;
+            albumArtImg.style.animation = '';
         }
-        // Update class 'active' di playlist untuk menyorot lagu yang sedang diputar
         updatePlaylistActiveState(songIndex);
+
+        // === IMPLEMENTASI MEDIA SESSION API ===
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: song.title,
+                artist: song.artist,
+                album: 'Custom Playlist', // Anda bisa ganti ini jika punya nama album
+                artwork: [
+                    { src: song.albumArt, sizes: '96x96', type: 'image/jpeg' },
+                    { src: song.albumArt, sizes: '128x128', type: 'image/jpeg' },
+                    { src: song.albumArt, sizes: '192x192', type: 'image/jpeg' },
+                    { src: song.albumArt, sizes: '256x256', type: 'image/jpeg' },
+                    { src: song.albumArt, sizes: '384x384', type: 'image/jpeg' },
+                    { src: song.albumArt, sizes: '512x512', type: 'image/jpeg' },
+                ]
+            });
+
+            // Handle actions (play, pause, nexttrack, previoustrack)
+            navigator.mediaSession.setActionHandler('play', () => {
+                playSong();
+            });
+            navigator.mediaSession.setActionHandler('pause', () => {
+                pauseSong();
+            });
+            navigator.mediaSession.setActionHandler('nexttrack', () => {
+                playNextSong();
+            });
+            navigator.mediaSession.setActionHandler('previoustrack', () => {
+                playPrevSong();
+            });
+            // Anda juga bisa menambahkan setActionHandler untuk 'seekbackward', 'seekforward', dll.
+        }
     }
 
     // Memutar lagu
     function playSong() {
-        // Cek apakah sumber audio sudah dimuat atau valid.
         if (!audioPlayer.src || audioPlayer.src === window.location.href) {
             console.warn("Audio source not loaded yet or invalid. Cannot play.");
             return;
         }
 
-        // Coba putar audio. .play() mengembalikan Promise, jadi tangani jika ada error.
         audioPlayer.play().catch(error => {
-            // Error ini sering terjadi jika browser memblokir autoplay tanpa interaksi pengguna pertama.
             console.error("Error playing audio (autoplay blocked?):", error);
-            isPlaying = false; // Jika play gagal, set state kembali ke false
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Pastikan ikon tetap play
+            isPlaying = false;
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         });
 
-        isPlaying = true; // Set state ke 'sedang bermain'
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; // Ganti ikon ke ikon pause
-        playPauseBtn.setAttribute('aria-label', 'Pause'); // Update aria-label untuk aksesibilitas
+        isPlaying = true;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        playPauseBtn.setAttribute('aria-label', 'Pause');
         const albumArtImg = document.querySelector('.album-art-img');
         if (albumArtImg) {
-            albumArtImg.style.animationPlayState = 'running'; // Lanjutkan animasi putar album art
+            albumArtImg.style.animationPlayState = 'running';
+        }
+
+        // Update Media Session state
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = 'playing';
         }
     }
 
     // Menjeda lagu
     function pauseSong() {
-        audioPlayer.pause(); // Jeda audio
-        isPlaying = false; // Set state ke 'tidak bermain'
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Ganti ikon ke ikon play
-        playPauseBtn.setAttribute('aria-label', 'Play'); // Update aria-label
+        audioPlayer.pause();
+        isPlaying = false;
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        playPauseBtn.setAttribute('aria-label', 'Play');
         const albumArtImg = document.querySelector('.album-art-img');
         if (albumArtImg) {
-            albumArtImg.style.animationPlayState = 'paused'; // Jeda animasi putar album art
+            albumArtImg.style.animationPlayState = 'paused';
+        }
+
+        // Update Media Session state
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = 'paused';
         }
     }
 
     // Fungsi untuk memformat waktu dari detik menjadi 'MM:SS'
     function formatTime(seconds) {
-        if (isNaN(seconds) || seconds < 0) return '0:00'; // Tangani nilai tidak valid
-        const minutes = Math.floor(seconds / 60); // Hitung menit
-        const remainingSeconds = Math.floor(seconds % 60); // Hitung sisa detik
-        const formattedSeconds = remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds; // Tambahkan '0' di depan jika < 10
-        return `${minutes}:${formattedSeconds}`; // Gabungkan jadi string 'MM:SS'
+        if (isNaN(seconds) || seconds < 0) return '0:00';
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        const formattedSeconds = remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
+        return `${minutes}:${formattedSeconds}`;
+    }
+
+    // Mainkan lagu berikutnya
+    function playNextSong() {
+        currentSongIndex = (currentSongIndex + 1) % playlist.length;
+        loadSong(currentSongIndex);
+        if (isPlaying) { // Putar jika sebelumnya sedang bermain
+            playSong();
+        } else {
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Pastikan ikon play jika tidak otomatis play
+        }
+    }
+
+    // Mainkan lagu sebelumnya
+    function playPrevSong() {
+        currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+        loadSong(currentSongIndex);
+        if (isPlaying) { // Putar jika sebelumnya sedang bermain
+            playSong();
+        } else {
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Pastikan ikon play jika tidak otomatis play
+        }
     }
 
     // --- Event Listeners (Untuk Interaksi Pengguna) ---
 
-    // Event listener untuk tombol Play/Pause
     playPauseBtn.addEventListener('click', () => {
         if (isPlaying) {
-            pauseSong(); // Jika sedang play, maka pause
+            pauseSong();
         } else {
-            playSong(); // Jika sedang pause, maka play
+            playSong();
         }
     });
 
-    // Event listener untuk tombol Lagu Sebelumnya
-    prevBtn.addEventListener('click', () => {
-        currentSongIndex--; // Kurangi index lagu
-        if (currentSongIndex < 0) {
-            currentSongIndex = playlist.length - 1; // Jika sudah lagu pertama, kembali ke lagu terakhir (loop)
-        }
-        loadSong(currentSongIndex); // Muat lagu baru
-        playSong(); // Putar lagu baru
-    });
+    prevBtn.addEventListener('click', playPrevSong);
+    nextBtn.addEventListener('click', playNextSong);
 
-    // Event listener untuk tombol Lagu Berikutnya
-    nextBtn.addEventListener('click', () => {
-        currentSongIndex++; // Tambah index lagu
-        if (currentSongIndex > playlist.length - 1) {
-            currentSongIndex = 0; // Jika sudah lagu terakhir, kembali ke lagu pertama (loop)
-        }
-        loadSong(currentSongIndex); // Muat lagu baru
-        playSong(); // Putar lagu baru
-    });
-
-    // Event listener saat waktu lagu berjalan (untuk update progress bar dan waktu)
     audioPlayer.addEventListener('timeupdate', () => {
-        if (!isNaN(audioPlayer.duration)) { // Pastikan durasi audio sudah tersedia (bukan NaN)
-            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100; // Hitung persentase progress
-            progressBar.value = progress; // Update nilai progress bar
-            currentTimeSpan.textContent = formatTime(audioPlayer.currentTime); // Update waktu yang sedang berjalan
+        if (!isNaN(audioPlayer.duration)) {
+            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            progressBar.value = progress;
+            currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
         }
     });
 
-    // Event listener saat metadata audio (seperti durasi) dimuat
     audioPlayer.addEventListener('loadedmetadata', () => {
-        if (!isNaN(audioPlayer.duration)) { // Pastikan durasi tersedia
-            durationSpan.textContent = formatTime(audioPlayer.duration); // Tampilkan total durasi lagu
+        if (!isNaN(audioPlayer.duration)) {
+            durationSpan.textContent = formatTime(audioPlayer.duration);
         } else {
-            durationSpan.textContent = '0:00'; // Fallback jika durasi tidak tersedia
+            durationSpan.textContent = '0:00';
         }
     });
 
-    // Event listener saat progress bar diubah pengguna (seek lagu)
     progressBar.addEventListener('input', () => {
-        if (!isNaN(audioPlayer.duration)) { // Pastikan durasi tersedia
-            const seekTime = (progressBar.value / 100) * audioPlayer.duration; // Hitung waktu berdasarkan posisi slider
-            audioPlayer.currentTime = seekTime; // Atur posisi lagu
+        if (!isNaN(audioPlayer.duration)) {
+            const seekTime = (progressBar.value / 100) * audioPlayer.duration;
+            audioPlayer.currentTime = seekTime;
         }
     });
 
-    // Event listener saat lagu selesai diputar
     audioPlayer.addEventListener('ended', () => {
-        nextBtn.click(); // Secara otomatis putar lagu berikutnya
+        playNextSong();
     });
 
     // --- Fungsi Playlist ---
 
-    // Membangun daftar lagu di sidebar playlist
     function buildPlaylist() {
-        playlistUl.innerHTML = ''; // Kosongkan playlist lama sebelum membangun yang baru
-        playlist.forEach((song, index) => { // Iterasi setiap lagu di array 'playlist'
-            const li = document.createElement('li'); // Buat elemen <li> baru untuk setiap lagu
-            li.setAttribute('data-index', index); // Simpan index lagu sebagai data attribute
+        playlistUl.innerHTML = '';
+        playlist.forEach((song, index) => {
+            const li = document.createElement('li');
+            li.setAttribute('data-index', index);
             li.innerHTML = `
                 <img src="${song.albumArt}" alt="${song.title} Album Art">
                 <div class="playlist-song-info">
@@ -787,85 +818,73 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>${song.artist}</p>
                 </div>
             `;
-            li.addEventListener('click', () => { // Event listener saat item lagu di playlist diklik
-                currentSongIndex = index; // Atur index lagu saat ini ke lagu yang diklik
-                loadSong(currentSongIndex); // Muat lagu tersebut
-                playSong(); // Putar lagu tersebut
-                hidePlaylistSidebar(); // Sembunyikan sidebar setelah lagu dipilih
+            li.addEventListener('click', () => {
+                currentSongIndex = index;
+                loadSong(currentSongIndex);
+                playSong();
+                hidePlaylistSidebar();
             });
-            playlistUl.appendChild(li); // Tambahkan item lagu ke daftar playlist
+            playlistUl.appendChild(li);
         });
-        updatePlaylistActiveState(currentSongIndex); // Atur status 'active' untuk lagu yang sedang dimuat
+        updatePlaylistActiveState(currentSongIndex);
     }
 
-    // Update class 'active' pada item playlist untuk menyorot lagu yang sedang diputar
     function updatePlaylistActiveState(activeIndex) {
-        const playlistItems = playlistUl.querySelectorAll('li'); // Dapatkan semua item lagu di playlist
-        if (!playlistItems.length) return; // Jika tidak ada item, keluar
+        const playlistItems = playlistUl.querySelectorAll('li');
+        if (!playlistItems.length) return;
 
-        playlistItems.forEach(item => item.classList.remove('active')); // Hapus class 'active' dari semua item
+        playlistItems.forEach(item => item.classList.remove('active'));
 
-        // Tambahkan class 'active' jika ini adalah lagu yang sedang aktif
         if (activeIndex >= 0 && activeIndex < playlistItems.length) {
             const activeItem = playlistItems[activeIndex];
             activeItem.classList.add('active');
 
-            // Auto-scroll playlist agar lagu aktif terlihat (jika playlist sangat panjang)
-            const containerHeight = playlistUl.clientHeight; // Tinggi container playlist yang terlihat
-            const itemHeight = activeItem.offsetHeight; // Tinggi satu item lagu
-            const itemTop = activeItem.offsetTop; // Posisi vertikal item aktif dari atas container
+            const containerHeight = playlistUl.clientHeight;
+            const itemHeight = activeItem.offsetHeight;
+            const itemTop = activeItem.offsetTop;
 
-            // Hitung posisi scroll yang diinginkan (item aktif di tengah container)
             const scrollTo = itemTop - (containerHeight / 2) + (itemHeight / 2);
 
-            // Scroll hanya jika ada scrollbar (tinggi konten > tinggi container)
             if (playlistUl.scrollHeight > playlistUl.clientHeight) {
                 playlistUl.scrollTo({
                     top: scrollTo,
-                    behavior: 'smooth' // Gulir dengan animasi halus
+                    behavior: 'smooth'
                 });
             }
         }
     }
 
-    // Fungsi untuk menampilkan sidebar playlist
     function showPlaylistSidebar() {
-        playlistSidebar.classList.add('visible'); // Tambahkan class 'visible' untuk animasi slide-in
-        sidebarOverlay.classList.add('visible'); // Tampilkan overlay gelap
+        playlistSidebar.classList.add('visible');
+        sidebarOverlay.classList.add('visible');
     }
 
-    // Fungsi untuk menyembunyikan sidebar playlist
     function hidePlaylistSidebar() {
-        playlistSidebar.classList.remove('visible'); // Hapus class 'visible' untuk animasi slide-out
-        sidebarOverlay.classList.remove('visible'); // Sembunyikan overlay gelap
+        playlistSidebar.classList.remove('visible');
+        sidebarOverlay.classList.remove('visible');
     }
 
-    // Event listener untuk tombol "Daftar Putar" (Toggle Playlist)
     togglePlaylistBtn.addEventListener('click', () => {
         if (playlistSidebar.classList.contains('visible')) {
-            hidePlaylistSidebar(); // Jika sedang terlihat, sembunyikan
+            hidePlaylistSidebar();
         } else {
-            showPlaylistSidebar(); // Jika tidak terlihat, tampilkan
+            showPlaylistSidebar();
         }
     });
 
-    // Event listener untuk tombol tutup playlist di dalam sidebar
     closePlaylistBtn.addEventListener('click', () => {
         hidePlaylistSidebar();
     });
 
-    // Menutup playlist jika klik di luar sidebar (pada overlay)
     sidebarOverlay.addEventListener('click', () => {
         hidePlaylistSidebar();
     });
 
     // --- Inisialisasi Aplikasi (Fungsi yang Berjalan Saat Halaman Dimuat) ---
-    // Pastikan ada lagu di array 'playlist' sebelum mencoba memuatnya
     if (playlist.length > 0) {
-        loadSong(currentSongIndex); // Muat lagu pertama saat halaman dimuat
-        buildPlaylist(); // Bangun daftar lagu
+        loadSong(currentSongIndex);
+        buildPlaylist();
     } else {
-        // Jika tidak ada lagu, tampilkan pesan di UI
         console.error("Tidak ada lagu ditemukan di array 'playlist'.");
         currentSongTitle.textContent = "Tidak ada lagu";
         currentArtistName.textContent = "Silakan tambahkan lagu di script.js";
