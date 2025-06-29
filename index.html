@@ -25,11 +25,10 @@
                 </h1>
             </div>
 
-            <div class="header-controls"> <button id="toggle-timer-btn" class="btn btn-timer">
-                    <i class="fas fa-hourglass-half"></i> Timer
+            <div class="header-controls">
+                <button id="set-timer-btn" class="btn btn-timer">
+                    <i class="fas fa-clock"></i> Set Timer
                 </button>
-                <a href="contact.html" class="btn btn-contact"> <i class="fas fa-address-book"></i> Kontak
-                </a>
                 <button id="toggle-playlist" class="btn btn-playlist">
                     <i class="fas fa-list-music"></i> Daftar Putar
                 </button>
@@ -72,7 +71,8 @@
                 <button id="next-btn" class="control-btn small-btn" aria-label="Next Song"><i class="fas fa-forward"></i></button>
             </div>
 
-            <audio id="audio-player" preload="auto"></audio> </main>
+            <audio id="audio-player"></audio>
+        </main>
 
         <aside id="playlist-sidebar" class="playlist-sidebar glass-effect">
             <div class="playlist-header">
@@ -85,32 +85,30 @@
                 </ul>
         </aside>
 
-        <div id="sidebar-overlay" class="sidebar-overlay"></div>
-
-        <div id="timer-modal" class="timer-modal">
-            <div class="timer-content glass-effect">
-                <div class="timer-header">
-                    <h2>Atur Timer Tidur</h2>
-                    <button id="close-timer-btn" class="control-btn small-btn"><i class="fas fa-times"></i></button>
-                </div>
+        <div id="timer-modal" class="modal">
+            <div class="modal-content glass-effect">
+                <span class="close-button" id="close-timer-modal">&times;</span>
+                <h2>Set Sleep Timer</h2>
                 <div class="timer-options">
-                    <label for="timer-minutes">Setel waktu (menit):</label>
-                    <input type="number" id="timer-minutes" value="30" min="1" max="180">
-                    <div class="timer-preset-buttons">
-                        <button class="timer-preset" data-minutes="15">15m</button>
-                        <button class="timer-preset" data-minutes="30">30m</button>
-                        <button class="timer-preset" data-minutes="60">60m</button>
-                        <button class="timer-preset" data-minutes="90">90m</button>
-                    </div>
+                    <button class="timer-option-btn" data-minutes="5">5 Menit</button>
+                    <button class="timer-option-btn" data-minutes="15">15 Menit</button>
+                    <button class="timer-option-btn" data-minutes="30">30 Menit</button>
+                    <button class="timer-option-btn" data-minutes="60">60 Menit</button>
+                    <button class="timer-option-btn" data-minutes="90">90 Menit</button>
                 </div>
-                <div class="timer-controls">
-                    <button id="start-timer-btn" class="control-btn"><i class="fas fa-play"></i> Mulai</button>
-                    <button id="cancel-timer-btn" class="control-btn disabled" disabled><i class="fas fa-stop"></i> Batalkan</button>
+                <div class="custom-timer-input">
+                    <input type="number" id="custom-timer-minutes" min="1" placeholder="Atur menit kustom">
+                    <button id="set-custom-timer-btn" class="btn btn-primary">Set</button>
                 </div>
-                <p id="timer-countdown" class="timer-countdown"></p>
+                <div id="active-timer-display" class="active-timer-display">
+                    <p>Timer aktif: <span id="timer-countdown">Tidak ada</span></p>
+                    <button id="cancel-timer-btn" class="btn btn-secondary" style="display: none;">Batalkan Timer</button>
+                </div>
             </div>
         </div>
-    </div>
+
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+        <div id="modal-overlay" class="sidebar-overlay"></div> </div>
 
     <script src="script.js"></script>
 </body>
