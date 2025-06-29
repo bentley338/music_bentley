@@ -91,7 +91,7 @@ body {
     max-width: 600px; /* Fokus pada player di tengah */
     padding: 20px;
     box-sizing: border-box;
-    /* Tidak perlu margin-bottom lagi, karena footer social links sudah dihapus */
+    /* Tidak perlu margin-bottom lagi karena footer social links sudah dihapus */
 }
 
 /* HEADER APLIKASI (Judul dan Tombol Daftar Putar) */
@@ -112,7 +112,7 @@ header {
 .app-branding {
     flex-grow: 1; /* Agar mengambil ruang yang tersisa */
     text-align: left; /* Teks rata kiri */
-    margin-right: 20px; /* Jarak antara judul dan tombol */
+    margin-right: 15px; /* Sedikit jarak antara judul dan tombol grup */
 }
 
 .app-title-new { /* Kelas baru untuk judul */
@@ -135,7 +135,9 @@ header {
 /* Kontainer baru untuk tombol-tombol di kanan header */
 .header-controls {
     display: flex;
-    gap: 10px; /* Jarak antar tombol */
+    gap: 8px; /* Jarak antar tombol di kanan */
+    flex-wrap: wrap; /* Izinkan wrapping jika terlalu sempit */
+    justify-content: flex-end; /* Pastikan tombol tetap di kanan jika wrap */
 }
 
 .btn-playlist,
@@ -760,10 +762,6 @@ header {
 }
 
 
-/* Bagian Footer untuk Sosial Media */
-/* Dihapus dari sini, pindah ke contact.html */
-
-
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
@@ -907,39 +905,90 @@ header {
         font-size: 1.5em;
     }
 
-    /* Social Links di contact.html */
-    .contact-page-container header {
-        top: 0; /* Header halaman kontak di paling atas */
-        position: relative; /* Menghilangkan absolute positioning */
-        margin-bottom: 20px;
+    /* Gaya untuk halaman kontak */
+    .contact-page-container {
+        padding: 20px;
+        margin-bottom: 0; /* Tidak ada footer di sini */
     }
-    .contact-page-container main.contact-content {
-        margin-top: 20px; /* Jarak dari header ke konten */
+    .contact-page-container header.contact-header {
+        position: relative; /* Buat header relatif di halaman kontak */
+        top: 0;
+        margin-bottom: 20px;
+        padding: 0; /* Hapus padding default header */
+        flex-direction: column; /* Tata letak kolom di mobile */
+        gap: 15px;
+    }
+    .contact-page-container .app-title-new {
+        margin-right: 0;
+        font-size: 2em; /* Lebih besar dari tombol */
+    }
+    .back-to-player-btn {
+        font-size: 0.8em;
+        padding: 8px 12px;
+    }
+    .contact-content {
+        padding: 25px;
+        gap: 20px;
+        margin-top: 0; /* Tidak ada margin-top tambahan */
     }
     .contact-title {
-        font-size: 2em;
+        font-size: 1.8em;
+        margin-bottom: 10px;
     }
     .contact-description {
         font-size: 0.9em;
+        color: var(--secondary-text);
+        margin-bottom: 15px;
     }
     .social-icons-grid {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Kolom lebih fleksibel */
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Kolom adaptif */
         gap: 20px;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto; /* Tengah grid */
     }
     .social-icons-grid a {
-        font-size: 2em; /* Ikon lebih besar */
-        padding: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--button-border);
+        border-radius: var(--border-radius-sm); /* Sudut sedikit bulat */
+        padding: 15px 10px;
+        display: flex;
+        flex-direction: column; /* Ikon di atas teks */
+        align-items: center;
+        gap: 10px;
+        color: var(--primary-text);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
-    .social-icons-grid span {
-        font-size: 0.8em; /* Teks di bawah ikon */
+    .social-icons-grid a:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-color: var(--accent-purple);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.6);
     }
-    .back-to-player-btn {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        font-size: 0.7em;
-        padding: 6px 10px;
+    .social-icons-grid a i {
+        font-size: 2.5em; /* Ukuran ikon sosial media */
+        color: var(--accent-red); /* Warna ikon default */
+        transition: color 0.3s ease;
     }
+    .social-icons-grid a:hover i {
+        color: var(--primary-text); /* Warna ikon saat hover */
+    }
+    .social-icons-grid a span {
+        font-size: 0.9em;
+        font-weight: 500;
+        color: var(--secondary-text);
+        transition: color 0.3s ease;
+    }
+    .social-icons-grid a:hover span {
+        color: var(--primary-text);
+    }
+    /* Warna spesifik untuk ikon sosial media */
+    .social-icons-grid a .fa-whatsapp:hover { color: #25D366; }
+    .social-icons-grid a .fa-instagram:hover { color: #E1306C; }
+    .social-icons-grid a .fa-telegram-plane:hover { color: #0088CC; }
 }
 
 @media (max-width: 480px) {
@@ -995,5 +1044,16 @@ header {
     }
     .social-icons-grid {
         grid-template-columns: 1fr; /* Satu kolom di layar sangat kecil */
+    }
+    .social-icons-grid a {
+        font-size: 2em;
+        padding: 12px;
+    }
+    .social-icons-grid span {
+        font-size: 0.8em;
+    }
+    .back-to-player-btn {
+        font-size: 0.65em;
+        padding: 5px 8px;
     }
 }
