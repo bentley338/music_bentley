@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentAlbumArt = document.getElementById('current-album-art');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentArtistName = document.getElementById('current-artist-name');
-    const lyricsText = document.getElementById('lyrics-text'); // Ini sekarang akan jadi container untuk <p> lirik
+    const lyricsText = document.getElementById('lyrics-text'); // Ini adalah container untuk <p> lirik
     const playlistUl = document.getElementById('playlist');
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
@@ -31,65 +31,85 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Variabel State ---
     let currentSongIndex = 0;
     let isPlaying = false;
-    let timerInterval = null; // Untuk menyimpan ID interval timer
-    let timeRemaining = 0; // Waktu tersisa dalam detik
+    let timerInterval = null;
+    let timeRemaining = 0;
 
-    let lyricLines = []; // Menyimpan elemen <p> lirik
-    let currentLyricLineIndex = -1; // Index baris lirik yang aktif, -1 berarti tidak ada yang aktif (misal saat intro)
-    let lyricsScrollInterval = null; // Interval untuk auto-scroll lirik
-    let estimatedLineDuration = 0; // Durasi rata-rata per baris lirik
-    let introOffset = 0; // Durasi intro instrumental dalam detik (akan diambil dari data lagu)
+    let parsedLyricLines = []; // Menyimpan objek lirik yang sudah di-parse ({ time, text, element })
+    let currentLyricLineIndex = -1; // Index baris lirik yang aktif
+    let autoScrollLRCInterval = null; // Interval khusus untuk auto-scroll LRC
 
-    // --- DATA LAGU (LIRIK SANGAT BERSIH & ADA INTRO OFFSET YANG DIPERKIRAKAN) ---
-    // IntroOffset adalah perkiraan manual detik saat vokal pertama kali masuk.
-    // Lirik telah dibersihkan dari semua tag, penanda bait, dan intro non-vokal.
+    // --- FUNGSI LRC PARSER ---
+    function parseLRC(lrcString) {
+        const lines = lrcString.split('\n').filter(line => line.trim().length > 0);
+        const parsedLyrics = [];
+        const regex = /^\[(\d{2}):(\d{2})\.(\d{2,3})\](.+)$/; // Regex untuk [mm:ss.xx] atau [mm:ss.xxx]
+
+        lines.forEach(line => {
+            const match = line.match(regex);
+            if (match) {
+                const minutes = parseInt(match[1], 10);
+                const seconds = parseInt(match[2], 10);
+                const msString = match[3];
+                const milliseconds = msString.length === 2 ? parseInt(msString, 10) * 10 : parseInt(msString, 10); // Handle 2 or 3 digits for ms
+
+                const time = (minutes * 60) + seconds + (milliseconds / 1000); // Total waktu dalam detik
+                const text = match[4].trim(); // Lirik teks
+
+                // Filter out metadata lines often found at [00:00.00] like artist/title
+                if (!text.toLowerCase().startsWith('artist:') && !text.toLowerCase().startsWith('title:') && !text.toLowerCase().startsWith('album:')) {
+                    parsedLyrics.push({ time, text });
+                }
+            }
+        });
+        return parsedLyrics;
+    }
+
+    // --- DATA LAGU (SEKARANG MENDUKUNG LRC STRING) ---
     const playlist = [
         {
             title: "Back to Friends",
             artist: "Sombr",
             src: "back_to_friends.mp3",
             albumArt: "album_art_back_to_friends.jpg",
-            introOffset: 12.00, // Estimasi waktu vokal masuk (detik)
+            // Lirik dalam format LRC string
             lyrics: `
-                Touch my body tender
-                'Cause the feeling makes me weak
-                Kicking off the covers
-                I see the ceiling while you're looking down at me
-
-                How can we go back to being friends
-                When we just shared a bed?
-                How can you look at me and pretend
-                I'm someone you've never met?
-
-                It was last December
-                You were layin' on my chest
-                I still remember
-                I was scared to take a breath
-                Didn't want you to move your head
-
-                How can we go back to being friends
-                When we just shared a bed?
-                How can you look at me and pretend
-                I'm someone you've never met?
-
-                The devil in your eyes
-                Won't deny the lies you've sold
-                I'm holding on too tight
-                While you let go
-                This is casual
-
-                How can we go back to being friends
-                When we just shared a bed?
-                How can you look at me and pretend
-                I'm someone you've never met?
-                How can we go back to being friends
-                When we just shared a bed?
-                How can you look at me and pretend
-                I'm someone you've never met?
-                I'm someone you've never met
-                When we just shared a bed?
+                [00:00.00]Sombr – Back to Friends
+                [00:22.00]Touch my body tender
+                [00:27.00]Cause the feeling makes me weak
+                [00:32.00]Kicking off the covers
+                [00:36.00]I see the ceiling while you’re looking down at me
+                [00:44.00]How can we go back to being friends
+                [00:50.00]When we just shared a bed?
+                [00:55.00]How can you look at me and pretend
+                [01:00.00]I’m someone you’ve never met?
+                [01:08.00]It was last December
+                [01:12.00]You were layin’ on my chest
+                [01:17.00]I still remember
+                [01:21.00]I was scared to take a breath
+                [01:26.00]Didn’t want you to move your head
+                [01:30.00]How can we go back to being friends
+                [01:35.00]When we just shared a bed? (Yeah)
+                [01:40.00]How can you look at me and pretend
+                [01:45.00]I’m someone you’ve never met?
+                [01:53.00]The devil in your eyes
+                [01:57.00]Won’t deny the lies you’ve sold
+                [02:02.00]I’m holding on too tight
+                [02:06.00]While you let go
+                [02:14.00]This is casual
+                [02:18.00]How can we go back to being friends
+                [02:23.00]When we just shared a bed? (Yeah)
+                [02:28.00]How can you look at me and pretend
+                [02:33.00]I’m someone you’ve never met?
+                [02:41.00]How can we go back to being friends
+                [02:46.00]When we just shared a bed? (Yeah)
+                [02:51.00]How can you look at me and pretend
+                [02:56.00]I’m someone you’ve never met?
+                [03:04.00]I’m someone you’ve never met (Yeah)
+                [03:09.00]When we just shared a bed?
             `
         },
+        // --- LAGU LAINNYA TETAP MENGGUNAKAN LIRIK BIASA (tanpa timestamp) ---
+        // Jika Anda ingin mereka juga presisi, Anda perlu menyediakan format LRC untuk masing-masing.
         {
             title: "Bergema Sampai Selamanya",
             artist: "Nadhif Basalamah",
@@ -763,32 +783,49 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
         
-        introOffset = song.introOffset || 0; // Ambil introOffset dari data lagu, default 0 jika tidak ada
+        // Cek apakah liriknya adalah format LRC atau teks biasa
+        const isLRC = song.lyrics.trim().startsWith('['); // Cek sederhana apakah dimulai dengan '['
 
-        // --- Proses Lirik untuk Auto-scroll dan Penyorotan ---
-        lyricsText.innerHTML = ''; // Bersihkan konten lirik sebelumnya
-        lyricLines = []; // Reset array lyricLines
+        // Jika liriknya adalah LRC
+        if (isLRC) {
+            parsedLyricLines = parseLRC(song.lyrics);
+            lyricsText.innerHTML = ''; // Kosongkan container
+            parsedLyricLines.forEach(lrcLine => {
+                const p = document.createElement('p');
+                p.classList.add('lyric-line');
+                p.textContent = lrcLine.text;
+                lyricsText.appendChild(p);
+                // Tambahkan elemen DOM ke objek lirik agar mudah diakses
+                lrcLine.element = p;
+            });
+            // Untuk LRC, introOffset tidak relevan karena timing sudah ada di LRC itu sendiri.
+            // Namun, kita set introOffset ke waktu baris pertama LRC untuk konsistensi di timeupdate logic.
+            introOffset = parsedLyricLines.length > 0 ? parsedLyricLines[0].time : 0;
+        } else {
+            // Jika liriknya teks biasa (non-LRC)
+            parsedLyricLines = []; // Reset parsedLyricLines
+            introOffset = song.introOffset || 0; // Ambil introOffset dari data lagu
 
-        // Regex untuk menghapus semua penanda seperti Verse, Chorus, Intro, dll.
-        // dan memastikan hanya baris lirik yang dinyanyikan yang tersisa.
-        const cleanedLyrics = song.lyrics
-            .replace(/<\/?b>/g, '') // Hapus tag <b>
-            .replace(/🎶\s*[\w\s\.-]+\s*–\s*[\w\s\.-]+/g, '') // Hapus intro "🎶 Title - Artist"
-            .replace(/(^|\n)\s*(Intro|Verse|Chorus|Bridge|Outro|Pre-Chorus|Post-Chorus|Hook|Refrain|Solo|Break|Instrumental)\s*\d*\s*(\(|\)|:|\-)?\s*(<br\/?>)?/gi, '') // Hapus penanda struktur dan baris kosong setelahnya
-            .split('\n') // Pisahkan per baris
-            .map(line => line.trim()) // Hapus spasi di awal/akhir setiap baris
-            .filter(line => line.length > 0) // Hapus baris yang kosong sepenuhnya
-            .join('\n'); // Gabungkan kembali menjadi string bersih
+            const cleanedLyrics = song.lyrics
+                .replace(/<\/?b>/g, '')
+                .replace(/🎶\s*[\w\s\.-]+\s*–\s*[\w\s\.-]+/g, '')
+                .replace(/(^|\n)\s*(Intro|Verse|Chorus|Bridge|Outro|Pre-Chorus|Post-Chorus|Hook|Refrain|Solo|Break|Instrumental)\s*\d*\s*(\(|\)|:|\-)?\s*(<br\/?>)?/gi, '')
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
 
-        const lines = cleanedLyrics.split('\n'); // Sekarang pisahkan lagi baris yang sudah bersih
+            cleanedLyrics.forEach(line => {
+                const p = document.createElement('p');
+                p.classList.add('lyric-line');
+                p.textContent = line;
+                lyricsText.appendChild(p);
+                // Untuk lirik biasa, kita hanya simpan elemennya
+                parsedLyricLines.push({ time: 0, text: line, element: p }); // Time 0 karena tidak ada timestamp
+            });
 
-        lines.forEach(line => {
-            const p = document.createElement('p');
-            p.classList.add('lyric-line');
-            p.textContent = line; // Gunakan textContent untuk menghindari masalah HTML di dalam lirik
-            lyricsText.appendChild(p);
-            lyricLines.push(p);
-        });
+            // Hitung estimatedLineDuration hanya untuk lirik non-LRC
+            // Akan dihitung di loadedmetadata
+        }
 
         estimatedLineDuration = 0; // Reset dulu, akan dihitung ulang saat loadedmetadata
 
@@ -934,26 +971,52 @@ document.addEventListener('DOMContentLoaded', () => {
     nextBtn.addEventListener('click', playNextSong);
 
     audioPlayer.addEventListener('timeupdate', () => {
-        if (!isNaN(audioPlayer.duration) && lyricLines.length > 0 && estimatedLineDuration > 0) {
+        if (!isNaN(audioPlayer.duration) && parsedLyricLines.length > 0) {
             const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
             progressBar.value = progress;
             currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
 
-            // Perbarui posisi scroll lirik hanya jika waktu audio sudah melewati introOffset
-            if (audioPlayer.currentTime >= introOffset) {
-                // newIndex dihitung berdasarkan waktu setelah introOffset
-                const timeAfterIntro = audioPlayer.currentTime - introOffset;
-                const newIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
+            // Cek apakah liriknya LRC atau teks biasa untuk menentukan logika scroll
+            const currentSong = playlist[currentSongIndex];
+            const isLRC = currentSong.lyrics.trim().startsWith('[');
+
+            if (isLRC) {
+                // Logika scroll untuk LRC (presisi)
+                let newIndex = -1;
+                for (let i = 0; i < parsedLyricLines.length; i++) {
+                    // Cari baris lirik yang sedang aktif berdasarkan timestamp
+                    if (audioPlayer.currentTime >= parsedLyricLines[i].time) {
+                        newIndex = i;
+                    } else {
+                        break; // Baris berikutnya belum dimulai
+                    }
+                }
+                
+                // Pastikan tidak ada penyorotan jika lagu selesai atau belum dimulai
+                if (audioPlayer.currentTime < parsedLyricLines[0].time || audioPlayer.currentTime >= audioPlayer.duration - 0.5) {
+                    newIndex = -1;
+                }
 
                 if (newIndex !== currentLyricLineIndex) {
                     currentLyricLineIndex = newIndex;
-                    updateLyricsScroll();
+                    updateLyricsScroll(true); // Selalu force scroll untuk LRC agar presisi
                 }
+
             } else {
-                // Sebelum intro selesai, tidak ada baris yang aktif
-                if (currentLyricLineIndex !== -1) {
-                    currentLyricLineIndex = -1;
-                    lyricLines.forEach(line => line.classList.remove('active-lyric'));
+                // Logika scroll untuk teks biasa (estimasi)
+                if (audioPlayer.currentTime >= introOffset) {
+                    const timeAfterIntro = audioPlayer.currentTime - introOffset;
+                    const newIndex = Math.min(parsedLyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
+
+                    if (newIndex !== currentLyricLineIndex) {
+                        currentLyricLineIndex = newIndex;
+                        updateLyricsScroll();
+                    }
+                } else {
+                    if (currentLyricLineIndex !== -1) {
+                        currentLyricLineIndex = -1;
+                        parsedLyricLines.forEach(line => line.element.classList.remove('active-lyric'));
+                    }
                 }
             }
         }
@@ -963,25 +1026,27 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isNaN(audioPlayer.duration)) {
             durationSpan.textContent = formatTime(audioPlayer.duration);
 
-            // Hitung ulang estimatedLineDuration setelah durasi audio diketahui
-            if (lyricLines.length > 0) {
-                // Durasi efektif untuk lirik = total durasi - introOffset - kompensasi akhir
-                const outroCompensation = 3; // Kurangi 3 detik untuk outro/akhir lagu
+            const currentSong = playlist[currentSongIndex];
+            const isLRC = currentSong.lyrics.trim().startsWith('[');
+
+            if (!isLRC && parsedLyricLines.length > 0) {
+                // Hitung estimatedLineDuration hanya untuk lirik non-LRC
+                const outroCompensation = 3;
                 const effectiveDuration = Math.max(0, audioPlayer.duration - introOffset - outroCompensation);
                 
-                if (effectiveDuration > 0) { // Pastikan durasi efektif positif
-                    estimatedLineDuration = effectiveDuration / lyricLines.length;
+                if (effectiveDuration > 0) {
+                    estimatedLineDuration = effectiveDuration / parsedLyricLines.length;
                 } else {
-                    estimatedLineDuration = 0; // Jika durasi efektif nol atau negatif, set ke nol
+                    estimatedLineDuration = 0;
                 }
-
-                console.log(`Durasi total: ${audioPlayer.duration.toFixed(2)}s, Intro Offset: ${introOffset.toFixed(2)}s, Effective Duration: ${effectiveDuration.toFixed(2)}s, Baris lirik: ${lyricLines.length}, Estimasi durasi per baris: ${estimatedLineDuration.toFixed(2)}s`);
-            } else {
-                estimatedLineDuration = 0;
+                console.log(`(Estimasi) Durasi total: ${audioPlayer.duration.toFixed(2)}s, Intro Offset: ${introOffset.toFixed(2)}s, Effective Duration: ${effectiveDuration.toFixed(2)}s, Baris lirik: ${parsedLyricLines.length}, Estimasi durasi per baris: ${estimatedLineDuration.toFixed(2)}s`);
+            } else if (isLRC && parsedLyricLines.length > 0) {
+                console.log(`(LRC) Durasi total: ${audioPlayer.duration.toFixed(2)}s, Baris lirik: ${parsedLyricLines.length}, Timestamps presisi.`);
             }
 
+
             // Jika lagu sedang bermain dan lirik siap, mulai auto-scroll
-            if (isPlaying && lyricLines.length > 0 && lyricsScrollInterval === null && estimatedLineDuration > 0) {
+            if (isPlaying && parsedLyricLines.length > 0 && autoScrollLRCInterval === null) {
                 startLyricsAutoScroll();
             }
 
@@ -995,16 +1060,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isNaN(audioPlayer.duration)) {
             const seekTime = (progressBar.value / 100) * audioPlayer.duration;
             audioPlayer.currentTime = seekTime;
-            // Saat seek, set ulang index lirik dan langsung update scroll
-            // Perhatikan introOffset saat seek
-            if (seekTime >= introOffset) {
-                const timeAfterIntro = seekTime - introOffset;
-                currentLyricLineIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
+            
+            const currentSong = playlist[currentSongIndex];
+            const isLRC = currentSong.lyrics.trim().startsWith('[');
+
+            if (isLRC) {
+                // Untuk LRC, langsung update index berdasarkan timestamp
+                let newIndex = -1;
+                for (let i = 0; i < parsedLyricLines.length; i++) {
+                    if (seekTime >= parsedLyricLines[i].time) {
+                        newIndex = i;
+                    } else {
+                        break;
+                    }
+                }
+                currentLyricLineIndex = newIndex;
             } else {
-                currentLyricLineIndex = -1; // Jika seek sebelum intro
+                // Untuk teks biasa, pakai logika estimasi
+                if (seekTime >= introOffset) {
+                    const timeAfterIntro = seekTime - introOffset;
+                    currentLyricLineIndex = Math.min(parsedLyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
+                } else {
+                    currentLyricLineIndex = -1;
+                }
             }
             updateLyricsScroll(true); // Panggil dengan force scroll
-            if (isPlaying && lyricsScrollInterval === null && estimatedLineDuration > 0) {
+            if (isPlaying && autoScrollLRCInterval === null && parsedLyricLines.length > 0) {
                 startLyricsAutoScroll();
             }
         }
@@ -1179,95 +1260,102 @@ document.addEventListener('DOMContentLoaded', () => {
     stopTimer();
 
 
-    // --- FUNGSI DAN LOGIKA AUTO-SCROLL LIRIK ---
+    // --- FUNGSI DAN LOGIKA AUTO-SCROLL LIRIK (Disesuaikan untuk LRC dan Teks Biasa) ---
 
     function startLyricsAutoScroll() {
         stopLyricsAutoScroll(); // Hentikan interval lama jika ada
 
-        // Periksa apakah lirik ada dan estimasi durasi per baris valid
-        if (lyricLines.length === 0 || estimatedLineDuration <= 0) {
-            console.warn("Lirik tidak tersedia atau durasi baris tidak dapat diestimasi. Auto-scroll lirik dinonaktifkan.");
+        if (parsedLyricLines.length === 0) {
+            console.warn("Lirik tidak tersedia. Auto-scroll lirik dinonaktifkan.");
             return;
+        }
+
+        const currentSong = playlist[currentSongIndex];
+        const isLRC = currentSong.lyrics.trim().startsWith('[');
+
+        // Jika LRC, timeupdate akan mengurus semuanya
+        if (isLRC) {
+            // currentLyricLineIndex diurus langsung oleh timeupdate karena presisi
+            // Tidak perlu setInterval terpisah jika timeupdate sudah cukup sering (100ms)
+            // Cukup panggil updateLyricsScroll() dari timeupdate
+            return; // timeupdate akan memicu penyorotan
+        }
+
+        // Untuk lirik biasa (non-LRC), gunakan logika estimasi
+        if (estimatedLineDuration <= 0) {
+             console.warn("Durasi baris tidak dapat diestimasi. Auto-scroll lirik dinonaktifkan.");
+             return;
         }
 
         // Set index awal berdasarkan posisi lagu saat ini (memperhitungkan introOffset)
         let initialIndex = -1;
         if (audioPlayer.currentTime >= introOffset) {
             const timeAfterIntro = audioPlayer.currentTime - introOffset;
-            initialIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
+            initialIndex = Math.min(parsedLyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
         }
-        currentLyricLineIndex = initialIndex; // Jika masih dalam intro, index adalah -1
+        currentLyricLineIndex = initialIndex;
 
         updateLyricsScroll(true); // Langsung update sekali saat mulai
 
-        // Gunakan interval yang lebih sering untuk update lirik (misal 100ms) untuk responsivitas ekstra
-        lyricsScrollInterval = setInterval(() => {
-            if (!isPlaying) { // Hentikan jika lagu dijeda di tengah
-                // Tidak perlu stopLyricsAutoScroll() di sini, karena pauseSong() sudah memanggilnya.
-                // Cukup return untuk mencegah update scroll saat tidak play.
+        autoScrollLRCInterval = setInterval(() => {
+            if (!isPlaying) {
                 return;
             }
 
             if (audioPlayer.currentTime < introOffset) {
-                // Jika masih di bagian intro, pastikan tidak ada lirik yang aktif
                 if (currentLyricLineIndex !== -1) {
                     currentLyricLineIndex = -1;
-                    lyricLines.forEach(line => line.classList.remove('active-lyric'));
+                    parsedLyricLines.forEach(line => line.element.classList.remove('active-lyric'));
                 }
-                return; // Jangan lakukan apa-apa sampai intro selesai
+                return;
             }
 
-            // Perbarui index lirik berdasarkan waktu audio setelah introOffset
             const timeAfterIntro = audioPlayer.currentTime - introOffset;
-            const newIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
+            const newIndex = Math.min(parsedLyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
 
             if (newIndex !== currentLyricLineIndex) {
                 currentLyricLineIndex = newIndex;
                 updateLyricsScroll();
             }
 
-            // Hentikan interval jika lagu hampir selesai (kurang dari 0.5 detik dari akhir)
-            // Ini untuk mencegah lirik aktif setelah lagu selesai
-            if (audioPlayer.currentTime >= audioPlayer.duration - 0.5 && lyricsScrollInterval) {
+            if (audioPlayer.currentTime >= audioPlayer.duration - 0.5 && autoScrollLRCInterval) {
                 stopLyricsAutoScroll();
             }
-        }, 100); // Periksa setiap 0.1 detik untuk responsivitas yang maksimal
+        }, 100); // Cek setiap 0.1 detik untuk responsivitas maksimal
     }
 
     function stopLyricsAutoScroll() {
-        if (lyricsScrollInterval) {
-            clearInterval(lyricsScrollInterval);
-            lyricsScrollInterval = null;
+        if (autoScrollLRCInterval) {
+            clearInterval(autoScrollLRCInterval);
+            autoScrollLRCInterval = null;
         }
-        // Hapus penyorotan dari semua baris lirik
-        lyricLines.forEach(line => line.classList.remove('active-lyric'));
-        currentLyricLineIndex = -1; // Reset index lirik aktif ke -1 (tidak ada yang aktif)
+        parsedLyricLines.forEach(line => line.element.classList.remove('active-lyric'));
+        currentLyricLineIndex = -1;
     }
 
     function updateLyricsScroll(forceScroll = false) {
-        lyricLines.forEach((line, index) => {
-            if (index === currentLyricLineIndex) {
-                line.classList.add('active-lyric');
-                // Gulir hanya jika lirik tidak terlihat di viewport atau jika dipaksa
-                const lyricsSection = document.querySelector('.lyrics-section');
-                if (!lyricsSection) return; // Tambah cek keamanan
+        parsedLyricLines.forEach((lrcLine, index) => {
+            if (!lrcLine.element) return; // Pastikan elemen ada
 
-                const lineRect = line.getBoundingClientRect();
+            if (index === currentLyricLineIndex) {
+                lrcLine.element.classList.add('active-lyric');
+                const lyricsSection = document.querySelector('.lyrics-section');
+                if (!lyricsSection) return;
+
+                const lineRect = lrcLine.element.getBoundingClientRect();
                 const containerRect = lyricsSection.getBoundingClientRect();
 
-                // Cek jika baris tidak sepenuhnya terlihat dalam viewport lirik
-                // Atau jika baris aktif saat ini sudah melewati tengah layar
                 const isLineAboveCenter = lineRect.top + (lineRect.height / 2) < containerRect.top + (containerRect.height / 2);
                 const isLineBelowCenter = lineRect.top + (lineRect.height / 2) > containerRect.top + (containerRect.height / 2);
 
                 if (forceScroll || isLineAboveCenter || isLineBelowCenter) {
-                    line.scrollIntoView({
+                    lrcLine.element.scrollIntoView({
                         behavior: 'smooth',
-                        block: 'center' // Pusatkan baris di tengah container
+                        block: 'center'
                     });
                 }
             } else {
-                line.classList.remove('active-lyric');
+                lrcLine.element.classList.remove('active-lyric');
             }
         });
     }
