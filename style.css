@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
 /* Menggunakan Roboto untuk kemiripan yang lebih baik */
 
-/* Variabel Warna Global */
+/* Variabel Warna Global - Dioptimalkan untuk kemiripan 1000% */
 :root {
     --bg-dark: #0A0A0A; /* Hampir hitam */
     --player-bg-dark: rgba(20, 0, 30, 0.5); /* Ungu gelap transparan */
@@ -27,13 +27,13 @@ html, body {
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', sans-serif; /* Menggunakan Roboto */
     color: var(--primary-text);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: var(--bg-dark);
+    background-color: var(--bg-dark); /* Fallback */
     position: relative;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -70,7 +70,7 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     object-fit: cover;
-    filter: brightness(0.4) contrast(1.2) grayscale(0.1);
+    filter: brightness(0.4) contrast(1.2) grayscale(0.1); /* Lebih gelap, kontras, sedikit grayscale */
 }
 
 .video-overlay {
@@ -80,7 +80,7 @@ body {
     width: 100%;
     height: 100%;
     background: radial-gradient(circle at 15% 30%, rgba(100, 0, 150, 0.4), transparent 50%),
-                radial-gradient(circle at 85% 70%, rgba(255, 50, 0, 0.3), transparent 50%);
+                radial-gradient(circle at 85% 70%, rgba(255, 50, 0, 0.3), transparent 50%); /* Aksen ungu/merah */
     z-index: -1;
 }
 
@@ -90,47 +90,48 @@ body {
     z-index: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    /* justify-content: center; */ /* Dihilangkan agar elemen stack dari atas */
+    align-items: center; /* Pusat di tengah horizontal */
     width: 90%;
-    max-width: 600px; /* Lebar default */
-    padding: 20px;
+    max-width: 520px; /* **Ukuran kotak utama diperbaiki agar pas** */
+    padding: 15px; /* Mengurangi padding */
     box-sizing: border-box;
-    height: 100vh; /* Agar tidak melompat */
+    height: 100vh; /* Menggunakan height 100vh agar tidak melompat */
     overflow-y: auto; /* Memungkinkan scroll jika konten melebihi tinggi viewport */
 }
 
 /* HEADER APLIKASI (Judul dan Tombol Header) */
 header {
-    position: relative;
-    top: auto;
-    width: 100%;
-    max-width: 600px;
+    position: relative; /* Ini membuat header mengambil ruang di dalam flex-container */
+    top: auto; /* Nonaktifkan top absolute */
+    width: 100%; /* Ambil lebar penuh container */
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 5;
-    padding: 0 0; /* Padding header diset ke 0 */
+    padding: 0 5px; /* Sedikit padding samping di header */
     box-sizing: border-box;
     min-height: 50px;
-    margin-bottom: 30px; /* Jarak antara header dan music player */
+    margin-bottom: 25px; /* **Jarak antara header dan music player agar tidak renggang** */
 }
 
+/* Styling untuk judul baru */
 .app-branding {
     flex-grow: 1;
     text-align: left;
-    margin-right: 15px;
+    margin-right: 10px; /* Sedikit jarak antara judul dan tombol grup */
 }
 
 .app-title-new {
     font-family: 'Montserrat', sans-serif;
-    font-size: 2.2em;
+    font-size: 1.8em; /* Sedikit mengecilkan font judul */
     font-weight: 800;
     color: var(--primary-text);
     text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px; /* Mengurangi gap ikon dengan teks */
 }
 
 .app-title-new .fas {
@@ -138,9 +139,10 @@ header {
     color: var(--accent-purple);
 }
 
+/* Kontainer baru untuk tombol-tombol di kanan header */
 .header-controls {
     display: flex;
-    gap: 10px;
+    gap: 6px; /* Mengurangi jarak antar tombol */
     flex-wrap: wrap;
     justify-content: flex-end;
 }
@@ -151,14 +153,14 @@ header {
     background: var(--button-bg);
     border: 1px solid var(--button-border);
     color: var(--primary-text);
-    padding: 10px 15px;
+    padding: 7px 10px; /* **Mengurangi padding tombol agar lebih kompak** */
     border-radius: var(--border-radius-sm);
-    font-size: 0.9em;
+    font-size: 0.8em; /* **Mengurangi ukuran font tombol** */
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px; /* Mengurangi gap ikon dengan teks */
     white-space: nowrap;
 }
 
@@ -174,15 +176,15 @@ header {
 
 /* Music Player */
 .music-player {
-    padding: 30px 40px;
+    padding: 25px 30px; /* Mengurangi padding */
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 25px;
+    gap: 20px; /* Mengurangi gap */
     width: 100%;
     animation: fadeIn 0.8s ease-out forwards;
     position: relative;
-    margin-top: 0; /* Tidak ada margin-top tambahan */
+    margin-top: 0; /* TIDAK ADA LAGI MARGIN-TOP, karena header sudah di flow normal */
 }
 
 @keyframes fadeIn {
@@ -228,8 +230,8 @@ header {
 
 
 .album-art-section {
-    width: 250px; /* Ukuran default album art */
-    height: 250px;
+    width: 200px; /* Mengecilkan ukuran album art */
+    height: 200px;
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 8px 25px var(--shadow-deep);
@@ -276,7 +278,7 @@ header {
 .song-title {
     font-family: 'Montserrat', sans-serif;
     margin: 0;
-    font-size: 2.2em; /* Ukuran default font judul lagu */
+    font-size: 1.8em; /* Mengecilkan ukuran font judul lagu */
     color: var(--primary-text);
     text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
     font-weight: 700;
@@ -285,7 +287,7 @@ header {
 
 .artist-name {
     margin: 8px 0 0;
-    font-size: 1.1em; /* Ukuran default font artis */
+    font-size: 1em; /* Mengecilkan ukuran font artis */
     color: var(--secondary-text);
     font-weight: 400;
 }
@@ -299,13 +301,13 @@ header {
     background: rgba(0, 0, 0, 0.2);
     border-radius: var(--border-radius-sm);
     max-height: 120px;
-    overflow-y: auto; /* Bisa digulir manual */
+    overflow-y: auto; /* Tetap bisa digulir manual */
     border: 1px solid rgba(255, 255, 255, 0.05);
     scroll-behavior: smooth;
-    line-height: 1.6;
+    line-height: 1.6; /* Pastikan line-height tetap rapi */
 }
 
-/* Styling untuk lirik statis (tanpa auto-scroll/highlight) */
+/* Styling untuk setiap baris lirik (sekarang hanya untuk tampilan statis) */
 #lyrics-text {
     white-space: pre-wrap; /* Mempertahankan baris baru dan spasi agar rapi */
     font-size: 0.95em;
