@@ -954,7 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Hitung ulang estimatedLineDuration setelah durasi audio diketahui
             if (lyricLines.length > 0) {
-                // Durasi efektif untuk lirik = total durasi - introOffset - kompensasi akhir (outro)
+                // Durasi efektif untuk lirik = total durasi - introOffset - kompensasi akhir
                 const outroCompensation = 3; // Kurangi 3 detik untuk outro/akhir lagu
                 const effectiveDuration = Math.max(0, audioPlayer.duration - introOffset - outroCompensation);
                 
@@ -1269,6 +1269,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Tidak ada lagu ditemukan di array 'playlist'.");
         currentSongTitle.textContent = "Tidak ada lagu";
         currentArtistName.textContent = "Silakan tambahkan lagu di script.js";
-        lyricsText.innerHTML = "<p>Silakan tambahkan file MP3 dan gambar album di folder yang sama, lalu update array 'playlist' di script.js.</p>";
+        lyricsText.innerHTML = "<p>Silakan tambakan file MP3 dan gambar album di folder yang sama, lalu update array 'playlist' di script.js.</p>";
     }
 });
