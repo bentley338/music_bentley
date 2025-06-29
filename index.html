@@ -30,10 +30,7 @@
                 </button>
                 <a href="contact.html" class="btn btn-contact"> <i class="fas fa-address-book"></i> Kontak
                 </a>
-                <button id="set-timer-btn" class="btn btn-timer">
-                    <i class="fas fa-clock"></i> Set Timer
-                </button>
-            </div>
+                </div>
         </header>
 
         <main class="music-player glass-effect">
@@ -86,31 +83,8 @@
                 </ul>
         </aside>
 
-        <div id="timer-modal" class="modal">
-            <div class="modal-content glass-effect">
-                <span class="close-button" id="close-timer-modal">&times;</span>
-                <h2>Set Sleep Timer</h2>
-                <div class="timer-options">
-                    <button class="timer-option-btn" data-minutes="5">5 Menit</button>
-                    <button class="timer-option-btn" data-minutes="15">15 Menit</button>
-                    <button class="timer-option-btn" data-minutes="30">30 Menit</button>
-                    <button class="timer-option-btn" data-minutes="60">60 Menit</button>
-                    <button class="timer-option-btn" data-minutes="90">90 Menit</button>
-                </div>
-                <div class="custom-timer-input">
-                    <input type="number" id="custom-timer-minutes" min="1" placeholder="Atur menit kustom">
-                    <button id="set-custom-timer-btn" class="btn btn-primary">Set</button>
-                </div>
-                <div id="active-timer-display" class="active-timer-display">
-                    <p>Timer aktif: <span id="timer-countdown">Tidak ada</span></p>
-                    <button id="cancel-timer-btn" class="btn btn-secondary" style="display: none;">Batalkan Timer</button>
-                </div>
-            </div>
-        </div>
-
         <div id="sidebar-overlay" class="sidebar-overlay"></div>
-        <div id="modal-overlay" class="sidebar-overlay"></div>
-    </div>
+        </div>
 
     <script src="script.js"></script>
 </body>
