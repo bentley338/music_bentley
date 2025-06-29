@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
 /* Menggunakan Roboto untuk kemiripan yang lebih baik */
 
-/* Variabel Warna Global - Dioptimalkan untuk kemiripan 1000% */
+/* Variabel Warna Global */
 :root {
     --bg-dark: #0A0A0A; /* Hampir hitam */
     --player-bg-dark: rgba(20, 0, 30, 0.5); /* Ungu gelap transparan */
@@ -27,13 +27,13 @@ html, body {
 }
 
 body {
-    font-family: 'Roboto', sans-serif; /* Menggunakan Roboto */
+    font-family: 'Roboto', sans-serif;
     color: var(--primary-text);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: var(--bg-dark); /* Fallback */
+    background-color: var(--bg-dark);
     position: relative;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -70,7 +70,7 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     object-fit: cover;
-    filter: brightness(0.4) contrast(1.2) grayscale(0.1); /* Lebih gelap, kontras, sedikit grayscale */
+    filter: brightness(0.4) contrast(1.2) grayscale(0.1);
 }
 
 .video-overlay {
@@ -80,59 +80,57 @@ body {
     width: 100%;
     height: 100%;
     background: radial-gradient(circle at 15% 30%, rgba(100, 0, 150, 0.4), transparent 50%),
-                radial-gradient(circle at 85% 70%, rgba(255, 50, 0, 0.3), transparent 50%); /* Aksen ungu/merah */
+                radial-gradient(circle at 85% 70%, rgba(255, 50, 0, 0.3), transparent 50%);
     z-index: -1;
 }
 
-/* Kontainer Utama (index.html) */
+/* Kontainer Utama (index.html dan contact.html) */
 .container {
     position: relative;
     z-index: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Pusat di tengah vertikal */
-    align-items: center; /* Pusat di tengah horizontal */
+    align-items: center;
     width: 90%;
-    max-width: 500px; /* Mengecilkan ukuran maksimal kotak utama */
-    padding: 15px; /* Mengurangi padding */
+    max-width: 600px; /* Lebar default */
+    padding: 20px;
     box-sizing: border-box;
-    height: 100vh; /* Menggunakan height 100vh agar tidak melompat */
+    height: 100vh; /* Agar tidak melompat */
+    overflow-y: auto; /* Memungkinkan scroll jika konten melebihi tinggi viewport */
 }
 
-/* HEADER APLIKASI (Judul dan Tombol Daftar Putar) */
+/* HEADER APLIKASI (Judul dan Tombol Header) */
 header {
-    /* Mengubah posisi absolute menjadi relatif dan di atas konten */
-    position: relative; /* Ini membuat header mengambil ruang di dalam flex-container */
-    top: auto; /* Nonaktifkan top absolute */
-    width: 90%;
-    max-width: 500px; /* Sama dengan container utama */
+    position: relative;
+    top: auto;
+    width: 100%;
+    max-width: 600px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 5;
-    padding: 0 15px; /* Mengurangi padding samping */
+    padding: 0 0; /* Padding header diset ke 0 */
     box-sizing: border-box;
     min-height: 50px;
-    margin-bottom: 20px; /* Jarak antara header dan music player */
+    margin-bottom: 30px; /* Jarak antara header dan music player */
 }
 
-/* Styling untuk judul baru */
 .app-branding {
     flex-grow: 1;
     text-align: left;
-    margin-right: 10px; /* Sedikit jarak antara judul dan tombol grup */
+    margin-right: 15px;
 }
 
 .app-title-new {
     font-family: 'Montserrat', sans-serif;
-    font-size: 2em; /* Sedikit mengecilkan font judul */
+    font-size: 2.2em;
     font-weight: 800;
     color: var(--primary-text);
     text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .app-title-new .fas {
@@ -140,10 +138,9 @@ header {
     color: var(--accent-purple);
 }
 
-/* Kontainer baru untuk tombol-tombol di kanan header */
 .header-controls {
     display: flex;
-    gap: 6px; /* Mengurangi jarak antar tombol */
+    gap: 10px;
     flex-wrap: wrap;
     justify-content: flex-end;
 }
@@ -154,14 +151,14 @@ header {
     background: var(--button-bg);
     border: 1px solid var(--button-border);
     color: var(--primary-text);
-    padding: 8px 12px; /* Mengurangi padding tombol */
+    padding: 10px 15px;
     border-radius: var(--border-radius-sm);
-    font-size: 0.8em; /* Mengurangi ukuran font tombol */
+    font-size: 0.9em;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     white-space: nowrap;
 }
 
@@ -177,15 +174,15 @@ header {
 
 /* Music Player */
 .music-player {
-    padding: 25px 30px; /* Mengurangi padding */
+    padding: 30px 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px; /* Mengurangi gap */
+    gap: 25px;
     width: 100%;
     animation: fadeIn 0.8s ease-out forwards;
     position: relative;
-    margin-top: 0; /* TIDAK ADA LAGI MARGIN-TOP, karena header sudah di flow normal */
+    margin-top: 0; /* Tidak ada margin-top tambahan */
 }
 
 @keyframes fadeIn {
@@ -193,7 +190,7 @@ header {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Header di dalam player (mirip "NOW PLAYING" di gambar) */
+/* Header di dalam player (NOW PLAYING) */
 .header-player {
     display: flex;
     justify-content: space-between;
@@ -231,8 +228,8 @@ header {
 
 
 .album-art-section {
-    width: 200px; /* Mengecilkan ukuran album art */
-    height: 200px;
+    width: 250px; /* Ukuran default album art */
+    height: 250px;
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 8px 25px var(--shadow-deep);
@@ -279,7 +276,7 @@ header {
 .song-title {
     font-family: 'Montserrat', sans-serif;
     margin: 0;
-    font-size: 1.8em; /* Mengecilkan ukuran font judul lagu */
+    font-size: 2.2em; /* Ukuran default font judul lagu */
     color: var(--primary-text);
     text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
     font-weight: 700;
@@ -288,12 +285,12 @@ header {
 
 .artist-name {
     margin: 8px 0 0;
-    font-size: 1em; /* Mengecilkan ukuran font artis */
+    font-size: 1.1em; /* Ukuran default font artis */
     color: var(--secondary-text);
     font-weight: 400;
 }
 
-/* Lirik - Mirip dengan gambar */
+/* Lirik */
 .lyrics-section {
     width: 90%;
     text-align: center;
@@ -302,26 +299,22 @@ header {
     background: rgba(0, 0, 0, 0.2);
     border-radius: var(--border-radius-sm);
     max-height: 120px;
-    overflow-y: auto; /* Tetap bisa digulir manual */
+    overflow-y: auto; /* Bisa digulir manual */
     border: 1px solid rgba(255, 255, 255, 0.05);
     scroll-behavior: smooth;
+    line-height: 1.6;
 }
 
-/* Styling untuk setiap baris lirik (sekarang hanya untuk tampilan statis) */
-.lyric-line {
+/* Styling untuk lirik statis (tanpa auto-scroll/highlight) */
+#lyrics-text {
+    white-space: pre-wrap; /* Mempertahankan baris baru dan spasi agar rapi */
     font-size: 0.95em;
     color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
-    margin: 0;
-    padding: 2px 0;
-    /* Transisi/Gaya untuk lirik aktif dihapus, karena auto-scroll dihilangkan */
+    text-align: center;
 }
 
-/* Gaya untuk lirik aktif (DIHAPUS KARENA AUTO-SCROLL/READ OTOMATIS DIHAPUS) */
-/* Tidak ada lagi kelas .active-lyric */
 
-
-/* Scrollbar untuk Lirik (tetap sama, untuk manual scroll) */
+/* Scrollbar untuk Lirik (manual scroll) */
 .lyrics-section::-webkit-scrollbar {
     width: 6px;
 }
@@ -765,354 +758,93 @@ header {
 }
 
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .container {
-        padding: 15px;
-        max-width: 95%; /* Lebih lebar di mobile */
-        height: 100vh; /* Pastikan tinggi penuh di mobile juga */
-    }
-
-    /* Penyesuaian header di mobile */
-    header {
-        top: 15px;
-        padding: 0 15px;
-    }
-
-    .app-title-new {
-        font-size: 1.8em;
-    }
-
-    .header-controls {
-        gap: 8px;
-    }
-
-    .btn-playlist,
-    .btn-timer,
-    .btn-contact {
-        padding: 8px 10px;
-        font-size: 0.75em;
-    }
-    .btn-playlist .fas,
-    .btn-timer .fas,
-    .btn-contact .fas {
-        font-size: 1em;
-    }
-
-
-    .music-player {
-        padding: 25px 30px;
-        gap: 20px;
-        margin-top: 80px;
-    }
-
-    .album-art-section {
-        width: 200px;
-        height: 200px;
-    }
-
-    .song-title {
-        font-size: 1.8em;
-    }
-
-    .artist-name {
-        font-size: 1em;
-    }
-
-    .lyrics-section {
-        margin-top: 15px;
-        padding: 10px;
-        font-size: 0.9em;
-    }
-
-    .controls-section {
-        gap: 20px;
-    }
-
-    .control-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 1.3em;
-    }
-
-    .control-btn.large-btn {
-        width: 70px;
-        height: 70px;
-        font-size: 2em;
-    }
-
-    .progress-slider {
-        height: 5px;
-    }
-    .progress-slider::-webkit-slider-thumb,
-    .progress-slider::-moz-range-thumb {
-        width: 14px;
-        height: 14px;
-    }
-
-    .time-info {
-        font-size: 0.8em;
-    }
-
-    /* Playlist sidebar di mobile akan memenuhi sebagian besar lebar */
-    .playlist-sidebar {
-        right: 0;
-        width: 80%;
-        max-width: none;
-    }
-
-    #close-playlist-btn {
-        font-size: 1em;
-        width: 35px;
-        height: 35px;
-    }
-
-    /* Timer Modal Responsive */
-    .timer-content {
-        padding: 20px;
-        gap: 15px;
-    }
-    .timer-header h2 {
-        font-size: 1.3em;
-    }
-    #close-timer-btn {
-        width: 30px;
-        height: 30px;
-        font-size: 0.9em;
-    }
-    .timer-options label {
-        font-size: 0.9em;
-    }
-    #timer-minutes {
-        width: 60px;
-        font-size: 1em;
-    }
-    .timer-preset-buttons {
-        gap: 8px;
-    }
-    .timer-preset {
-        padding: 6px 12px;
-        font-size: 0.8em;
-    }
-    .timer-controls {
-        gap: 15px;
-    }
-    .timer-controls .control-btn {
-        height: 40px;
-        padding: 0 15px;
-        font-size: 0.9em;
-    }
-    .timer-countdown {
-        font-size: 1.5em;
-    }
-
-    /* Gaya untuk halaman kontak (DIKEMBALIKAN KE VERSI YANG ANDA SUKA) */
-    .contact-page-container {
-        padding: 20px; /* Padding kembali seperti sebelumnya */
-        min-height: 100vh;
-        justify-content: center; /* Kembali ke tengah */
-    }
-    .contact-page-container header.contact-header {
-        position: absolute; /* Kembali ke posisi absolute */
-        top: 20px;
-        width: 90%;
-        max-width: 600px; /* Kembali ke max-width 600px */
-        padding: 0 20px;
-        flex-direction: row; /* Kembali ke tata letak baris */
-        gap: 20px;
-        justify-content: space-between; /* Kembali ke space-between */
-        align-items: center;
-        margin-bottom: 0; /* Hapus margin-bottom */
-    }
-    .contact-page-container .app-title-new {
-        font-size: 2.2em; /* Ukuran judul kembali besar */
-        text-align: left; /* Kembali ke rata kiri */
-        margin-right: 20px;
-    }
-    .contact-page-container .app-title-new .fas {
-        font-size: 0.8em; /* Kembali ukuran ikon default */
-    }
-    .back-to-player-btn {
-        font-size: 0.9em; /* Ukuran tombol kembali normal */
-        padding: 10px 15px;
-        width: auto;
-    }
-    .contact-content {
-        padding: 30px 40px; /* Padding kembali lebar */
-        gap: 25px;
-        margin-top: 100px; /* Kembali ke margin-top agar tidak tumpang tindih dengan header */
-        max-width: 600px; /* Konten kontak kembali mengikuti lebar player utama */
-    }
-    .contact-title {
-        font-size: 2.2em; /* Ukuran judul kembali besar */
-        margin-bottom: 10px;
-    }
-    .contact-description {
-        font-size: 1.1em; /* Ukuran deskripsi kembali normal */
-        color: var(--secondary-text);
-        margin-bottom: 15px;
-    }
-    .social-icons-grid {
-        display: flex; /* Kembali ke flexbox */
-        flex-wrap: wrap; /* Izinkan wrap */
-        justify-content: center; /* Pusat ikon */
-        gap: 25px; /* Jarak antar ikon */
-        width: auto;
-        max-width: none; /* Hapus max-width */
-        margin: 0; /* Hapus margin auto */
-    }
-    .social-icons-grid a {
-        padding: 15px 10px;
-        font-size: 1.8em; /* Ukuran ikon kembali normal */
-        width: 100px; /* Memberi lebar tetap */
-        height: 100px; /* Memberi tinggi tetap */
-        border-radius: var(--border-radius-main); /* Kembali ke border radius besar */
-        background: var(--button-bg); /* Background kembali ke button-bg */
-        border: 2px solid var(--button-border); /* Border kembali ke button-border */
-        box-shadow: 0 4px 10px var(--shadow-light); /* Bayangan kembali normal */
-
-        /* Efek melayang/gravitasi tetap ada */
-        animation: float 4s ease-in-out infinite;
-    }
-    .social-icons-grid a:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-        border-color: var(--accent-purple);
-        transform: scale(1.1) translateY(-5px);
-        box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-        animation-play-state: paused;
-    }
-    .social-icons-grid a i {
-        font-size: 3em; /* Ikon lebih besar lagi untuk kesan keren */
-        color: var(--primary-text); /* Warna ikon default */
-    }
-    .social-icons-grid a:hover i {
-        color: var(--accent-red); /* Warna ikon saat hover */
-    }
-    .social-icons-grid a span {
-        font-size: 1em; /* Teks di bawah ikon kembali normal */
-        color: var(--secondary-text);
-    }
-    .social-icons-grid a:hover span {
-        color: var(--primary-text);
-    }
-    /* Warna spesifik untuk ikon sosial media - Ini harus dikembalikan ke Font Awesome aslinya jika ingin berubah warna */
-    .social-icons-grid a .fa-whatsapp:hover { color: #25D366; }
-    .social-icons-grid a .fa-instagram:hover { color: #E1306C; }
-    .social-icons-grid a .fa-telegram-plane:hover { color: #0088CC; }
+/* Playlist Sidebar */
+.playlist-sidebar {
+    padding: 25px;
+    width: 100%;
+    max-width: 400px;
+    position: fixed;
+    right: 0; /* Mulai dari kanan layar */
+    top: 0; /* Dari atas layar */
+    height: 100%; /* Ambil seluruh tinggi layar */
+    transform: translateX(100%); /* Sembunyikan ke kanan secara default */
+    opacity: 0;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    max-height: 100vh; /* Sesuaikan jika ingin lebih kecil */
+    overflow-y: auto;
+    z-index: 100; /* Pastikan di atas semua elemen lain */
+    box-sizing: border-box; /* Pastikan padding masuk dalam lebar/tinggi */
 }
 
-@media (max-width: 480px) {
-    .container {
-        padding: 10px; /* Lebih kecil lagi padding utama */
-        max-width: 95%; /* Lebih lebar di mobile */
-    }
-    .app-title-new {
-        font-size: 1.5em;
-    }
+.playlist-sidebar.visible {
+    transform: translateX(0); /* Geser ke kiri untuk menampilkan */
+    opacity: 1;
+}
 
-    .header-controls {
-        gap: 5px; /* Jarak antar tombol di mobile sangat kecil */
-    }
-    .btn-playlist,
-    .btn-timer,
-    .btn-contact {
-        padding: 6px 8px; /* Padding tombol lebih kecil */
-        font-size: 0.7em;
-        gap: 4px;
-    }
+.playlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-right: 10px; /* Beri sedikit ruang agar tombol tidak terlalu pinggir */
+}
+
+.playlist-title {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    color: var(--primary-text);
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+#close-playlist-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--button-border);
+    color: var(--primary-text);
+    font-size: 1.2em;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#close-playlist-btn:hover {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.7);
+}
 
 
-    .music-player {
-        padding: 20px 25px;
-        gap: 15px;
-        margin-top: 70px; /* Sesuaikan jarak dari header */
-    }
+.playlist-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
 
-    .album-art-section {
-        width: 150px; /* Lebih kecil di mobile sangat kecil */
-        height: 150px;
-    }
+.playlist-items li {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease, border-left-color 0.2s ease;
+    border-left: 5px solid transparent;
+}
 
-    .song-title {
-        font-size: 1.5em;
-    }
+.playlist-items li:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
 
-    .artist-name {
-        font-size: 0.85em;
-    }
-
-    .lyrics-section {
-        font-size: 0.8em;
-        padding: 10px;
-        max-height: 100px; /* Ketinggian lirik lebih kecil */
-    }
-
-    .controls-section {
-        gap: 15px;
-    }
-
-    .control-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1.1em;
-    }
-
-    .control-btn.large-btn {
-        width: 55px;
-        height: 55px;
-        font-size: 1.6em;
-    }
-
-    .progress-slider {
-        height: 4px;
-    }
-    .progress-slider::-webkit-slider-thumb,
-    .progress-slider::-moz-range-thumb {
-        width: 12px;
-        height: 12px;
-    }
-
-    .time-info {
-        font-size: 0.75em;
-    }
-
-    .playlist-sidebar {
-        width: 95%; /* Hampir memenuhi layar */
-    }
-
-    /* Social Links di contact.html (versi mobile) */
-    .contact-page-container header.contact-header {
-        margin-bottom: 15px;
-        gap: 10px;
-    }
-    .contact-page-container .app-title-new {
-        font-size: 1.8em;
-    }
-    .contact-content {
-        padding: 20px;
-        gap: 15px;
-    }
-    .contact-title {
-        font-size: 1.5em;
-    }
-    .contact-description {
-        font-size: 0.8em;
-    }
-    .social-icons-grid {
-        gap: 15px;
-    }
-    .social-icons-grid a {
-        font-size: 2em; /* Ukuran ikon mobile tetap besar */
-        padding: 10px;
-        width: 80px; /* Lebih kecil di mobile kecil */
-        height: 80px;
-        gap: 5px;
-    }
-    .social-icons-grid span {
-        font-size: 0.75em;
-    }
-    .back-to-player-btn {
-        font-size: 0.65em;
-        padding: 5px 8px;
-    }
+.playlist-items li.active {
+    background-color: var(--player-bg-dark);
+    border-left-color: var(--accent-red);
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.4);
 }
