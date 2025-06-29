@@ -18,26 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarOverlay = document.getElementById('sidebar-overlay');
     const backgroundVideo = document.getElementById('background-video');
 
-    // Timer elements
-    const setTimerBtn = document.getElementById('set-timer-btn');
-    const timerModal = document.getElementById('timer-modal');
-    const closeModalBtn = document.getElementById('close-timer-modal'); // Tombol X di modal
-    const timerOptionBtns = document.querySelectorAll('.timer-option-btn');
-    const customTimerInput = document.getElementById('custom-timer-minutes');
-    const setCustomTimerBtn = document.getElementById('set-custom-timer-btn');
-    const activeTimerDisplay = document.getElementById('active-timer-display');
-    const timerCountdownSpan = document.getElementById('timer-countdown');
-    const cancelTimerBtn = document.getElementById('cancel-timer-btn'); // Tombol "Batalkan Timer"
-    const modalOverlay = document.getElementById('modal-overlay'); // Overlay untuk modal
+    // BAGIAN INI DIHAPUS: TIMER ELEMENTS
 
     // --- Variabel State ---
     let currentSongIndex = 0;
     let isPlaying = false;
-    let sleepTimerTimeoutId = null; // ID untuk setTimeout yang menghentikan musik
-    let sleepTimerIntervalId = null; // ID untuk setInterval yang mengupdate hitung mundur
-    let timeRemaining = 0; // Waktu tersisa dalam detik
 
-    // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
+    // BAGIAN INI DIHAPUS: VARIABEL TIMER STATE
+
+    // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCCK DENGAN FILE FISIK ANDA) ---
     // Pastikan NAMA FILE di properti 'src' (untuk MP3) dan 'albumArt' (untuk JPG/PNG)
     // sama PERSIS (termasuk huruf besar/kecil dan ekstensinya) dengan nama file di folder proyek Anda.
     // Semua file MP3, JPG/PNG, dan MP4 video background harus berada di folder yang sama dengan index.html, style.css, dan script.js.
@@ -209,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Lebih baik, lebih baik<br>
                 Lebih dari istana<br>
                 Rumah kita, rumah kita<br>
-                Tempat kita berbagi cerita<br><br>
+                Tempat kita berbagi cerita<<br>
                 <b>Outro</b><br>
                 Rumah kita...<br>
                 Rumah kita...
@@ -987,143 +976,16 @@ document.addEventListener('DOMContentLoaded', () => {
         hidePlaylistSidebar();
     });
 
-    // --- Sleep Timer Functions ---
-
-    // Fungsi untuk menampilkan modal timer
-    function showTimerModal() {
-        timerModal.classList.add('visible');
-        modalOverlay.classList.add('visible');
-        updateTimerDisplay(); // Pastikan display terupdate saat modal dibuka
-    }
-
-    // Fungsi untuk menyembunyikan modal timer
-    function hideTimerModal() {
-        timerModal.classList.remove('visible');
-        modalOverlay.classList.remove('visible');
-        // Bersihkan seleksi dan input kustom saat modal ditutup
-        timerOptionBtns.forEach(btn => btn.classList.remove('selected'));
-        customTimerInput.value = '';
-    }
-
-    // Fungsi untuk memulai sleep timer
-    function startSleepTimer(minutes) {
-        // Hentikan timer yang sedang berjalan (jika ada)
-        clearTimeout(sleepTimerTimeoutId);
-        clearInterval(sleepTimerIntervalId);
-
-        timeRemaining = minutes * 60; // Konversi menit ke detik
-
-        if (timeRemaining <= 0) {
-            alert("Durasi timer harus lebih dari 0 menit.");
-            resetSleepTimer(); // Pastikan state kembali normal jika input tidak valid
-            return;
-        }
-
-        // Set timeout untuk menjeda musik setelah waktu tertentu
-        sleepTimerTimeoutId = setTimeout(() => {
-            pauseSong();
-            alert("Sleep timer selesai! Musik dijeda.");
-            resetSleepTimer(); // Reset display setelah timer selesai
-            // Tidak perlu hideTimerModal() di sini, karena pengguna mungkin ingin melihat status "Selesai!"
-        }, timeRemaining * 1000);
-
-        // Set interval untuk mengupdate hitung mundur setiap detik
-        sleepTimerIntervalId = setInterval(() => {
-            timeRemaining--;
-            if (timeRemaining <= 0) {
-                clearInterval(sleepTimerIntervalId);
-                // setTimeout akan memicu pauseSong() dan reset, jadi tidak perlu duplikasi aksi.
-                updateTimerDisplay(); // Pastikan tampilan final diperbarui ke "Selesai!"
-            } else {
-                updateTimerDisplay(); // Selalu update tampilan
-            }
-        }, 1000);
-
-        updateTimerDisplay(); // Update tampilan segera setelah timer diatur
-        cancelTimerBtn.style.display = 'inline-block'; // Tampilkan tombol batal
-        hideTimerModal(); // Tutup modal setelah timer berhasil diatur
-    }
-
-    // Fungsi untuk memformat dan menampilkan waktu tersisa
-    function updateTimerDisplay() {
-        if (timeRemaining > 0) {
-            const minutes = Math.floor(timeRemaining / 60);
-            const seconds = timeRemaining % 60;
-            timerCountdownSpan.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            activeTimerDisplay.style.display = 'flex'; // Gunakan flex agar tombol cancel rapi
-            cancelTimerBtn.style.display = 'inline-block'; // Pastikan tombol cancel terlihat
-        } else if (timeRemaining === 0 && sleepTimerTimeoutId === null) {
-            // Jika waktu 0 dan tidak ada timer aktif (setelah reset/selesai)
-            timerCountdownSpan.textContent = "Tidak ada";
-            activeTimerDisplay.style.display = 'none'; // Sembunyikan jika tidak ada timer
-            cancelTimerBtn.style.display = 'none'; // Sembunyikan tombol batal
-        } else {
-            // Ini untuk kasus di mana timer baru saja selesai, tapi setTimeout belum benar-benar terpicu
-            // atau ada kondisi lain. Kita bisa menampilkan "Selesai!"
-            timerCountdownSpan.textContent = "Selesai!";
-            activeTimerDisplay.style.display = 'flex';
-            cancelTimerBtn.style.display = 'none'; // Sembunyikan tombol batal jika sudah selesai
-        }
-    }
-
-    // Fungsi untuk mereset sleep timer (membatalkan)
-    function resetSleepTimer() {
-        clearTimeout(sleepTimerTimeoutId);
-        clearInterval(sleepTimerIntervalId);
-        sleepTimerTimeoutId = null;
-        sleepTimerIntervalId = null;
-        timeRemaining = 0;
-        updateTimerDisplay(); // Update tampilan untuk mencerminkan reset
-    }
-
-    // Timer Event Listeners
-    setTimerBtn.addEventListener('click', showTimerModal);
-    // Perbaikan: closeModalBtn sekarang akan memanggil hideTimerModal()
-    closeModalBtn.addEventListener('click', hideTimerModal);
-    // Perbaikan: modalOverlay juga akan memanggil hideTimerModal()
-    modalOverlay.addEventListener('click', hideTimerModal);
-
-    timerOptionBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            timerOptionBtns.forEach(b => b.classList.remove('selected')); // Deselect semua
-            btn.classList.add('selected'); // Pilih tombol yang diklik
-            const minutes = parseInt(btn.dataset.minutes);
-            startSleepTimer(minutes);
-        });
-    });
-
-    setCustomTimerBtn.addEventListener('click', () => {
-        const minutes = parseInt(customTimerInput.value);
-        if (minutes > 0) {
-            timerOptionBtns.forEach(b => b.classList.remove('selected')); // Deselect opsi preset
-            startSleepTimer(minutes);
-        } else {
-            alert("Mohon masukkan durasi timer yang valid (lebih dari 0 menit).");
-            // customTimerInput.value = ''; // Opsional: Kosongkan input jika invalid
-        }
-    });
-
-    cancelTimerBtn.addEventListener('click', () => {
-        resetSleepTimer();
-        alert("Sleep timer dibatalkan.");
-    });
-
+    // BAGIAN INI DIHAPUS: FUNGSI-FUNGSI SLEEP TIMER
 
     // --- Inisialisasi Aplikasi (Fungsi yang Berjalan Saat Halaman Dimuat) ---
     if (playlist.length > 0) {
         loadSong(currentSongIndex);
         buildPlaylist();
-        // Pastikan modal TIDAK muncul secara otomatis saat inisialisasi
-        // Ini adalah bagian kunci untuk mencegah modal muncul sendiri.
-        // updateTimerDisplay(); // Hanya update tampilan tanpa memunculkan modal
     } else {
         console.error("Tidak ada lagu ditemukan di array 'playlist'.");
         currentSongTitle.textContent = "Tidak ada lagu";
         currentArtistName.textContent = "Silakan tambahkan lagu di script.js";
         lyricsText.innerHTML = "<p>Silakan tambahkan file MP3 dan gambar album di folder yang sama, lalu update array 'playlist' di script.js.</p>";
     }
-
-    // Panggil updateTimerDisplay() secara terpisah saat DOM dimuat untuk inisialisasi awal tampilan timer
-    // agar tidak langsung menampilkan modal.
-    updateTimerDisplay(); //
 });
