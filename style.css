@@ -109,16 +109,21 @@ header {
     max-width: 600px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: flex-start; /* Tetap flex-start untuk align ke atas */
     z-index: 5;
     padding: 0 20px;
     box-sizing: border-box;
 }
 
+/* Styling untuk judul baru */
 .app-branding {
     flex-grow: 1;
     text-align: left;
     margin-right: 20px;
+    display: flex; /* Jadikan flex container untuk tombol timer di dalamnya */
+    flex-direction: column; /* Susun judul dan timer secara vertikal */
+    align-items: flex-start; /* Rata kiri */
+    gap: 10px; /* Jarak antara judul dan tombol timer */
 }
 
 .app-title-new {
@@ -137,6 +142,15 @@ header {
     font-size: 0.8em;
     color: var(--accent-purple);
 }
+
+/* Styling khusus untuk tombol timer di header */
+.header-timer-btn {
+    padding: 8px 12px; /* Sesuaikan padding agar lebih kecil */
+    font-size: 0.8em; /* Sesuaikan ukuran font */
+    align-self: flex-start; /* Pastikan rata kiri di dalam app-branding */
+    margin-top: 5px; /* Sedikit jarak dari judul */
+}
+
 
 .header-buttons-vertical {
     display: flex;
@@ -810,11 +824,20 @@ header {
         font-size: 1.8em;
     }
 
+    /* Penyesuaian di mobile untuk tombol timer di bawah judul */
+    .app-branding {
+        gap: 5px; /* Kurangi sedikit jarak di mobile */
+    }
+    .header-timer-btn {
+        padding: 6px 10px;
+        font-size: 0.75em;
+    }
+
     .header-buttons-vertical {
         gap: 8px;
     }
 
-    .btn-playlist, .btn-timer, .btn-contact {
+    .btn-playlist, .btn-contact { /* Hanya playlist dan contact */
         padding: 8px 12px;
         font-size: 0.8em;
     }
@@ -1106,22 +1129,48 @@ header {
 }
 
 @media (max-width: 480px) {
-    .contact-header h1 {
-        font-size: 2em;
+    .app-title-new { /* Global App Title */
+        font-size: 1.5em;
+    }
+    .music-player {
+        padding: 20px 25px;
+        gap: 15px;
     }
 
-    .contact-header p {
+    .album-art-section {
+        width: 180px;
+        height: 180px;
+    }
+
+    .song-title {
+        font-size: 1.6em;
+    }
+
+    .artist-name {
         font-size: 0.9em;
     }
 
-    .contact-info {
-        flex-direction: column;
-        align-items: center;
-        gap: 25px;
+    .lyrics-section {
+        font-size: 0.85em;
     }
 
-    .contact-card {
-        width: 100%; /* Full width on very small screens */
-        max-width: 280px;
+    .controls-section {
+        gap: 15px;
+    }
+
+    .control-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2em;
+    }
+
+    .control-btn.large-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 1.8em;
+    }
+
+    .playlist-sidebar {
+        width: 90%;
     }
 }
