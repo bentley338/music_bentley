@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music_BentleyBeats</title>
+    <title>Musik Saya: Back To Friends & Bergema Sampai Selamanya</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="app_icon.png" type="image/png">
@@ -25,7 +25,9 @@
                 </h1>
             </div>
 
-            <div class="playlist-toggle-wrapper">
+            <div class="header-controls"> <button id="toggle-timer-btn" class="btn btn-timer">
+                    <i class="fas fa-hourglass-half"></i> Timer
+                </button>
                 <button id="toggle-playlist" class="btn btn-playlist">
                     <i class="fas fa-list-music"></i> Daftar Putar
                 </button>
@@ -68,7 +70,7 @@
                 <button id="next-btn" class="control-btn small-btn" aria-label="Next Song"><i class="fas fa-forward"></i></button>
             </div>
 
-            <audio id="audio-player"></audio>
+            <audio id="audio-player" preload="auto"></audio>
         </main>
 
         <aside id="playlist-sidebar" class="playlist-sidebar glass-effect">
@@ -83,6 +85,31 @@
         </aside>
 
         <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <div id="timer-modal" class="timer-modal">
+            <div class="timer-content glass-effect">
+                <div class="timer-header">
+                    <h2>Atur Timer Tidur</h2>
+                    <button id="close-timer-btn" class="control-btn small-btn"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="timer-options">
+                    <label for="timer-minutes">Setel waktu (menit):</label>
+                    <input type="number" id="timer-minutes" value="30" min="1" max="180">
+                    <div class="timer-preset-buttons">
+                        <button class="timer-preset" data-minutes="15">15m</button>
+                        <button class="timer-preset" data-minutes="30">30m</button>
+                        <button class="timer-preset" data-minutes="60">60m</button>
+                        <button class="timer-preset" data-minutes="90">90m</button>
+                    </div>
+                </div>
+                <div class="timer-controls">
+                    <button id="start-timer-btn" class="control-btn"><i class="fas fa-play"></i> Mulai</button>
+                    <button id="cancel-timer-btn" class="control-btn disabled" disabled><i class="fas fa-stop"></i> Batalkan</button>
+                </div>
+                <p id="timer-countdown" class="timer-countdown"></p>
+            </div>
+        </div>
+
     </div>
 
     <script src="script.js"></script>
