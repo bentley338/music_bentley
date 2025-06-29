@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentAlbumArt = document.getElementById('current-album-art');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentArtistName = document.getElementById('current-artist-name');
-    const lyricsText = document.getElementById('lyrics-text');
+    const lyricsText = document.getElementById('lyrics-text'); // Ini sekarang akan jadi container untuk <p> lirik
     const playlistUl = document.getElementById('playlist');
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
@@ -34,6 +34,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval = null; // Untuk menyimpan ID interval timer
     let timeRemaining = 0; // Waktu tersisa dalam detik
 
+    let lyricLines = []; // Menyimpan elemen <p> lirik
+    let currentLyricLineIndex = 0; // Index baris lirik yang aktif
+    let lyricsScrollInterval = null; // Interval untuk auto-scroll lirik
+    let estimatedLineDuration = 0; // Durasi rata-rata per baris lirik
+
     // --- DATA LAGU (LIRIK DIUPDATE AGAR LEBIH AKURAT) ---
     const playlist = [
         {
@@ -41,44 +46,43 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Sombr",
             src: "back_to_friends.mp3",
             albumArt: "album_art_back_to_friends.jpg",
-            lyrics: `<b>🎶 Back to Friends – Sombr</b><br><br>
-                <b>Verse 1</b><br>
-                Touch my body tender<br>
-                'Cause the feeling makes me weak<br>
-                Kicking off the covers<br>
-                I see the ceiling while you're looking down at me<br><br>
-                <b>Chorus</b><br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I'm someone you've never met?<br><br>
-                <b>Verse 2</b><br>
-                It was last December<br>
-                You were layin' on my chest<br>
-                I still remember<br>
-                I was scared to take a breath<br>
-                Didn't want you to move your head<br><br>
-                <b>Chorus</b><br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I'm someone you've never met?<br><br>
-                <b>Bridge</b><br>
-                The devil in your eyes<br>
-                Won't deny the lies you've sold<br>
-                I'm holding on too tight<br>
-                While you let go<br>
-                This is casual<br><br>
-                <b>Final Chorus</b><br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I'm someone you've never met?<br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I'm someone you've never met?<br>
-                I'm someone you've never met<br>
+            lyrics: `
+                Touch my body tender
+                'Cause the feeling makes me weak
+                Kicking off the covers
+                I see the ceiling while you're looking down at me
+
+                How can we go back to being friends
+                When we just shared a bed?
+                How can you look at me and pretend
+                I'm someone you've never met?
+
+                It was last December
+                You were layin' on my chest
+                I still remember
+                I was scared to take a breath
+                Didn't want you to move your head
+
+                How can we go back to being friends
+                When we just shared a bed?
+                How can you look at me and pretend
+                I'm someone you've never met?
+
+                The devil in your eyes
+                Won't deny the lies you've sold
+                I'm holding on too tight
+                While you let go
+                This is casual
+
+                How can we go back to being friends
+                When we just shared a bed?
+                How can you look at me and pretend
+                I'm someone you've never met?
+                How can we go back to being friends
+                When we just shared a bed?
+                How can you look at me and pretend
+                I'm someone you've never met?
+                I'm someone you've never met
                 When we just shared a bed?
             `
         },
@@ -87,39 +91,38 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Nadhif Basalamah",
             src: "bergema_sampai_selamanya.mp3",
             albumArt: "album_art_bergema_sampai_selamanya.jpg",
-            lyrics: `<b>🎶 Bergema Sampai Selamanya – Nadhif Basalamah</b><br><br>
-                <b>Verse 1</b><br>
-                Dengarkan hati bicara<br>
-                Di setiap desah napasmu<br>
-                Ada cerita yang takkan pudar<br>
-                Di setiap langkah kakimu<br><br>
-                <b>Chorus</b><br>
-                Bergema sampai selamanya<br>
-                Cinta kita takkan sirna<br>
-                Di setiap nada yang tercipta<br>
-                Hanyalah namamu yang ada<br><br>
-                <b>Verse 2</b><br>
-                Waktu terus berjalan<br>
-                Namun rasa ini takkan lekang<br>
-                Seperti bintang yang takkan padam<br>
-                Bersinarlah di setiap malam<br><br>
-                <b>Chorus</b><br>
-                Bergema sampai selamanya<br>
-                Cinta kita takkan sirna<br>
-                Di setiap nada yang tercipta<br>
-                Hanyalah namamu yang ada<br><br>
-                <b>Bridge</b><br>
-                Tiada akhir bagi kisah kita<br>
-                Terukir abadi di jiwa<br>
-                Kan selalu ada, kan selalu nyata<br>
-                Janji yang takkan pernah pudar<br><br>
-                <b>Chorus</b><br>
-                Bergema sampai selamanya<br>
-                Cinta kita takkan sirna<br>
-                Di setiap nada yang tercipta<br>
-                Hanyalah namamu yang ada<br><br>
-                <b>Outro</b><br>
-                Bergema... sampai selamanya...<br>
+            lyrics: `
+                Dengarkan hati bicara
+                Di setiap desah napasmu
+                Ada cerita yang takkan pudar
+                Di setiap langkah kakimu
+
+                Bergema sampai selamanya
+                Cinta kita takkan sirna
+                Di setiap nada yang tercipta
+                Hanyalah namamu yang ada
+
+                Waktu terus berjalan
+                Namun rasa ini takkan lekang
+                Seperti bintang yang takkan padam
+                Bersinarlah di setiap malam
+
+                Bergema sampai selamanya
+                Cinta kita takkan sirna
+                Di setiap nada yang tercipta
+                Hanyalah namamu yang ada
+
+                Tiada akhir bagi kisah kita
+                Terukir abadi di jiwa
+                Kan selalu ada, kan selalu nyata
+                Janji yang takkan pernah pudar
+
+                Bergema sampai selamanya
+                Cinta kita takkan sirna
+                Di setiap nada yang tercipta
+                Hanyalah namamu yang ada
+
+                Bergema... sampai selamanya...
                 Oh-oh-oh...
             `
         },
@@ -128,40 +131,39 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "SoMo",
             src: "ride.mp3",
             albumArt: "album_art_ride.jpg",
-            lyrics: `<b>🎶 Ride – SoMo</b><br><br>
-                <b>Verse 1</b><br>
-                I'm riding high, I'm riding low<br>
-                I'm going where the wind don't blow<br>
-                Just cruising, feeling good tonight<br>
-                Everything is working out just right<br><br>
-                <b>Chorus</b><br>
-                So baby, let's just ride<br>
-                Leave the worries far behind<br>
-                Every moment, every single stride<br>
-                Yeah, we're living in the moment, you and I<br><br>
-                <b>Verse 2</b><br>
-                Sunrise creeping, morning light<br>
-                Another day, another sight<br>
-                No rush, no hurry, take it slow<br>
-                Just enjoying the ride, you know<br><br>
-                <b>Chorus</b><br>
-                So baby, let's just ride<br>
-                Leave the worries far behind<br>
-                Every moment, every single stride<br>
-                Yeah, we're living in the moment, you and I<br><br>
-                <b>Bridge</b><br>
-                Don't look back, no regrets<br>
-                Just open roads and sunsets<br>
-                This feeling's more than I can say<br>
-                Let's keep on riding, come what may<br><br>
-                <b>Chorus</b><br>
-                So baby, let's just ride<br>
-                Leave the worries far behind<br>
-                Every moment, every single stride<br>
-                Yeah, we're living in the moment, you and I<br><br>
-                <b>Outro</b><br>
-                Just ride, ride, ride<br>
-                With you by my side<br>
+            lyrics: `
+                I'm riding high, I'm riding low
+                I'm going where the wind don't blow
+                Just cruising, feeling good tonight
+                Everything is working out just right
+
+                So baby, let's just ride
+                Leave the worries far behind
+                Every moment, every single stride
+                Yeah, we're living in the moment, you and I
+
+                Sunrise creeping, morning light
+                Another day, another sight
+                No rush, no hurry, take it slow
+                Just enjoying the ride, you know
+
+                So baby, let's just ride
+                Leave the worries far behind
+                Every moment, every single stride
+                Yeah, we're living in the moment, you and I
+
+                Don't look back, no regrets
+                Just open roads and sunsets
+                This feeling's more than I can say
+                Let's keep on riding, come what may
+
+                So baby, let's just ride
+                Leave the worries far behind
+                Every moment, every single stride
+                Yeah, we're living in the moment, you and I
+
+                Just ride, ride, ride
+                With you by my side
                 Yeah, we ride...
             `
         },
@@ -170,42 +172,41 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "God Bless",
             src: "rumah_kita.mp3",
             albumArt: "album_art_rumah_kita.jpg",
-            lyrics: `<b>🎶 Rumah Kita – God Bless</b><br><br>
-                <b>Verse 1</b><br>
-                Hanya bilik bambu<br>
-                Tempat tinggal kita<br>
-                Tanpa hiasan, tanpa lukisan<br>
-                Hanya jendela, tanpa tiang<br><br>
-                <b>Chorus</b><br>
-                Rumah kita, rumah kita<br>
-                Lebih baik, lebih baik<br>
-                Lebih dari istana<br>
-                Rumah kita, rumah kita<br>
-                Tempat kita berbagi cerita<br><br>
-                <b>Verse 2</b><br>
-                Ada tawa, ada tangis<br>
-                Ada suka, ada duka<br>
-                Semua bersatu di sini<br>
-                Dalam hangatnya keluarga<br><br>
-                <b>Chorus</b><br>
-                Rumah kita, rumah kita<br>
-                Lebih baik, lebih baik<br>
-                Lebih dari istana<br>
-                Rumah kita, rumah kita<br>
-                Tempat kita berbagi cerita<br><br>
-                <b>Bridge</b><br>
-                Takkan ada yang bisa mengganti<br>
-                Hangatnya pelukmu, ibu<br>
-                Tawa riang adik kakakku<br>
-                Di rumah kita, tempat berlindung<br><br>
-                <b>Chorus</b><br>
-                Rumah kita, rumah kita<br>
-                Lebih baik, lebih baik<br>
-                Lebih dari istana<br>
-                Rumah kita, rumah kita<br>
-                Tempat kita berbagi cerita<br><br>
-                <b>Outro</b><br>
-                Rumah kita...<br>
+            lyrics: `
+                Hanya bilik bambu
+                Tempat tinggal kita
+                Tanpa hiasan, tanpa lukisan
+                Hanya jendela, tanpa tiang
+
+                Rumah kita, rumah kita
+                Lebih baik, lebih baik
+                Lebih dari istana
+                Rumah kita, rumah kita
+                Tempat kita berbagi cerita
+
+                Ada tawa, ada tangis
+                Ada suka, ada duka
+                Semua bersatu di sini
+                Dalam hangatnya keluarga
+
+                Rumah kita, rumah kita
+                Lebih baik, lebih baik
+                Lebih dari istana
+                Rumah kita, rumah kita
+                Tempat kita berbagi cerita
+
+                Takkan ada yang bisa mengganti
+                Hangatnya pelukmu, ibu
+                Tawa riang adik kakakku
+                Di rumah kita, tempat berlindung
+
+                Rumah kita, rumah kita
+                Lebih baik, lebih baik
+                Lebih dari istana
+                Rumah kita, rumah kita
+                Tempat kita berbagi cerita
+
+                Rumah kita...
                 Rumah kita...
             `
         },
@@ -214,47 +215,46 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "style.mp3",
             albumArt: "album_art_style.jpg",
-            lyrics: `<b>🎶 Style – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                Midnight, you come and pick me up, no headlights<br>
-                Long drive, could end in burning flames or paradise<br>
-                Fade into view, oh, it's been a while since I have even heard from you<br>
-                (Heard from you)<br><br>
-                <b>Chorus</b><br>
-                I say, "I've heard that you've been out and about with some other girl"<br>
-                (Oh-oh-oh) I say, "What you've heard is true but I<br>
-                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
-                (Oh-oh-oh) saying, "It's gonna be alright"<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Verse 2</b><br>
-                You got that long hair, slicked back, white T-shirt<br>
-                And I got that good girl faith and a tight little skirt<br>
-                And when we go crashing down, we come back every time<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Chorus</b><br>
-                I say, "I've heard that you've been out and about with some other girl"<br>
-                (Oh-oh-oh) I say, "What you've heard is true but I<br>
-                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
-                (Oh-oh-oh) saying, "It's gonna be alright"<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Bridge</b><br>
-                Take me home, just take me home<br>
-                Where there's fire, where there's chaos, and there's love<br>
-                I got a blank space, baby, and I'll write your name<br>
-                But baby, we never go out of style<br><br>
-                <b>Chorus</b><br>
-                I say, "I've heard that you've been out and about with some other girl"<br>
-                (Oh-oh-oh) I say, "What you've heard is true but I<br>
-                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
-                (Oh-oh-oh) saying, "It's gonna be alright"<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Outro</b><br>
-                Never go out of style<br>
-                We never go out of style<br>
+            lyrics: `
+                Midnight, you come and pick me up, no headlights
+                Long drive, could end in burning flames or paradise
+                Fade into view, oh, it's been a while since I have even heard from you
+                (Heard from you)
+
+                I say, "I've heard that you've been out and about with some other girl"
+                (Oh-oh-oh) I say, "What you've heard is true but I
+                Can't stop, won't stop moving, it's like I got this music in my mind"
+                (Oh-oh-oh) saying, "It's gonna be alright"
+                'Cause we never go out of style
+                We never go out of style
+
+                You got that long hair, slicked back, white T-shirt
+                And I got that good girl faith and a tight little skirt
+                And when we go crashing down, we come back every time
+                'Cause we never go out of style
+                We never go out of style
+
+                I say, "I've heard that you've been out and about with some other girl"
+                (Oh-oh-oh) I say, "What you've heard is true but I
+                Can't stop, won't stop moving, it's like I got this music in my mind"
+                (Oh-oh-oh) saying, "It's gonna be alright"
+                'Cause we never go out of style
+                We never go out of style
+
+                Take me home, just take me home
+                Where there's fire, where there's chaos, and there's love
+                I got a blank space, baby, and I'll write your name
+                But baby, we never go out of style
+
+                I say, "I've heard that you've been out and about with some other girl"
+                (Oh-oh-oh) I say, "What you've heard is true but I
+                Can't stop, won't stop moving, it's like I got this music in my mind"
+                (Oh-oh-oh) saying, "It's gonna be alright"
+                'Cause we never go out of style
+                We never go out of style
+
+                Never go out of style
+                We never go out of style
                 Yeah, we never go out of style
             `
         },
@@ -263,39 +263,38 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "message_in_a_bottle.mp3",
             albumArt: "album_art_message_in_a_bottle.jpg",
-            lyrics: `<b>🎶 Message In A Bottle – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                I was ridin' in a getaway car<br>
-                I was crying in a getaway car<br>
-                I was dying in a getaway car<br>
-                Said goodbye to the girl you used to be<br><br>
-                <b>Chorus</b><br>
-                Message in a bottle is all I can give<br>
-                To remind you of what we had, what we've lived<br>
-                Across the ocean, my love will still flow<br>
-                Hoping that someday you'll know<br><br>
-                <b>Verse 2</b><br>
-                Sunrise on the water, a new day starts<br>
-                Still missing you, still breaking my heart<br>
-                Every wave whispers your name to me<br>
-                A silent prayer across the sea<br><br>
-                <b>Chorus</b><br>
-                Message in a bottle is all I can give<br>
-                To remind you of what we had, what we've lived<br>
-                Across the ocean, my love will still flow<br>
-                Hoping that someday you'll know<br><br>
-                <b>Bridge</b><br>
-                And the years go by, still I send my plea<br>
-                Hoping this message finds you, eventually<br>
-                A single teardrop, lost in the blue<br>
-                A simple promise, my love, to you<br><br>
-                <b>Chorus</b><br>
-                Message in a bottle is all I can give<br>
-                To remind you of what we had, what we've lived<br>
-                Across the ocean, my love will still flow<br>
-                Hoping that someday you'll know<br><br>
-                <b>Outro</b><br>
-                Message in a bottle...<br>
+            lyrics: `
+                I was ridin' in a getaway car
+                I was crying in a getaway car
+                I was dying in a getaway car
+                Said goodbye to the girl you used to be
+
+                Message in a bottle is all I can give
+                To remind you of what we had, what we've lived
+                Across the ocean, my love will still flow
+                Hoping that someday you'll know
+
+                Sunrise on the water, a new day starts
+                Still missing you, still breaking my heart
+                Every wave whispers your name to me
+                A silent prayer across the sea
+
+                Message in a bottle is all I can give
+                To remind you of what we had, what we've lived
+                Across the ocean, my love will still flow
+                Hoping that someday you'll know
+
+                And the years go by, still I send my plea
+                Hoping this message finds you, eventually
+                A single teardrop, lost in the blue
+                A simple promise, my love, to you
+
+                Message in a bottle is all I can give
+                To remind you of what we had, what we've lived
+                Across the ocean, my love will still flow
+                Hoping that someday you'll know
+
+                Message in a bottle...
                 My love, my love...
             `
         },
@@ -304,39 +303,38 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Ariana Grande",
             src: "supernatural.mp3",
             albumArt: "album_art_supernatural.jpg",
-            lyrics: `<b>🎶 Supernatural – Ariana Grande</b><br><br>
-                <b>Verse 1</b><br>
-                You're my supernatural, my magic<br>
-                Every touch, a dream, a sweet habit<br>
-                In your eyes, a universe I find<br>
-                Leaving all my worries far behind<br><br>
-                <b>Chorus</b><br>
-                Oh, this love is supernatural<br>
-                Something beautiful, something so true<br>
-                Like a melody, forever new<br>
-                Supernatural, just me and you<br><br>
-                <b>Verse 2</b><br>
-                Whispers in the dark, a gentle breeze<br>
-                Floating through the stars, with such ease<br>
-                Every moment with you feels divine<br>
-                Lost in this love, forever mine<br><br>
-                <b>Chorus</b><br>
-                Oh, this love is supernatural<br>
-                Something beautiful, something so true<br>
-                Like a melody, forever new<br>
-                Supernatural, just me and you<br><br>
-                <b>Bridge</b><br>
-                No explanation, no words can define<br>
-                This connection, truly one of a kind<br>
-                Beyond the logic, beyond the known<br>
-                In this love, we're never alone<br><br>
-                <b>Chorus</b><br>
-                Oh, this love is supernatural<br>
-                Something beautiful, something so true<br>
-                Like a melody, forever new<br>
-                Supernatural, just me and you<br><br>
-                <b>Outro</b><br>
-                Supernatural...<br>
+            lyrics: `
+                You're my supernatural, my magic
+                Every touch, a dream, a sweet habit
+                In your eyes, a universe I find
+                Leaving all my worries far behind
+
+                Oh, this love is supernatural
+                Something beautiful, something so true
+                Like a melody, forever new
+                Supernatural, just me and you
+
+                Whispers in the dark, a gentle breeze
+                Floating through the stars, with such ease
+                Every moment with you feels divine
+                Lost in this love, forever mine
+
+                Oh, this love is supernatural
+                Something beautiful, something so true
+                Like a melody, forever new
+                Supernatural, just me and you
+
+                No explanation, no words can define
+                This connection, truly one of a kind
+                Beyond the logic, beyond the known
+                In this love, we're never alone
+
+                Oh, this love is supernatural
+                Something beautiful, something so true
+                Like a melody, forever new
+                Supernatural, just me and you
+
+                Supernatural...
                 Oh, so natural with you...
             `
         },
@@ -345,51 +343,50 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Yaeow",
             src: "favorite_lesson.mp3",
             albumArt: "album_art_favorite_lesson.jpg",
-            lyrics: `<b>🎶 Favorite Lesson – Yaeow</b><br><br>
-                <b>Verse 1</b><br>
-                Always telling me that I should find the time for me<br>
-                Working tirelessly until I lose my energy<br>
-                You’re the only one who really knows the things I need<br>
-                And darling, I’m the same with you<br><br>
-                <b>Chorus</b><br>
-                ‘Cause every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br>
-                Every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br><br>
-                <b>Verse 2</b><br>
-                Building something from the ground up, you always help me see<br>
-                That even when it’s tough, it’s worth the struggle, endlessly<br>
-                You’re the guiding light that always keeps me on my feet<br>
-                And darling, I’m the same with you<br><br>
-                <b>Chorus</b><br>
-                ‘Cause every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br>
-                Every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br><br>
-                <b>Bridge</b><br>
-                Through highs and lows, you’re always there<br>
-                A bond like ours is truly rare<br>
-                No matter what, we’ll always share<br>
-                This journey, with no fear<br><br>
-                <b>Chorus</b><br>
-                ‘Cause every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br>
-                Every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br><br>
-                <b>Outro</b><br>
-                Favorite lesson... favorite lesson...<br>
+            lyrics: `
+                Always telling me that I should find the time for me
+                Working tirelessly until I lose my energy
+                You’re the only one who really knows the things I need
+                And darling, I’m the same with you
+
+                ‘Cause every lesson you ever taught me
+                Has always been the best
+                I’m so grateful that you’re always with me
+                Always put me to the test
+                Every lesson you ever taught me
+                Has always been the best
+                I’m so grateful that you’re always with me
+                Always put me to the test
+
+                Building something from the ground up, you always help me see
+                That even when it’s tough, it’s worth the struggle, endlessly
+                You’re the guiding light that always keeps me on my feet
+                And darling, I’m the same with you
+
+                ‘Cause every lesson you ever taught me
+                Has always been the best
+                I’m so grateful that you’re always with me
+                Always put me to the test
+                Every lesson you ever taught me
+                Has always been the best
+                I’m so grateful that you’re always with me
+                Always put me to the test
+
+                Through highs and lows, you’re always there
+                A bond like ours is truly rare
+                No matter what, we’ll always share
+                This journey, with no fear
+
+                ‘Cause every lesson you ever taught me
+                Has always been the best
+                I’m so grateful that you’re always with me
+                Always put me to the test
+                Every lesson you ever taught me
+                Has always been the best
+                I’m so grateful that you’re always with me
+                Always put me to the test
+
+                Favorite lesson... favorite lesson...
                 You’re the best... you’re the best...
             `
         },
@@ -398,39 +395,38 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "so_high_school.mp3",
             albumArt: "album_art_so_high_school.jpg",
-            lyrics: `<b>🎶 So High School – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                I feel like I'm back in high school again<br>
-                Butterflies every time you walk in<br>
-                Like a freshman, crushin' hard, don't pretend<br>
-                This feeling's got me spinnin' 'round the bend<br><br>
-                <b>Chorus</b><br>
-                Oh, you got me feeling so high school<br>
-                Got me skipping through the halls with you<br>
-                Every moment's golden, shiny, and new<br>
-                Yeah, this love is so high school<br><br>
-                <b>Verse 2</b><br>
-                Passing notes and whispering in class<br>
-                Hoping this feeling will forever last<br>
-                Every glance, a secret, a sweet little blast<br>
-                This story's moving way too fast<br><br>
-                <b>Chorus</b><br>
-                Oh, you got me feeling so high school<br>
-                Got me skipping through the halls with you<br>
-                Every moment's golden, shiny, and new<br>
-                Yeah, this love is so high school<br><br>
-                <b>Bridge</b><br>
-                No homework, no drama, just you and me<br>
-                Living out a teenage dream, wild and free<br>
-                Like the first dance, under the gym lights<br>
-                Holding onto these magical nights<br><br>
-                <b>Chorus</b><br>
-                Oh, you got me feeling so high school<br>
-                Got me skipping through the halls with you<br>
-                Every moment's golden, shiny, and new<br>
-                Yeah, this love is so high school<br><br>
-                <b>Outro</b><br>
-                So high school...<br>
+            lyrics: `
+                I feel like I'm back in high school again
+                Butterflies every time you walk in
+                Like a freshman, crushin' hard, don't pretend
+                This feeling's got me spinnin' 'round the bend
+
+                Oh, you got me feeling so high school
+                Got me skipping through the halls with you
+                Every moment's golden, shiny, and new
+                Yeah, this love is so high school
+
+                Passing notes and whispering in class
+                Hoping this feeling will forever last
+                Every glance, a secret, a sweet little blast
+                This story's moving way too fast
+
+                Oh, you got me feeling so high school
+                Got me skipping through the halls with you
+                Every moment's golden, shiny, and new
+                Yeah, this love is so high school
+
+                No homework, no drama, just you and me
+                Living out a teenage dream, wild and free
+                Like the first dance, under the gym lights
+                Holding onto these magical nights
+
+                Oh, you got me feeling so high school
+                Got me skipping through the halls with you
+                Every moment's golden, shiny, and new
+                Yeah, this love is so high school
+
+                So high school...
                 Yeah, with you, it's so high school...
             `
         },
@@ -439,47 +435,46 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Ed Sheeran",
             src: "photograph.mp3",
             albumArt: "album_art_photograph.jpg",
-            lyrics: `<b>🎶 Photograph – Ed Sheeran</b><br><br>
-                <b>Verse 1</b><br>
-                Loving can hurt, loving can hurt sometimes<br>
-                But it's the only thing that I know<br>
-                When it's good, when it's good, it's so good, it's so good<br>
-                'Til it goes bad, 'til it goes bad, 'Til it goes bad<br>
-                But still, I know, that I know, that I know<br>
-                Good things come to those who wait, no, never give up on you<br><br>
-                <b>Chorus</b><br>
-                And if you hurt me, that's okay, baby, only words bleed<br>
-                Inside these pages you just hold me<br>
-                And I won't ever let you go<br>
-                Wait for me to come home<br><br>
-                <b>Verse 2</b><br>
-                Loving can heal, loving can mend your soul<br>
-                And it's the only thing that I know<br>
-                I swear it will get easier,<br>
-                Remember that with every piece of you<br>
-                And it's the only thing we take with us when we die<br><br>
-                <b>Chorus</b><br>
-                And if you hurt me, that's okay, baby, only words bleed<br>
-                Inside these pages you just hold me<br>
-                And I won't ever let you go<br>
-                Wait for me to come home<br><br>
-                <b>Bridge</b><br>
-                You could fit me inside the necklace you got when you were sixteen<br>
-                Next to your heartbeat where I should be<br>
-                Keep it deep within your soul<br>
-                And if you want to, take a look at me now<br>
-                Oh, oh, oh, yeah, I'll be there, I'll be there<br>
-                Always when you need me, every moment I'll be waiting<br>
-                Forever with you, every single day<br><br>
-                <b>Chorus</b><br>
-                And if you hurt me, that's okay, baby, only words bleed<br>
-                Inside these pages you just hold me<br>
-                And I won't ever let you go<br>
-                Wait for me to come home<br><br>
-                <b>Outro</b><br>
-                You can fit me inside the necklace you got when you were sixteen<br>
-                Next to your heartbeat where I should be<br>
-                Keep it deep within your soul<br>
+            lyrics: `
+                Loving can hurt, loving can hurt sometimes
+                But it's the only thing that I know
+                When it's good, when it's good, it's so good, it's so good
+                'Til it goes bad, 'til it goes bad, 'Til it goes bad
+                But still, I know, that I know, that I know
+                Good things come to those who wait, no, never give up on you
+
+                And if you hurt me, that's okay, baby, only words bleed
+                Inside these pages you just hold me
+                And I won't ever let you go
+                Wait for me to come home
+
+                Loving can heal, loving can mend your soul
+                And it's the only thing that I know
+                I swear it will get easier,
+                Remember that with every piece of you
+                And it's the only thing we take with us when we die
+
+                And if you hurt me, that's okay, baby, only words bleed
+                Inside these pages you just hold me
+                And I won't ever let you go
+                Wait for me to come home
+
+                You could fit me inside the necklace you got when you were sixteen
+                Next to your heartbeat where I should be
+                Keep it deep within your soul
+                And if you want to, take a look at me now
+                Oh, oh, oh, yeah, I'll be there, I'll be there
+                Always when you need me, every moment I'll be waiting
+                Forever with you, every single day
+
+                And if you hurt me, that's okay, baby, only words bleed
+                Inside these pages you just hold me
+                And I won't ever let you go
+                Wait for me to come home
+
+                You can fit me inside the necklace you got when you were sixteen
+                Next to your heartbeat where I should be
+                Keep it deep within your soul
                 And if you want to, take a look at me now
             `
         },
@@ -488,62 +483,61 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Niki",
             src: "youll_be_in_my_heart.mp3",
             albumArt: "album_art_youll_be_in_my_heart.jpg",
-            lyrics: `<b>🎶 You'll Be In My Heart – Niki</b><br><br>
-                <b>Verse 1</b><br>
-                Come stop your crying<br>
-                It'll be alright<br>
-                Just take my hand<br>
-                Hold it tight<br>
-                I will protect you<br>
-                From all around you<br>
-                I will be here<br>
-                Don't you cry<br><br>
-                <b>Chorus</b><br>
-                For one so small<br>
-                You seem so strong<br>
-                My arms will hold you<br>
-                Keep you safe and warm<br>
-                This bond between us<br>
-                Can't be broken<br>
-                I will be here, don't you cry<br>
-                'Cause you'll be in my heart<br>
-                Yes, you'll be in my heart<br>
-                From this day on<br>
-                Now and forever more<br><br>
-                <b>Verse 2</b><br>
-                Why can't they understand the way we feel?<br>
-                They just don't trust what they can't explain<br>
-                I know we're different but deep inside us<br>
-                We're not that different at all<br><br>
-                <b>Chorus</b><br>
-                For one so small<br>
-                You seem so strong<br>
-                My arms will hold you<br>
-                Keep you safe and warm<br>
-                This bond between us<br>
-                Can't be broken<br>
-                I will be here, don't you cry<br>
-                'Cause you'll be in my heart<br>
-                Yes, you'll be in my heart<br>
-                From this day on<br>
-                Now and forever more<br><br>
-                <b>Bridge</b><br>
-                You'll be in my heart<br>
-                No matter what they say<br>
-                You'll be in my heart<br>
-                Always<br>
-                I'll be there, always there<br>
-                For one so small, you seem so strong<br>
-                My arms will hold you, keep you safe and warm<br>
-                This bond between us can't be broken<br>
-                I will be here, don't you cry<br><br>
-                <b>Outro</b><br>
-                'Cause you'll be in my heart<br>
-                Yes, you'll be in my heart<br>
-                From this day on<br>
-                Now and forever more<br>
-                Oh, you'll be in my heart<br>
-                You'll be in my heart<br>
+            lyrics: `
+                Come stop your crying
+                It'll be alright
+                Just take my hand
+                Hold it tight
+                I will protect you
+                From all around you
+                I will be here
+                Don't you cry
+
+                For one so small
+                You seem so strong
+                My arms will hold you
+                Keep you safe and warm
+                This bond between us
+                Can't be broken
+                I will be here, don't you cry
+                'Cause you'll be in my heart
+                Yes, you'll be in my heart
+                From this day on
+                Now and forever more
+
+                Why can't they understand the way we feel?
+                They just don't trust what they can't explain
+                I know we're different but deep inside us
+                We're not that different at all
+
+                For one so small
+                You seem so strong
+                My arms will hold you
+                Keep you safe and warm
+                This bond between us
+                Can't be broken
+                I will be here, don't you cry
+                'Cause you'll be in my heart
+                Yes, you'll be in my heart
+                From this day on
+                Now and forever more
+
+                You'll be in my heart
+                No matter what they say
+                You'll be in my heart
+                Always
+                I'll be there, always there
+                For one so small, you seem so strong
+                My arms will hold you, keep you safe and warm
+                This bond between us can't be broken
+                I will be here, don't you cry
+
+                'Cause you'll be in my heart
+                Yes, you'll be in my heart
+                From this day on
+                Now and forever more
+                Oh, you'll be in my heart
+                You'll be in my heart
                 Now and forever more
             `
         },
@@ -552,39 +546,38 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: ".Feast",
             src: "tarot.mp3",
             albumArt: "album_art_tarot.jpg",
-            lyrics: `<b>🎶 Tarot – .Feast</b><br><br>
-                <b>Verse 1</b><br>
-                Di antara kartu-kartu tua<br>
-                Terbentang kisah yang tak terduga<br>
-                Masa lalu, kini, dan nanti<br>
-                Terungkap dalam setiap sisi<br><br>
-                <b>Chorus</b><br>
-                Tarot, oh Tarot<br>
-                Buka mataku, tunjukkan jalan<br>
-                Tarot, oh Tarot<br>
-                Bisikkan rahasia kehidupan<br><br>
-                <b>Verse 2</b><br>
-                Pedang dan cawan, koin dan tongkat<br>
-                Setiap simbol punya makna kuat<br>
-                Cahaya dan bayangan menari<br>
-                Di panggung takdir yang abadi<br><br>
-                <b>Chorus</b><br>
-                Tarot, oh Tarot<br>
-                Buka mataku, tunjukkan jalan<br>
-                Tarot, oh Tarot<br>
-                Bisikkan rahasia kehidupan<br><br>
-                <b>Bridge</b><br>
-                Takdir bukan hanya garis tangan<br>
-                Tapi pilihan di persimpangan<br>
-                Berani melangkah, hadapi badai<br>
-                Dengan petunjuk yang kau berikan<br><br>
-                <b>Chorus</b><br>
-                Tarot, oh Tarot<br>
-                Buka mataku, tunjukkan jalan<br>
-                Tarot, oh Tarot<br>
-                Bisikkan rahasia kehidupan<br><br>
-                <b>Outro</b><br>
-                Tarot... Tarot...<br>
+            lyrics: `
+                Di antara kartu-kartu tua
+                Terbentang kisah yang tak terduga
+                Masa lalu, kini, dan nanti
+                Terungkap dalam setiap sisi
+
+                Tarot, oh Tarot
+                Buka mataku, tunjukkan jalan
+                Tarot, oh Tarot
+                Bisikkan rahasia kehidupan
+
+                Pedang dan cawan, koin dan tongkat
+                Setiap simbol punya makna kuat
+                Cahaya dan bayangan menari
+                Di panggung takdir yang abadi
+
+                Tarot, oh Tarot
+                Buka mataku, tunjukkan jalan
+                Tarot, oh Tarot
+                Bisikkan rahasia kehidupan
+
+                Takdir bukan hanya garis tangan
+                Tapi pilihan di persimpangan
+                Berani melangkah, hadapi badai
+                Dengan petunjuk yang kau berikan
+
+                Tarot, oh Tarot
+                Buka mataku, tunjukkan jalan
+                Tarot, oh Tarot
+                Bisikkan rahasia kehidupan
+
+                Tarot... Tarot...
                 Kisahku terukir di sana...
             `
         },
@@ -593,39 +586,38 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: ".Feast",
             src: "o_tuan.mp3",
             albumArt: "album_art_o_tuan.jpg",
-            lyrics: `<b>🎶 O, Tuan – .Feast</b><br><br>
-                <b>Verse 1</b><br>
-                O, Tuan, dengarkanlah<br>
-                Rintihan hati yang resah<br>
-                Di tengah bisingnya dunia<br>
-                Mencari makna, mencari arah<br><br>
-                <b>Chorus</b><br>
-                O, Tuan, bimbinglah langkahku<br>
-                Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<br>
-                Hanya pada-Mu aku bertumpu<br><br>
-                <b>Verse 2</b><br>
-                Janji-janji yang terucap<br>
-                Seringkali hanya fatamorgana<br>
-                Kebenaran yang disembunyikan<br>
-                Di balik topeng kemunafikan<br><br>
-                <b>Chorus</b><br>
-                O, Tuan, bimbinglah langkahku<br>
-                Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<br>
-                Hanya pada-Mu aku bertumpu<br><br>
-                <b>Bridge</b><br>
-                Kekuasaan membutakan mata<br>
-                Harta melalaikan jiwa<br>
-                Tapi keadilan takkan mati<br>
-                Sampai akhir nanti<br><br>
-                <b>Chorus</b><br>
-                O, Tuan, bimbinglah langkahku<br>
-                Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<br>
-                Hanya pada-Mu aku bertumpu<br><br>
-                <b>Outro</b><br>
-                O, Tuan... O, Tuan...<br>
+            lyrics: `
+                O, Tuan, dengarkanlah
+                Rintihan hati yang resah
+                Di tengah bisingnya dunia
+                Mencari makna, mencari arah
+
+                O, Tuan, bimbinglah langkahku
+                Terangi jalanku yang sendu
+                Dalam gelap, dalam ragu
+                Hanya pada-Mu aku bertumpu
+
+                Janji-janji yang terucap
+                Seringkali hanya fatamorgana
+                Kebenaran yang disembunyikan
+                Di balik topeng kemunafikan
+
+                O, Tuan, bimbinglah langkahku
+                Terangi jalanku yang sendu
+                Dalam gelap, dalam ragu
+                Hanya pada-Mu aku bertumpu
+
+                Kekuasaan membutakan mata
+                Harta melalaikan jiwa
+                Tapi keadilan takkan mati
+                Sampai akhir nanti
+
+                O, Tuan, bimbinglah langkahku
+                Terangi jalanku yang sendu
+                Dalam gelap, dalam ragu
+                Hanya pada-Mu aku bertumpu
+
+                O, Tuan... O, Tuan...
                 Dengarkanlah...
             `
         },
@@ -634,39 +626,38 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Hindia",
             src: "ramai_sepi_bersama.mp3",
             albumArt: "album_art_ramai_sepi_bersama.jpg",
-            lyrics: `<b>🎶 Ramai Sepi Bersama – Hindia</b><br><br>
-                <b>Verse 1</b><br>
-                Di tengah ramai, aku sendiri<br>
-                Mencari arti, di antara bising<br>
-                Dunia berputar, tak henti-henti<br>
-                Namun hatiku, masih terasing<br><br>
-                <b>Chorus</b><br>
-                Ramai sepi bersama, dalam riuh kota<br>
-                Kita mencari makna, di antara fatamorgana<br>
-                Ramai sepi bersama, dalam hening jiwa<br>
-                Berharap menemukan, damai yang nyata<br><br>
-                <b>Verse 2</b><br>
-                Wajah-wajah asing, silih berganti<br>
-                Senyum dan tawa, hanya ilusi<br>
-                Ingin ku bicara, namun tak berani<br>
-                Terjebak dalam, sunyi yang abadi<br><br>
-                <b>Chorus</b><br>
-                Ramai sepi bersama, dalam riuh kota<br>
-                Kita mencari makna, di antara fatamorgana<br>
-                Ramai sepi bersama, dalam hening jiwa<br>
-                Berharap menemukan, damai yang nyata<br><br>
-                <b>Bridge</b><br>
-                Mungkin ini jalan, yang harus kutempuh<br>
-                Menyelami diri, di antara keruh<br>
-                Mencari cahaya, di ujung keluh<br>
-                Agar tak lagi, merasa rapuh<br><br>
-                <b>Chorus</b><br>
-                Ramai sepi bersama, dalam riuh kota<br>
-                Kita mencari makna, di antara fatamorgana<br>
-                Ramai sepi bersama, dalam hening jiwa<br>
-                Berharap menemukan, damai yang nyata<br><br>
-                <b>Outro</b><br>
-                Ramai sepi... bersama...<br>
+            lyrics: `
+                Di tengah ramai, aku sendiri
+                Mencari arti, di antara bising
+                Dunia berputar, tak henti-henti
+                Namun hatiku, masih terasing
+
+                Ramai sepi bersama, dalam riuh kota
+                Kita mencari makna, di antara fatamorgana
+                Ramai sepi bersama, dalam hening jiwa
+                Berharap menemukan, damai yang nyata
+
+                Wajah-wajah asing, silih berganti
+                Senyum dan tawa, hanya ilusi
+                Ingin ku bicara, namun tak berani
+                Terjebak dalam, sunyi yang abadi
+
+                Ramai sepi bersama, dalam riuh kota
+                Kita mencari makna, di antara fatamorgana
+                Ramai sepi bersama, dalam hening jiwa
+                Berharap menemukan, damai yang nyata
+
+                Mungkin ini jalan, yang harus kutempuh
+                Menyelami diri, di antara keruh
+                Mencari cahaya, di ujung keluh
+                Agar tak lagi, merasa rapuh
+
+                Ramai sepi bersama, dalam riuh kota
+                Kita mencari makna, di antara fatamorgana
+                Ramai sepi bersama, dalam hening jiwa
+                Berharap menemukan, damai yang nyata
+
+                Ramai sepi... bersama...
                 Hindia...
             `
         },
@@ -675,39 +666,38 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Hindia",
             src: "everything_u_are.mp3",
             albumArt: "album_art_everything_u_are.jpg",
-            lyrics: `<b>🎶 Everything U Are – Hindia</b><br><br>
-                <b>Verse 1</b><br>
-                In your eyes, I see a universe untold<br>
-                A story waiting, brave and bold<br>
-                Every whisper, every gentle sigh<br>
-                Reflects the truth beneath the sky<br><br>
-                <b>Chorus</b><br>
-                'Cause everything you are, is everything I need<br>
-                A guiding star, planting a hopeful seed<br>
-                In every beat, my heart finds its release<br>
-                Everything you are, brings me inner peace<br><br>
-                <b>Verse 2</b><br>
-                Through fragile moments, and darkest nights<br>
-                Your spirit shines, with endless lights<br>
-                A symphony of grace, a gentle art<br>
-                You're etched forever, deep within my heart<br><br>
-                <b>Chorus</b><br>
-                'Cause everything you are, is everything I need<br>
-                A guiding star, planting a hopeful seed<br>
-                In every beat, my heart finds its release<br>
-                Everything you are, brings me inner peace<br><br>
-                <b>Bridge</b><br>
-                No words can capture, no song can define<br>
-                The depth of beauty, truly divine<br>
-                A masterpiece, uniquely made<br>
-                In every shade, a love displayed<br><br>
-                <b>Chorus</b><br>
-                'Cause everything you are, is everything I need<br>
-                A guiding star, planting a hopeful seed<br>
-                In every beat, my heart finds its release<br>
-                Everything you are, brings me inner peace<br><br>
-                <b>Outro</b><br>
-                Everything you are...<br>
+            lyrics: `
+                In your eyes, I see a universe untold
+                A story waiting, brave and bold
+                Every whisper, every gentle sigh
+                Reflects the truth beneath the sky
+
+                'Cause everything you are, is everything I need
+                A guiding star, planting a hopeful seed
+                In every beat, my heart finds its release
+                Everything you are, brings me inner peace
+
+                Through fragile moments, and darkest nights
+                Your spirit shines, with endless lights
+                A symphony of grace, a gentle art
+                You're etched forever, deep within my heart
+
+                'Cause everything you are, is everything I need
+                A guiding star, planting a hopeful seed
+                In every beat, my heart finds its release
+                Everything you are, brings me inner peace
+
+                No words can capture, no song can define
+                The depth of beauty, truly divine
+                A masterpiece, uniquely made
+                In every shade, a love displayed
+
+                'Cause everything you are, is everything I need
+                A guiding star, planting a hopeful seed
+                In every beat, my heart finds its release
+                Everything you are, brings me inner peace
+
+                Everything you are...
                 Oh, everything you are...
             `
         }
@@ -734,7 +724,28 @@ document.addEventListener('DOMContentLoaded', () => {
         currentAlbumArt.src = song.albumArt;
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
-        lyricsText.innerHTML = song.lyrics;
+
+        // --- Proses Lirik untuk Auto-scroll dan Penyorotan ---
+        // Bersihkan konten lirik sebelumnya
+        lyricsText.innerHTML = '';
+        lyricLines = []; // Reset array lyricLines
+
+        // Hapus intro "🎶 Title - Artist" dan spasi/baris kosong di awal/akhir
+        const rawLyrics = song.lyrics.trim();
+        const lines = rawLyrics.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
+        lines.forEach(line => {
+            const p = document.createElement('p');
+            p.classList.add('lyric-line');
+            p.textContent = line; // Gunakan textContent untuk menghindari masalah HTML di dalam lirik
+            lyricsText.appendChild(p);
+            lyricLines.push(p);
+        });
+
+        // Hitung perkiraan durasi per baris
+        // Akan dihitung ulang saat loadedmetadata karena audioPlayer.duration baru tersedia
+        estimatedLineDuration = 0; // Reset dulu
+
 
         progressBar.value = 0;
         currentTimeSpan.textContent = '0:00';
@@ -764,8 +775,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ]
             });
 
-            // Pastikan action handlers diatur sekali saja atau diatur ulang
-            // agar tidak ada duplikasi listener
             navigator.mediaSession.setActionHandler('play', () => {
                 playSong();
             });
@@ -783,13 +792,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Memutar lagu
     function playSong() {
-        // Cek jika audioPlayer.src valid sebelum mencoba play
         if (!audioPlayer.src || audioPlayer.src === window.location.href) {
             console.warn("Audio source not loaded or invalid. Cannot play.");
             return;
         }
 
-        // Coba putar audio dan tangani Promise
         audioPlayer.play().then(() => {
             isPlaying = true;
             playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -801,6 +808,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'playing';
             }
+
+            // Mulai auto-scroll lirik saat lagu play
+            startLyricsAutoScroll();
+
         }).catch(error => {
             console.error("Error playing audio:", error);
             isPlaying = false;
@@ -808,7 +819,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'paused';
             }
-            // Notifikasi pengguna jika pemutaran otomatis diblokir
             if (error.name === "NotAllowedError" || error.name === "AbortError") {
                 console.log("Autoplay diblokir atau pemutaran dibatalkan. Sentuh tombol play untuk memulai.");
             }
@@ -828,6 +838,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if ('mediaSession' in navigator) {
             navigator.mediaSession.playbackState = 'paused';
         }
+
+        // Hentikan auto-scroll lirik saat lagu pause
+        stopLyricsAutoScroll();
     }
 
     // Fungsi untuk memformat waktu dari detik menjadi 'MM:SS'
@@ -879,14 +892,36 @@ document.addEventListener('DOMContentLoaded', () => {
             const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
             progressBar.value = progress;
             currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
+
+            // Update posisi scroll lirik saat waktu berubah (jika tidak sedang di auto-scroll interval)
+            // Ini bisa jadi fallback jika interval tidak tepat
+            if (lyricsScrollInterval === null && lyricLines.length > 0) {
+                 updateLyricsScroll(); // Panggil manual jika tidak ada interval aktif (misal setelah seek)
+            }
         }
     });
 
     audioPlayer.addEventListener('loadedmetadata', () => {
         if (!isNaN(audioPlayer.duration)) {
             durationSpan.textContent = formatTime(audioPlayer.duration);
+
+            // Hitung ulang estimatedLineDuration setelah durasi audio diketahui
+            if (lyricLines.length > 0) {
+                // Kurangi sedikit durasi total untuk memperhitungkan fade out atau akhir lagu
+                const adjustedDuration = audioPlayer.duration * 0.95;
+                estimatedLineDuration = adjustedDuration / lyricLines.length;
+            } else {
+                estimatedLineDuration = 0;
+            }
+
+            // Jika lagu sedang bermain dan lirik siap, mulai auto-scroll
+            if (isPlaying && lyricLines.length > 0) {
+                startLyricsAutoScroll();
+            }
+
         } else {
             durationSpan.textContent = '0:00';
+            estimatedLineDuration = 0;
         }
     });
 
@@ -894,6 +929,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isNaN(audioPlayer.duration)) {
             const seekTime = (progressBar.value / 100) * audioPlayer.duration;
             audioPlayer.currentTime = seekTime;
+            // Saat seek, set ulang index lirik dan langsung update scroll
+            currentLyricLineIndex = Math.floor(seekTime / estimatedLineDuration);
+            updateLyricsScroll(true); // Panggil dengan force scroll
         }
     });
 
@@ -980,24 +1018,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FUNGSI DAN LOGIKA TIMER ---
 
-    // Menampilkan modal timer
     function showTimerModal() {
         timerModal.classList.add('visible');
     }
 
-    // Menyembunyikan modal timer
     function hideTimerModal() {
         timerModal.classList.remove('visible');
     }
 
-    // Memulai timer
     function startTimer(durationInMinutes) {
-        // Hentikan timer yang sudah ada jika ada
         stopTimer();
 
-        timeRemaining = durationInMinutes * 60; // Konversi menit ke detik
+        timeRemaining = durationInMinutes * 60;
         updateTimerDisplay();
-        timerCountdownDisplay.style.color = 'var(--accent-red)'; // Reset warna display
+        timerCountdownDisplay.style.color = 'var(--accent-red)';
         timerCountdownDisplay.textContent = 'Timer aktif: ' + formatTime(timeRemaining);
         startTimerBtn.classList.add('disabled');
         startTimerBtn.disabled = true;
@@ -1010,20 +1044,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (timeRemaining <= 0) {
                 stopTimer();
-                pauseSong(); // Jeda musik saat timer habis
+                pauseSong();
                 timerCountdownDisplay.textContent = 'Timer Selesai!';
-                timerCountdownDisplay.style.color = 'var(--primary-text)'; // Kembali ke warna default
+                timerCountdownDisplay.style.color = 'var(--primary-text)';
                 alert("Waktu habis! Musik telah dihentikan.");
-                hideTimerModal(); // Sembunyikan modal setelah timer selesai
+                hideTimerModal();
             } else if (timeRemaining <= 60 && timerCountdownDisplay.style.color !== 'red') {
-                // Beri peringatan visual saat waktu kurang dari 1 menit
                 timerCountdownDisplay.style.color = 'red';
             }
-        }, 1000); // Update setiap 1 detik
-        hideTimerModal(); // Sembunyikan modal setelah timer dimulai
+        }, 1000);
+        hideTimerModal();
     }
 
-    // Menghentikan timer
     function stopTimer() {
         if (timerInterval) {
             clearInterval(timerInterval);
@@ -1031,14 +1063,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         timeRemaining = 0;
         timerCountdownDisplay.textContent = 'Timer tidak aktif';
-        timerCountdownDisplay.style.color = 'var(--secondary-text)'; // Kembali ke warna abu-abu
+        timerCountdownDisplay.style.color = 'var(--secondary-text)';
         startTimerBtn.classList.remove('disabled');
         startTimerBtn.disabled = false;
         cancelTimerBtn.classList.add('disabled');
         cancelTimerBtn.disabled = true;
     }
 
-    // Memperbarui tampilan hitung mundur
     function updateTimerDisplay() {
         const minutes = Math.floor(timeRemaining / 60);
         const seconds = timeRemaining % 60;
@@ -1061,20 +1092,79 @@ document.addEventListener('DOMContentLoaded', () => {
 
     cancelTimerBtn.addEventListener('click', stopTimer);
 
-    // Event listener untuk tombol preset
     timerPresetButtons.forEach(button => {
         button.addEventListener('click', () => {
             const minutes = parseInt(button.dataset.minutes);
-            timerMinutesInput.value = minutes; // Set input value
+            timerMinutesInput.value = minutes;
             startTimer(minutes);
         });
     });
 
     // Inisialisasi awal tampilan timer
-    stopTimer(); // Pastikan timer tidak aktif saat halaman dimuat
+    stopTimer();
 
 
-    // --- Inisialisasi Aplikasi (Fungsi yang Berjalan Saat Halaman Dimuat) ---
+    // --- FUNGSI DAN LOGIKA AUTO-SCROLL LIRIK ---
+
+    function startLyricsAutoScroll() {
+        stopLyricsAutoScroll(); // Hentikan interval lama jika ada
+
+        if (lyricLines.length === 0 || estimatedLineDuration === 0) {
+            console.warn("Lirik tidak tersedia atau durasi baris tidak dapat diestimasi. Auto-scroll lirik dinonaktifkan.");
+            return;
+        }
+
+        currentLyricLineIndex = Math.floor(audioPlayer.currentTime / estimatedLineDuration);
+        updateLyricsScroll(true); // Langsung update sekali saat mulai
+
+        lyricsScrollInterval = setInterval(() => {
+            // Perbarui index lirik berdasarkan waktu audio
+            const newIndex = Math.floor(audioPlayer.currentTime / estimatedLineDuration);
+
+            if (newIndex !== currentLyricLineIndex && newIndex < lyricLines.length) {
+                currentLyricLineIndex = newIndex;
+                updateLyricsScroll();
+            }
+
+            // Hentikan interval jika lagu hampir selesai
+            if (audioPlayer.currentTime >= audioPlayer.duration - 0.5) { // 0.5 detik sebelum akhir
+                stopLyricsAutoScroll();
+            }
+        }, 500); // Periksa setiap 0.5 detik
+    }
+
+    function stopLyricsAutoScroll() {
+        if (lyricsScrollInterval) {
+            clearInterval(lyricsScrollInterval);
+            lyricsScrollInterval = null;
+        }
+        // Hapus penyorotan dari semua baris lirik
+        lyricLines.forEach(line => line.classList.remove('active-lyric'));
+    }
+
+    function updateLyricsScroll(forceScroll = false) {
+        lyricLines.forEach((line, index) => {
+            if (index === currentLyricLineIndex) {
+                line.classList.add('active-lyric');
+                // Gulir hanya jika lirik tidak terlihat di viewport atau jika dipaksa
+                const lyricsSection = document.querySelector('.lyrics-section');
+                const lineRect = line.getBoundingClientRect();
+                const containerRect = lyricsSection.getBoundingClientRect();
+
+                // Cek jika baris tidak sepenuhnya terlihat
+                if (forceScroll || lineRect.top < containerRect.top || lineRect.bottom > containerRect.bottom) {
+                    line.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center' // Pusatkan baris di tengah container
+                    });
+                }
+            } else {
+                line.classList.remove('active-lyric');
+            }
+        });
+    }
+
+    // --- Inisialisasi Aplikasi ---
     if (playlist.length > 0) {
         loadSong(currentSongIndex);
         buildPlaylist();
