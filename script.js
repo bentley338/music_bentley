@@ -33,9 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Variabel State ---
     let currentSongIndex = 0;
     let isPlaying = false;
-    let sleepTimer = null; // To store the setTimeout ID
-    let timeRemaining = 0; // In seconds
-    let timerInterval = null; // To store the setInterval ID
+    let sleepTimerTimeoutId = null; // ID untuk setTimeout yang menghentikan musik
+    let sleepTimerIntervalId = null; // ID untuk setInterval yang mengupdate hitung mundur
+    let timeRemaining = 0; // Waktu tersisa dalam detik
 
     // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
     const playlist = [
@@ -653,7 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Senyum dan tawa, hanya ilusi<br>
                 Ingin ku bicara, namun tak berani<br>
                 Terjebak dalam, sunyi yang abadi<br><br>
-                <b>Chorus</b><br>
+                <b>Chorus</b><n>
                 Ramai sepi bersama, dalam riuh kota<br>
                 Kita mencari makna, di antara fatamorgana<br>
                 Ramai sepi bersama, dalam hening jiwa<br>
@@ -986,23 +986,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startSleepTimer(minutes) {
         // Clear any existing timer
-        clearTimeout(sleepTimer);
-        clearInterval(timerInterval);
+        clearTimeout(sleepTimerTimeoutId);
+        clearInterval(sleepTimerIntervalId);
 
         timeRemaining = minutes * 60; // Convert minutes to seconds
 
+        if (timeRemaining <= 0) {
+            alert("Durasi timer harus lebih dari 0 menit.");
+            resetSleepTimer();
+            return;
+        }
+
         // Set the timer to pause the music
-        sleepTimer = setTimeout(() => {
+        sleepTimerTimeoutId = setTimeout(() => {
             pauseSong();
-            alert("Sleep timer finished! Music paused.");
+            alert("Sleep timer selesai! Musik dijeda.");
             resetSleepTimer(); // Reset display after timer ends
+            hideTimerModal(); // Tutup modal setelah timer selesai
         }, timeRemaining * 1000);
 
         // Update countdown every second
-        timerInterval = setInterval(() => {
+        sleepTimerIntervalId = setInterval(() => {
             timeRemaining--;
             if (timeRemaining <= 0) {
-                clearInterval(timerInterval);
+                clearInterval(sleepTimerIntervalId);
+                // setTimeout will handle the pause and reset, so no need to call pauseSong() here again
                 timerCountdownSpan.textContent = "Selesai!";
                 cancelTimerBtn.style.display = 'none';
             } else {
@@ -1029,9 +1037,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resetSleepTimer() {
-        clearTimeout(sleepTimer);
-        clearInterval(timerInterval);
-        sleepTimer = null;
+        clearTimeout(sleepTimerTimeoutId);
+        clearInterval(sleepTimerIntervalId);
+        sleepTimerTimeoutId = null;
+        sleepTimerIntervalId = null;
         timeRemaining = 0;
         updateTimerDisplay();
     }
