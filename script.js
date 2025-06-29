@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Elemen DOM ---
     const audioPlayer = document.getElementById('audio-player');
-    const playPauseBtn = document = document.getElementById('play-pause-btn');
+    const playPauseBtn = document.getElementById('play-pause-btn');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
     const progressBar = document.getElementById('progress-bar');
@@ -222,9 +222,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 (Heard from you)
 
                 I say, "I've heard that you've been out and about with some other girl"
-                (Oh-oh-oh) I say, "What you've heard is true but I
+                I say, "What you've heard is true but I
                 Can't stop, won't stop moving, it's like I got this music in my mind"
-                (Oh-oh-oh) saying, "It's gonna be alright"
+                saying, "It's gonna be alright"
                 'Cause we never go out of style
                 We never go out of style
 
@@ -235,9 +235,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 We never go out of style
 
                 I say, "I've heard that you've been out and about with some other girl"
-                (Oh-oh-oh) I say, "What you've heard is true but I
+                I say, "What you've heard is true but I
                 Can't stop, won't stop moving, it's like I got this music in my mind"
-                (Oh-oh-oh) saying, "It's gonna be alright"
+                saying, "It's gonna be alright"
                 'Cause we never go out of style
                 We never go out of style
 
@@ -247,9 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 But baby, we never go out of style
 
                 I say, "I've heard that you've been out and about with some other girl"
-                (Oh-oh-oh) I say, "What you've heard is true but I
+                I say, "What you've heard is true but I
                 Can't stop, won't stop moving, it's like I got this music in my mind"
-                (Oh-oh-oh) saying, "It's gonna be alright"
+                saying, "It's gonna be alright"
                 'Cause we never go out of style
                 We never go out of style
 
@@ -750,6 +750,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         estimatedLineDuration = 0; // Reset dulu, akan dihitung ulang saat loadedmetadata
 
+
         progressBar.value = 0;
         currentTimeSpan.textContent = '0:00';
         durationSpan.textContent = '0:00';
@@ -897,14 +898,13 @@ document.addEventListener('DOMContentLoaded', () => {
             currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
 
             // Perbarui posisi scroll lirik saat waktu berubah
-            // Ini membantu koreksi jika interval tidak tepat atau saat seek
-            if (lyricsScrollInterval !== null && lyricLines.length > 0) {
+            if (lyricsScrollInterval !== null && lyricLines.length > 0 && estimatedLineDuration > 0) {
                 const newIndex = Math.min(lyricLines.length - 1, Math.floor(audioPlayer.currentTime / estimatedLineDuration));
                 if (newIndex !== currentLyricLineIndex) {
                     currentLyricLineIndex = newIndex;
                     updateLyricsScroll();
                 }
-            } else if (lyricsScrollInterval === null && lyricLines.length > 0) {
+            } else if (lyricsScrollInterval === null && lyricLines.length > 0 && estimatedLineDuration > 0) {
                  // Kalau interval tidak aktif, tapi lagu jalan (misal setelah seek manual)
                  const newIndex = Math.min(lyricLines.length - 1, Math.floor(audioPlayer.currentTime / estimatedLineDuration));
                  if (newIndex !== currentLyricLineIndex) {
@@ -922,14 +922,17 @@ document.addEventListener('DOMContentLoaded', () => {
             // Hitung ulang estimatedLineDuration setelah durasi audio diketahui
             if (lyricLines.length > 0) {
                 // Kurangi sedikit durasi total (misal 5-10 detik) agar tidak menggulir terlalu cepat di akhir
-                const adjustedDuration = Math.max(0, audioPlayer.duration - 5);
+                // Ini juga bisa membantu mengkompensasi intro instrumental yang tidak ada liriknya
+                const introOutroCompensation = 5; // Detik yang dikurangi dari total durasi
+                const adjustedDuration = Math.max(0, audioPlayer.duration - introOutroCompensation);
                 estimatedLineDuration = adjustedDuration / lyricLines.length;
+                console.log(`Durasi lagu: ${audioPlayer.duration}s, Baris lirik: ${lyricLines.length}, Estimasi durasi per baris: ${estimatedLineDuration.toFixed(2)}s`);
             } else {
                 estimatedLineDuration = 0;
             }
 
             // Jika lagu sedang bermain dan lirik siap, mulai auto-scroll
-            if (isPlaying && lyricLines.length > 0 && lyricsScrollInterval === null) {
+            if (isPlaying && lyricLines.length > 0 && lyricsScrollInterval === null && estimatedLineDuration > 0) {
                 startLyricsAutoScroll();
             }
 
