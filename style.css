@@ -294,20 +294,22 @@ header {
     scroll-behavior: smooth; /* Untuk auto-scroll yang halus */
 }
 
-/* Styling untuk paragraf lirik di dalam lyrics-text */
-.lyrics-text p {
+/* Styling untuk setiap baris lirik */
+.lyric-line { /* Menggunakan kelas baru untuk setiap baris lirik */
     font-size: 0.95em;
     color: rgba(255, 255, 255, 0.8); /* Warna default lirik */
     line-height: 1.6;
     margin: 0; /* Hapus margin default paragraf */
     padding: 2px 0; /* Sedikit padding vertikal antar baris lirik */
+    transition: color 0.2s ease-in-out, font-weight 0.2s ease-in-out; /* Animasi perubahan warna/berat font */
 }
 
-/* Gaya untuk lirik aktif (opsional, jika ingin menyorot) */
-.lyrics-text p.active-lyric {
+/* Gaya untuk lirik aktif */
+.lyric-line.active-lyric {
     color: var(--accent-red); /* Warna menyorot */
     font-weight: 700;
-    transition: color 0.3s ease;
+    transform: scale(1.05); /* Sedikit membesar */
+    text-shadow: 0 0 5px rgba(255, 69, 0, 0.5); /* Sedikit glow */
 }
 
 
@@ -494,7 +496,7 @@ header {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 #close-playlist-btn:hover {
