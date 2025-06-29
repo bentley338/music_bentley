@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval = null; // Untuk menyimpan ID interval timer
     let timeRemaining = 0; // Waktu tersisa dalam detik
 
-    // --- DATA LAGU ---
+    // --- DATA LAGU (LIRIK DIUPDATE AGAR LEBIH AKURAT) ---
     const playlist = [
         {
             title: "Back to Friends",
@@ -44,41 +44,41 @@ document.addEventListener('DOMContentLoaded', () => {
             lyrics: `<b>🎶 Back to Friends – Sombr</b><br><br>
                 <b>Verse 1</b><br>
                 Touch my body tender<br>
-                ’Cause the feeling makes me weak<br>
+                'Cause the feeling makes me weak<br>
                 Kicking off the covers<br>
-                I see the ceiling while you’re looking down at me<br><br>
+                I see the ceiling while you're looking down at me<br><br>
                 <b>Chorus</b><br>
                 How can we go back to being friends<br>
                 When we just shared a bed?<br>
                 How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br><br>
+                I'm someone you've never met?<br><br>
                 <b>Verse 2</b><br>
                 It was last December<br>
-                You were layin’ on my chest<br>
+                You were layin' on my chest<br>
                 I still remember<br>
                 I was scared to take a breath<br>
-                Didn’t want you to move your head<br><br>
+                Didn't want you to move your head<br><br>
                 <b>Chorus</b><br>
                 How can we go back to being friends<br>
                 When we just shared a bed?<br>
                 How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br><br>
+                I'm someone you've never met?<br><br>
                 <b>Bridge</b><br>
                 The devil in your eyes<br>
-                Won’t deny the lies you’ve sold<br>
-                I’m holding on too tight<br>
+                Won't deny the lies you've sold<br>
+                I'm holding on too tight<br>
                 While you let go<br>
                 This is casual<br><br>
                 <b>Final Chorus</b><br>
                 How can we go back to being friends<br>
                 When we just shared a bed?<br>
                 How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br>
+                I'm someone you've never met?<br>
                 How can we go back to being friends<br>
                 When we just shared a bed?<br>
                 How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br>
-                I’m someone you’ve never met<br>
+                I'm someone you've never met?<br>
+                I'm someone you've never met<br>
                 When we just shared a bed?
             `
         },
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Cause we never go out of style<br>
                 We never go out of style<br><br>
                 <b>Verse 2</b><br>
-                You got that long hair, slick back, white T-shirt<br>
+                You got that long hair, slicked back, white T-shirt<br>
                 And I got that good girl faith and a tight little skirt<br>
                 And when we go crashing down, we come back every time<br>
                 'Cause we never go out of style<br>
@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Bridge</b><br>
                 No explanation, no words can define<br>
                 This connection, truly one of a kind<br>
-                Beyond the logic, beyond the known<<br>
+                Beyond the logic, beyond the known<br>
                 In this love, we're never alone<br><br>
                 <b>Chorus</b><br>
                 Oh, this love is supernatural<br>
@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Always put me to the test<br>
                 Every lesson you ever taught me<br>
                 Has always been the best<br>
-                I’m so grateful that you’re always with me<<br>
+                I’m so grateful that you’re always with me<br>
                 Always put me to the test<br><br>
                 <b>Verse 2</b><br>
                 Building something from the ground up, you always help me see<br>
