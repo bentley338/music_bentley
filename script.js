@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Timer elements (modal)
     const setTimerBtn = document.getElementById('set-timer-btn');
     const timerModal = document.getElementById('timer-modal');
-    const closeModalBtn = document.getElementById('close-timer-modal');
+    const closeModalBtn = document.getElementById('close-timer-modal'); // Tombol X di modal
     const timerOptionBtns = document.querySelectorAll('.timer-option-btn');
     const customTimerInput = document.getElementById('custom-timer-minutes');
     const setCustomTimerBtn = document.getElementById('set-custom-timer-btn');
@@ -565,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Verse 2</b><br>
                 Pedang dan cawan, koin dan tongkat<br>
                 Setiap simbol punya makna kuat<br>
-                Cahaya dan bayangan menari<br>
+                Cahaya dan bayangan menari<<br>
                 Di panggung takdir yang abadi<br><br>
                 <b>Chorus</b><br>
                 Tarot, oh Tarot<br>
@@ -601,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Chorus</b><br>
                 O, Tuan, bimbinglah langkahku<br>
                 Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<<br>
+                Dalam gelap, dalam ragu<br>
                 Hanya pada-Mu aku bertumpu<br><br>
                 <b>Verse 2</b><br>
                 Janji-janji yang terucap<br>
@@ -1025,11 +1025,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (timeRemaining > 0) {
             // Tampilan di player utama
-            playerTimerDisplay.style.display = 'flex';
+            playerTimerDisplay.style.display = 'flex'; // Pastikan ini 'flex' atau 'block'
             playerTimerCountdown.textContent = displayTime;
 
             // Tampilan di dalam modal (jika modal terbuka)
-            modalActiveTimerDisplay.style.display = 'flex';
+            modalActiveTimerDisplay.style.display = 'flex'; // Pastikan ini 'flex' atau 'block'
             modalTimerCountdown.textContent = displayTime;
             modalCancelTimerBtn.style.display = 'inline-block'; // Pastikan tombol cancel terlihat di modal
         } else {
@@ -1095,8 +1095,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (playlist.length > 0) {
         loadSong(currentSongIndex);
         buildPlaylist();
-        // Inisialisasi tampilan timer tanpa memunculkan modal
-        updateAllTimerDisplays();
+        // Hanya inisialisasi tampilan timer, BUKAN MEMUNCULKAN MODAL.
+        // updateAllTimerDisplays() akan mengatur display:none; secara default jika tidak ada timer aktif.
+        updateAllTimerDisplays(); // Ini penting untuk memastikan elemen player-timer-display tersembunyi jika tidak ada timer aktif
     } else {
         console.error("Tidak ada lagu ditemukan di array 'playlist'.");
         currentSongTitle.textContent = "Tidak ada lagu";
