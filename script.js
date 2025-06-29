@@ -683,50 +683,60 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Hindia",
             src: "everything_u_are.mp3",
             albumArt: "album_art_everything_u_are.jpg",
-            introOffset: 15.00, // Estimasi waktu vokal masuk (detik)
+            introOffset: 15.00, // Estimasi waktu vokal masuk (detik) - Diperbarui berdasarkan lirik yang Anda berikan
             lyrics: `
-                I never thought that I would find
-                Somebody like you in this life
-                You opened up my mind
-                And showed me things I couldn't see
+                Wajahmu kuingat selalu
+                Lupakan hal-hal yang menggangguku
+                Kar'na hari ini mata kita beradu
+                Kita saling bantu
 
-                You're everything I ever wanted
-                Everything I ever needed
-                Every single breath I take
-                Is proof of everything you are
+                Melepas perasaan
+                Tinggi ke angkasa
+                Menantang dunia
+                Merayakan muda
+                'Tuk satu jam saja
 
-                Di matamu kulihat semesta yang tak terucap
-                Sebuah cerita menanti, berani dan tegar
-                Setiap bisikan, setiap desah lembut
-                Memantulkan kebenaran di bawah langit
+                Kita hampir mati
+                Dan kauselamatkan aku
+                Dan ku menyelamatkanmu
+                Dan sekarang aku tahu
 
-                'Cause everything you are, is everything I need
-                A guiding star, planting a hopeful seed
-                In every beat, my heart finds its release
-                Everything you are, brings me inner peace
+                Cerita kita tak jauh berbeda
+                Got beat down by the world
+                Sometimes I wanna fold
+                Namun, suratmu 'kan kuceritakan
+                Ke anak-anakku nanti
 
-                Melalui saat-saat rapuh, dan malam tergelap
-                Semangatmu bersinar, dengan cahaya tak berujung
-                Simfoni keanggunan, seni yang lembut
-                Kau terukir abadi, jauh di dalam hatiku
+                Bahwa aku pernah dicintai
+                With everything you are
+                Fully as I am
+                With everything you are
 
-                'Cause everything you are, is everything I need
-                A guiding star, planting a hopeful seed
-                In every beat, my heart finds its release
-                Everything you are, brings me inner peace
+                Wajahmu yang beragam rupa
+                Pastikan ku tak sendirian
+                Jalani derita
+                Kaubawakan kisahmu, aku mendengarkan
 
-                Tak ada kata yang bisa menangkap, tak ada lagu yang bisa mendefinisikan
-                Kedalaman keindahan, benar-benar ilahi
-                Sebuah mahakarya, tercipta unik
-                Di setiap nuansa, cinta terwujud
+                Oh, kita bergantian
+                Bertukar nestapa
+                Menawar trauma
+                Datang seadanya
+                Terasku terbuka
 
-                'Cause everything you are, is everything I need
-                A guiding star, planting a hopeful seed
-                In every beat, my heart finds its release
-                Everything you are, brings me inner peace
+                Kita hampir mati
+                Dan kauselamatkan aku
+                Dan ku menyelamatkanmu
+                Dan sekarang aku tahu
+                Cerita kita tak jauh berbeda
+                Got beat down by the world
+                Sometimes I wanna fold
+                Namun, suratmu 'kan kuceritakan
+                Ke anak-anakku nanti
 
-                Everything you are...
-                Oh, everything you are...
+                Bahwa aku pernah dicintai
+                With everything you are
+                Fully as I am
+                With everything you are
             `
         }
     ];
@@ -759,17 +769,18 @@ document.addEventListener('DOMContentLoaded', () => {
         lyricsText.innerHTML = ''; // Bersihkan konten lirik sebelumnya
         lyricLines = []; // Reset array lyricLines
 
-        // Bersihkan lirik dari tag HTML atau penanda bait seperti "Verse 1", "Chorus"
-        // Regex ini lebih kuat untuk menghapus berbagai pola penanda bait
+        // Regex untuk menghapus semua penanda seperti Verse, Chorus, Intro, dll.
+        // dan memastikan hanya baris lirik yang dinyanyikan yang tersisa.
         const cleanedLyrics = song.lyrics
             .replace(/<\/?b>/g, '') // Hapus tag <b>
             .replace(/🎶\s*[\w\s\.-]+\s*–\s*[\w\s\.-]+/g, '') // Hapus intro "🎶 Title - Artist"
-            .replace(/(^|\n)\s*(Intro|Verse|Chorus|Bridge|Outro|Pre-Chorus|Post-Chorus|Hook|Refrain|Solo|Break|Instrumental)\s*\d*\s*(\(|\)|:|\-)?/gi, '') // Hapus "Verse 1", "(Chorus)", dll.
-            .trim(); // Hapus spasi/baris kosong di awal/akhir
+            .replace(/(^|\n)\s*(Intro|Verse|Chorus|Bridge|Outro|Pre-Chorus|Post-Chorus|Hook|Refrain|Solo|Break|Instrumental)\s*\d*\s*(\(|\)|:|\-)?\s*(<br\/?>)?/gi, '') // Hapus penanda struktur dan baris kosong setelahnya
+            .split('\n') // Pisahkan per baris
+            .map(line => line.trim()) // Hapus spasi di awal/akhir setiap baris
+            .filter(line => line.length > 0) // Hapus baris yang kosong sepenuhnya
+            .join('\n'); // Gabungkan kembali menjadi string bersih
 
-        const lines = cleanedLyrics.split('\n')
-                                   .map(line => line.trim())
-                                   .filter(line => line.length > 0); // Pastikan baris tidak kosong
+        const lines = cleanedLyrics.split('\n'); // Sekarang pisahkan lagi baris yang sudah bersih
 
         lines.forEach(line => {
             const p = document.createElement('p');
