@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
 /* Menggunakan Roboto untuk kemiripan yang lebih baik */
 
-/* Variabel Warna Global - Dioptimalkan untuk kemiripan 1000% */
+/* Variabel Warna Global */
 :root {
     --bg-dark: #0A0A0A; /* Hampir hitam */
     --player-bg-dark: rgba(20, 0, 30, 0.5); /* Ungu gelap transparan */
@@ -84,7 +84,7 @@ body {
     z-index: -1;
 }
 
-/* Kontainer Utama (index.html) */
+/* Kontainer Utama (index.html dan contact.html) */
 .container {
     position: relative;
     z-index: 1;
@@ -308,7 +308,7 @@ header {
     line-height: 1.6; /* Pastikan line-height tetap rapi */
 }
 
-/* Styling untuk lirik statis (tanpa auto-scroll/highlight) */
+/* Styling untuk setiap baris lirik (sekarang hanya untuk tampilan statis) */
 #lyrics-text {
     white-space: pre-wrap; /* Mempertahankan baris baru dan spasi agar rapi */
     font-size: 0.95em;
@@ -436,16 +436,316 @@ header {
     box-shadow: 0 8px 25px rgba(255, 69, 0, 0.8); /* Glow merah */
 }
 
-.control-btn.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
+
+/* Playlist Sidebar */
+.playlist-sidebar {
+    padding: 25px;
+    width: 100%;
+    max-width: 400px;
+    position: fixed;
+    right: 0; /* Mulai dari kanan layar */
+    top: 0; /* Dari atas layar */
+    height: 100%; /* Ambil seluruh tinggi layar */
+    transform: translateX(100%); /* Sembunyikan ke kanan secara default */
+    opacity: 0;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    max-height: 100vh; /* Sesuaikan jika ingin lebih kecil */
+    overflow-y: auto;
+    z-index: 100; /* Pastikan di atas semua elemen lain */
+    box-sizing: border-box; /* Pastikan padding masuk dalam lebar/tinggi */
 }
-.control-btn.disabled:hover {
+
+.playlist-sidebar.visible {
+    transform: translateX(0); /* Geser ke kiri untuk menampilkan */
+    opacity: 1;
+}
+
+.playlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-right: 10px; /* Beri sedikit ruang agar tombol tidak terlalu pinggir */
+}
+
+.playlist-title {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    color: var(--primary-text);
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+#close-playlist-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--button-border);
+    color: var(--primary-text);
+    font-size: 1.2em;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#close-playlist-btn:hover {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.7);
+}
+
+
+.playlist-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.playlist-items li {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease, border-left-color 0.2s ease;
+    border-left: 5px solid transparent;
+}
+
+.playlist-items li:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.playlist-items li.active {
+    background-color: var(--player-bg-dark);
+    border-left-color: var(--accent-red);
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.4);
+}
+
+.playlist-items li img {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--border-radius-sm);
+    margin-right: 15px;
+    object-fit: cover;
+}
+
+.playlist-items li .playlist-song-info h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: var(--primary-text);
+}
+
+.playlist-items li .playlist-song-info p {
+    margin: 3px 0 0;
+    font-size: 0.9em;
+    color: var(--secondary-text);
+}
+
+/* Scrollbar untuk Playlist */
+.playlist-sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+.playlist-sidebar::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
+.playlist-sidebar::-webkit-scrollbar-thumb {
+    background: var(--accent-purple);
+    border-radius: 4px;
+}
+
+/* Overlay untuk sidebar */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Latar belakang gelap transparan */
+    z-index: 99; /* Di bawah sidebar tapi di atas konten utama */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+
+.sidebar-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* --- Timer Modal Styling --- */
+.timer-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8); /* Background gelap transparan */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 101; /* Lebih tinggi dari sidebar */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.timer-modal.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.timer-content {
+    padding: 30px;
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: scaleIn 0.3s ease-out forwards;
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.timer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.timer-header h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5em;
+    font-weight: 700;
+    margin: 0;
+    color: var(--primary-text);
+}
+
+#close-timer-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--button-border);
+    color: var(--primary-text);
+    font-size: 1.2em;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+#close-timer-btn:hover {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.7);
+}
+
+.timer-options label {
+    display: block;
+    font-size: 1em;
+    margin-bottom: 10px;
+    color: var(--secondary-text);
+}
+
+#timer-minutes {
+    width: 80px;
+    padding: 8px;
+    font-size: 1.1em;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--button-border);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--primary-text);
+    text-align: center;
+    -moz-appearance: textfield; /* Remove number input arrows in Firefox */
+}
+/* Remove number input arrows for Chrome, Safari, Edge */
+#timer-minutes::-webkit-outer-spin-button,
+#timer-minutes::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.timer-preset-buttons {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap; /* Agar bisa wrap di mobile */
+}
+
+.timer-preset {
+    background: var(--button-bg);
+    border: 1px solid var(--button-border);
+    color: var(--primary-text);
+    padding: 8px 15px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.timer-preset:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--accent-purple);
+    transform: translateY(-1px);
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.timer-controls .control-btn { /* Menggunakan gaya control-btn yang sudah ada */
+    font-size: 1em;
+    width: auto;
+    height: 45px;
+    padding: 0 20px;
+    border-radius: var(--border-radius-sm);
+}
+
+.timer-controls #start-timer-btn {
+    background-color: var(--accent-purple);
+    border-color: var(--accent-purple);
+}
+.timer-controls #start-timer-btn:hover {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 69, 0, 0.5);
+}
+
+.timer-controls #cancel-timer-btn {
     background-color: rgba(255, 255, 255, 0.1);
     border-color: var(--button-border);
-    transform: none;
-    box-shadow: none;
+}
+.timer-controls #cancel-timer-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--accent-purple);
+    transform: scale(1.05);
+}
+
+.timer-countdown {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--accent-red); /* Warna menonjol untuk countdown */
+    margin-top: 20px;
+    text-shadow: 0 0 8px rgba(255, 69, 0, 0.5);
 }
 
 
@@ -500,7 +800,7 @@ header {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 #close-playlist-btn:hover {
