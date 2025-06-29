@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kontak | MelodyVerse</title>
+    <title>Musik Saya: Back To Friends & Bergema Sampai Selamanya</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="app_icon.png" type="image/png">
@@ -17,35 +17,102 @@
         <div class="video-overlay"></div>
     </div>
 
-    <div class="container contact-page-container">
-        <header class="contact-header">
-            <h1 class="app-title-new">
-                <i class="fas fa-music"></i> Kontak MelodyVerse
-            </h1>
-            <a href="index.html" class="btn btn-playlist back-to-player-btn">
-                <i class="fas fa-compact-disc"></i> Kembali ke Pemutar
-            </a>
+    <div class="container">
+        <header>
+            <div class="app-branding">
+                <h1 id="app-title-new" class="app-title-new">
+                    <i class="fas fa-music"></i> MelodyVerse
+                </h1>
+            </div>
+
+            <div class="header-controls">
+                <button id="toggle-timer-btn" class="btn btn-timer">
+                    <i class="fas fa-hourglass-half"></i> Timer
+                </button>
+                <a href="contact.html" class="btn btn-contact"> <i class="fas fa-address-book"></i> Kontak
+                </a>
+                <button id="toggle-playlist" class="btn btn-playlist">
+                    <i class="fas fa-list-music"></i> Daftar Putar
+                </button>
+            </div>
         </header>
 
-        <main class="contact-content glass-effect">
-            <h2 class="contact-title">Hubungi Saya</h2>
-            <p class="contact-description">Temukan saya di media sosial atau hubungi langsung!</p>
-
-            <div class="social-icons-grid">
-                <a href="https://wa.me/6285810073341" target="_blank" aria-label="WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                    <span>WhatsApp</span>
-                </a>
-                <a href="https://www.instagram.com/beentley16?igsh=MW5yZTE5ZjdidXc2Zw==" target="_blank" aria-label="Instagram">
-                    <i class="fab fa-instagram"></i>
-                    <span>Instagram</span>
-                </a>
-                <a href="https://t.me/bentley160" target="_blank" aria-label="Telegram">
-                    <i class="fab fa-telegram-plane"></i>
-                    <span>Telegram</span>
-                </a>
+        <main class="music-player glass-effect">
+            <div class="header-player">
+                <span class="indicator-dot top-left"></span>
+                <span class="indicator-dot top-right"></span>
+                <h3 class="player-title">NOW PLAYING</h3>
+                <span class="indicator-dot bottom-left"></span>
+                <span class="indicator-dot bottom-right"></span>
             </div>
+
+            <div class="album-art-section">
+                <img id="current-album-art" src="album_art_back_to_friends.jpg" alt="Album Art" class="album-art-img">
+            </div>
+
+            <div class="song-details">
+                <h2 id="current-song-title" class="song-title">Back to Friends</h2>
+                <p id="current-artist-name" class="artist-name">Sombr</p>
+            </div>
+
+            <div class="lyrics-section">
+                <p id="lyrics-text" class="lyrics-text">Memuat lirik...</p>
+            </div>
+
+            <div class="progress-bar-section">
+                <input type="range" id="progress-bar" value="0" min="0" max="100" class="progress-slider">
+                <div class="time-info">
+                    <span id="current-time">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+            </div>
+
+            <div class="controls-section">
+                <button id="prev-btn" class="control-btn small-btn" aria-label="Previous Song"><i class="fas fa-backward"></i></button>
+                <button id="play-pause-btn" class="control-btn large-btn" aria-label="Play/Pause"><i class="fas fa-play"></i></button>
+                <button id="next-btn" class="control-btn small-btn" aria-label="Next Song"><i class="fas fa-forward"></i></button>
+            </div>
+
+            <audio id="audio-player" preload="auto"></audio>
         </main>
+
+        <aside id="playlist-sidebar" class="playlist-sidebar glass-effect">
+            <div class="playlist-header"> <h2 class="playlist-title">Daftar Putar</h2>
+                <button id="close-playlist-btn" class="control-btn small-btn" aria-label="Close Playlist">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <ul id="playlist" class="playlist-items">
+                </ul>
+        </aside>
+
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <div id="timer-modal" class="timer-modal">
+            <div class="timer-content glass-effect">
+                <div class="timer-header">
+                    <h2>Atur Timer Tidur</h2>
+                    <button id="close-timer-btn" class="control-btn small-btn"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="timer-options">
+                    <label for="timer-minutes">Setel waktu (menit):</label>
+                    <input type="number" id="timer-minutes" value="30" min="1" max="180">
+                    <div class="timer-preset-buttons">
+                        <button class="timer-preset" data-minutes="15">15m</button>
+                        <button class="timer-preset" data-minutes="30">30m</button>
+                        <button class="timer-preset" data-minutes="60">60m</button>
+                        <button class="timer-preset" data-minutes="90">90m</button>
+                    </div>
+                </div>
+                <div class="timer-controls">
+                    <button id="start-timer-btn" class="control-btn"><i class="fas fa-play"></i> Mulai</button>
+                    <button id="cancel-timer-btn" class="control-btn disabled" disabled><i class="fas fa-stop"></i> Batalkan</button>
+                </div>
+                <p id="timer-countdown" class="timer-countdown"></p>
+            </div>
+        </div>
+
     </div>
+    <script src="script.js"></script>
 </body>
 </html>
