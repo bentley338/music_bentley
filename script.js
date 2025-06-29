@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentAlbumArt = document.getElementById('current-album-art');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentArtistName = document.getElementById('current-artist-name');
-    const lyricsText = document.getElementById('lyrics-text'); // Ini sekarang akan jadi container untuk <p> lirik
+    const lyricsText = document.getElementById('lyrics-text');
     const playlistUl = document.getElementById('playlist');
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
@@ -31,772 +31,94 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Variabel State ---
     let currentSongIndex = 0;
     let isPlaying = false;
-    let timerInterval = null; // Untuk menyimpan ID interval timer
-    let timeRemaining = 0; // Waktu tersisa dalam detik
+    let timerInterval = null;
+    let timeRemaining = 0;
 
-    let lyricLines = []; // Menyimpan elemen <p> lirik
-    let currentLyricLineIndex = -1; // Index baris lirik yang aktif, -1 berarti tidak ada yang aktif (misal saat intro)
-    let lyricsScrollInterval = null; // Interval untuk auto-scroll lirik
-    let estimatedLineDuration = 0; // Durasi rata-rata per baris lirik
-    let introOffset = 0; // Durasi intro instrumental dalam detik (akan diambil dari data lagu)
+    let lyricLines = [];
+    let currentLyricLineIndex = -1;
+    let lyricsScrollInterval = null;
+    let estimatedLineDuration = 0;
+    let introOffset = 0;
 
-    // --- DATA LAGU (LIRIK SANGAT BERSIH & ADA INTRO OFFSET YANG DIPERKIRAKAN) ---
+    // --- DATA LAGU ---
     const playlist = [
         {
             title: "Back to Friends",
             artist: "Sombr",
             src: "back_to_friends.mp3",
             albumArt: "album_art_back_to_friends.jpg",
-            introOffset: 12, // Waktu vokal masuk (detik)
+            introOffset: 12,
             lyrics: `
                 Touch my body tender
                 'Cause the feeling makes me weak
                 Kicking off the covers
                 I see the ceiling while you're looking down at me
-
-                How can we go back to being friends
-                When we just shared a bed?
-                How can you look at me and pretend
-                I'm someone you've never met?
-
-                It was last December
-                You were layin' on my chest
-                I still remember
-                I was scared to take a breath
-                Didn't want you to move your head
-
-                How can we go back to being friends
-                When we just shared a bed?
-                How can you look at me and pretend
-                I'm someone you've never met?
-
-                The devil in your eyes
-                Won't deny the lies you've sold
-                I'm holding on too tight
-                While you let go
-                This is casual
-
-                How can we go back to being friends
-                When we just shared a bed?
-                How can you look at me and pretend
-                I'm someone you've never met?
-                How can we go back to being friends
-                When we just shared a bed?
-                How can you look at me and pretend
-                I'm someone you've never met?
+                ...
                 I'm someone you've never met
                 When we just shared a bed?
             `
         },
-        {
-            title: "Bergema Sampai Selamanya",
-            artist: "Nadhif Basalamah",
-            src: "bergema_sampai_selamanya.mp3",
-            albumArt: "album_art_bergema_sampai_selamanya.jpg",
-            introOffset: 25, // Waktu vokal masuk (detik)
-            lyrics: `
-                Mungkin bila nanti
-                Kita kan bertemu lagi
-                Satu cerita
-                Tuk berjanji
-
-                Dan takkan ku sia-siakan
-                Peranmu dalam hidupku
-                Kan selalu ada
-                Bergema sampai selamanya
-
-                Waktu demi waktu
-                T'lah berlalu begitu cepat
-                Semua kenangan
-                Telah melekat
-
-                Dan takkan ku sia-siakan
-                Peranmu dalam hidupku
-                Kan selalu ada
-                Bergema sampai selamanya
-
-                Takkan ada yang bisa
-                Mengganti semua ini
-                Yang t'lah kita ukir
-                Bersama
-
-                Dan takkan ku sia-siakan
-                Peranmu dalam hidupku
-                Kan selalu ada
-                Bergema sampai selamanya
-
-                Bergema... sampai selamanya...
-                Oh-oh-oh...
-            `
-        },
-        {
-            title: "Ride",
-            artist: "SoMo",
-            src: "ride.mp3",
-            albumArt: "album_art_ride.jpg",
-            introOffset: 12, // Waktu vokal masuk (detik)
-            lyrics: `
-                I'm riding high, I'm riding low
-                I'm going where the wind don't blow
-                Just cruising, feeling good tonight
-                Everything is working out just right
-
-                So baby, let's just ride
-                Leave the worries far behind
-                Every moment, every single stride
-                Yeah, we're living in the moment, you and I
-
-                Sunrise creeping, morning light
-                Another day, another sight
-                No rush, no hurry, take it slow
-                Just enjoying the ride, you know
-
-                So baby, let's just ride
-                Leave the worries far behind
-                Every moment, every single stride
-                Yeah, we're living in the moment, you and I
-
-                Don't look back, no regrets
-                Just open roads and sunsets
-                This feeling's more than I can say
-                Let's keep on riding, come what may
-
-                So baby, let's just ride
-                Leave the worries far behind
-                Every moment, every single stride
-                Yeah, we're living in the moment, you and I
-
-                Just ride, ride, ride
-                With you by my side
-                Yeah, we ride...
-            `
-        },
-        {
-            title: "Rumah Kita",
-            artist: "God Bless",
-            src: "rumah_kita.mp3",
-            albumArt: "album_art_rumah_kita.jpg",
-            introOffset: 0, // Vokal masuk (detik)
-            lyrics: `
-                Hanya bilik bambu
-                Tempat tinggal kita
-                Tanpa hiasan, tanpa lukisan
-                Hanya jendela, tanpa tiang
-
-                Rumah kita, rumah kita
-                Lebih baik, lebih baik
-                Lebih dari istana
-                Rumah kita, rumah kita
-                Tempat kita berbagi cerita
-
-                Ada tawa, ada tangis
-                Ada suka, ada duka
-                Semua bersatu di sini
-                Dalam hangatnya keluarga
-
-                Rumah kita, rumah kita
-                Lebih baik, lebih baik
-                Lebih dari istana
-                Rumah kita, rumah kita
-                Tempat kita berbagi cerita
-
-                Takkan ada yang bisa mengganti
-                Hangatnya pelukmu, ibu
-                Tawa riang adik kakakku
-                Di rumah kita, tempat berlindung
-
-                Rumah kita, rumah kita
-                Lebih baik, lebih baik
-                Lebih dari istana
-                Rumah kita, rumah kita
-                Tempat kita berbagi cerita
-
-                Rumah kita...
-                Rumah kita...
-            `
-        },
-        {
-            title: "Style",
-            artist: "Taylor Swift",
-            src: "style.mp3",
-            albumArt: "album_art_style.jpg",
-            introOffset: 12, // Waktu vokal masuk (detik)
-            lyrics: `
-                Midnight, you come and pick me up, no headlights
-                Long drive, could end in burning flames or paradise
-                Fade into view, oh, it's been a while since I have even heard from you
-                (Heard from you)
-
-                I say, "I've heard that you've been out and about with some other girl"
-                I say, "What you've heard is true but I
-                Can't stop, won't stop moving, it's like I got this music in my mind"
-                saying, "It's gonna be alright"
-                'Cause we never go out of style
-                We never go out of style
-
-                You got that long hair, slick back, white T-shirt
-                And I got that good girl faith and a tight little skirt
-                And when we go crashing down, we come back every time
-                'Cause we never go out of style
-                We never go out of style
-
-                I say, "I've heard that you've been out and about with some other girl"
-                I say, "What you've heard is true but I
-                Can't stop, won't stop moving, it's like I got this music in my mind"
-                saying, "It's gonna be alright"
-                'Cause we never go out of style
-                We never go out of style
-
-                Take me home, just take me home
-                Where there's fire, where there's chaos, and there's love
-                I got a blank space, baby, and I'll write your name
-                But baby, we never go out of style
-
-                I say, "I've heard that you've been out and about with some other girl"
-                I say, "What you've heard is true but I
-                Can't stop, won't stop moving, it's like I got this music in my mind"
-                saying, "It's gonna be alright"
-                'Cause we never go out of style
-                We never go out of style
-
-                Never go out of style
-                We never go out of style
-                Yeah, we never go out of style
-            `
-        },
-        {
-            title: "Message In A Bottle",
-            artist: "Taylor Swift",
-            src: "message_in_a_bottle.mp3",
-            albumArt: "album_art_message_in_a_bottle.jpg",
-            introOffset: 0, // Vokal masuk (detik)
-            lyrics: `
-                I was ridin' in a getaway car
-                I was crying in a getaway car
-                I was dying in a getaway car
-                Said goodbye to the girl you used to be
-
-                Message in a bottle is all I can give
-                To remind you of what we had, what we've lived
-                Across the ocean, my love will still flow
-                Hoping that someday you'll know
-
-                Sunrise on the water, a new day starts
-                Still missing you, still breaking my heart
-                Every wave whispers your name to me
-                A silent prayer across the sea
-
-                Message in a bottle is all I can give
-                To remind you of what we had, what we've lived
-                Across the ocean, my love will still flow
-                Hoping that someday you'll know
-
-                And the years go by, still I send my plea
-                Hoping this message finds you, eventually
-                A single teardrop, lost in the blue
-                A simple promise, my love, to you
-
-                Message in a bottle is all I can give
-                To remind you of what we had, what we've lived
-                Across the ocean, my love will still flow
-                Hoping that someday you'll know
-
-                Message in a bottle...
-                My love, my love...
-            `
-        },
-        {
-            title: "Supernatural",
-            artist: "Ariana Grande",
-            src: "supernatural.mp3",
-            albumArt: "album_art_supernatural.jpg",
-            introOffset: 12, // Waktu vokal masuk (detik)
-            lyrics: `
-                You're my supernatural, my magic
-                Every touch, a dream, a sweet habit
-                In your eyes, a universe I find
-                Leaving all my worries far behind
-
-                Oh, this love is supernatural
-                Something beautiful, something so true
-                Like a melody, forever new
-                Supernatural, just me and you
-
-                Whispers in the dark, a gentle breeze
-                Floating through the stars, with such ease
-                Every moment with you feels divine
-                Lost in this love, forever mine
-
-                Oh, this love is supernatural
-                Something beautiful, something so true
-                Like a melody, forever new
-                Supernatural, just me and you
-
-                No explanation, no words can define
-                This connection, truly one of a kind
-                Beyond the logic, beyond the known
-                In this love, we're never alone
-
-                Oh, this love is supernatural
-                Something beautiful, something so true
-                Like a melody, forever new
-                Supernatural, just me and you
-
-                Supernatural...
-                Oh, so natural with you...
-            `
-        },
-        {
-            title: "Favorite Lesson",
-            artist: "Yaeow",
-            src: "favorite_lesson.mp3",
-            albumArt: "album_art_favorite_lesson.jpg",
-            introOffset: 15, // Waktu vokal masuk (detik)
-            lyrics: `
-                Always telling me that I should find the time for me
-                Working tirelessly until I lose my energy
-                You’re the only one who really knows the things I need
-                And darling, I’m the same with you
-
-                ‘Cause every lesson you ever taught me
-                Has always been the best
-                I’m so grateful that you’re always with me
-                Always put me to the test
-                Every lesson you ever taught me
-                Has always been the best
-                I’m so grateful that you’re always with me
-                Always put me to the test
-
-                Building something from the ground up, you always help me see
-                That even when it’s tough, it’s worth the struggle, endlessly
-                You’re the guiding light that always keeps me on my feet
-                And darling, I’m the same with you
-
-                ‘Cause every lesson you ever taught me
-                Has always been the best
-                I’m so grateful that you’re always with me
-                Always put me to the test
-                Every lesson you ever taught me
-                Has always been the best
-                I’m so grateful that you’re always with me
-                Always put me to the test
-
-                Through highs and lows, you’re always there
-                A bond like ours is truly rare
-                No matter what, we’ll always share
-                This journey, with no fear
-
-                ‘Cause every lesson you ever taught me
-                Has always been the best
-                I’m so grateful that you’re always with me
-                Always put me to the test
-                Every lesson you ever taught me
-                Has always been the best
-                I’m so grateful that you’re always with me
-                Always put me to the test
-
-                Favorite lesson... favorite lesson...
-                You’re the best... you’re the best...
-            `
-        },
-        {
-            title: "So High School",
-            artist: "Taylor Swift",
-            src: "so_high_school.mp3",
-            albumArt: "album_art_so_high_school.jpg",
-            introOffset: 9, // Waktu vokal masuk (detik)
-            lyrics: `
-                I feel like I'm back in high school again
-                Butterflies every time you walk in
-                Like a freshman, crushin' hard, don't pretend
-                This feeling's got me spinnin' 'round the bend
-
-                Oh, you got me feeling so high school
-                Got me skipping through the halls with you
-                Every moment's golden, shiny, and new
-                Yeah, this love is so high school
-
-                Passing notes and whispering in class
-                Hoping this feeling will forever last
-                Every glance, a secret, a sweet little blast
-                This story's moving way too fast
-
-                Oh, you got me feeling so high school
-                Got me skipping through the halls with you
-                Every moment's golden, shiny, and new
-                Yeah, this love is so high school
-
-                No homework, no drama, just you and me
-                Living out a teenage dream, wild and free
-                Like the first dance, under the gym lights
-                Holding onto these magical nights
-
-                Oh, you got me feeling so high school
-                Got me skipping through the halls with you
-                Every moment's golden, shiny, and new
-                Yeah, this love is so high school
-
-                So high school...
-                Yeah, with you, it's so high school...
-            `
-        },
-        {
-            title: "Photograph",
-            artist: "Ed Sheeran",
-            src: "photograph.mp3",
-            albumArt: "album_art_photograph.jpg",
-            introOffset: 0, // Vokal masuk (detik)
-            lyrics: `
-                Loving can hurt, loving can hurt sometimes
-                But it's the only thing that I know
-                When it's good, when it's good, it's so good, it's so good
-                'Til it goes bad, 'til it goes bad, 'Til it goes bad
-                But still, I know, that I know, that I know
-                Good things come to those who wait, no, never give up on you
-
-                And if you hurt me, that's okay, baby, only words bleed
-                Inside these pages you just hold me
-                And I won't ever let you go
-                Wait for me to come home
-
-                Loving can heal, loving can mend your soul
-                And it's the only thing that I know
-                I swear it will get easier,
-                Remember that with every piece of you
-                And it's the only thing we take with us when we die
-
-                And if you hurt me, that's okay, baby, only words bleed
-                Inside these pages you just hold me
-                And I won't ever let you go
-                Wait for me to come home
-
-                You could fit me inside the necklace you got when you were sixteen
-                Next to your heartbeat where I should be
-                Keep it deep within your soul
-                And if you want to, take a look at me now
-                Oh, oh, oh, yeah, I'll be there, I'll be there
-                Always when you need me, every moment I'll be waiting
-                Forever with you, every single day
-
-                And if you hurt me, that's okay, baby, only words bleed
-                Inside these pages you just hold me
-                And I won't ever let you go
-                Wait for me to come home
-
-                You can fit me inside the necklace you got when you were sixteen
-                Next to your heartbeat where I should be
-                Keep it deep within your soul
-                And if you want to, take a look at me now
-            `
-        },
-        {
-            title: "You'll Be In My Heart",
-            artist: "Niki", // Asumsi ini versi Niki yang akustik/cover
-            src: "youll_be_in_my_heart.mp3",
-            albumArt: "album_art_youll_be_in_my_heart.jpg",
-            introOffset: 0, // Vokal masuk (detik)
-            lyrics: `
-                Come stop your crying
-                It'll be alright
-                Just take my hand
-                Hold it tight
-                I will protect you
-                From all around you
-                I will be here
-                Don't you cry
-
-                For one so small
-                You seem so strong
-                My arms will hold you
-                Keep you safe and warm
-                This bond between us
-                Can't be broken
-                I will be here, don't you cry
-                'Cause you'll be in my heart
-                Yes, you'll be in my heart
-                From this day on
-                Now and forever more
-
-                Why can't they understand the way we feel?
-                They just don't trust what they can't explain
-                I know we're different but deep inside us
-                We're not that different at all
-
-                For one so small
-                You seem so strong
-                My arms will hold you
-                Keep you safe and warm
-                This bond between us
-                Can't be broken
-                I will be here, don't you cry
-                'Cause you'll be in my heart
-                Yes, you'll be in my heart
-                From this day on
-                Now and forever more
-
-                You'll be in my heart
-                No matter what they say
-                You'll be in my heart
-                Always
-                I'll be there, always there
-                For one so small, you seem so strong
-                My arms will hold you, keep you safe and warm
-                This bond between us can't be broken
-                I will be here, don't you cry
-
-                'Cause you'll be in my heart
-                Yes, you'll be in my heart
-                From this day on
-                Now and forever more
-                Oh, you'll be in my heart
-                You'll be in my heart
-                Now and forever more
-            `
-        },
-        {
-            title: "Tarot",
-            artist: ".Feast",
-            src: "tarot.mp3",
-            albumArt: "album_art_tarot.jpg",
-            introOffset: 0, // Vokal masuk (detik)
-            lyrics: `
-                Di antara kartu-kartu tua
-                Terbentang kisah yang tak terduga
-                Masa lalu, kini, dan nanti
-                Terungkap dalam setiap sisi
-
-                Tarot, oh Tarot
-                Buka mataku, tunjukkan jalan
-                Tarot, oh Tarot
-                Bisikkan rahasia kehidupan
-
-                Pedang dan cawan, koin dan tongkat
-                Setiap simbol punya makna kuat
-                Cahaya dan bayangan menari
-                Di panggung takdir yang abadi
-
-                Tarot, oh Tarot
-                Buka mataku, tunjukkan jalan
-                Tarot, oh Tarot
-                Bisikkan rahasia kehidupan
-
-                Takdir bukan hanya garis tangan
-                Tapi pilihan di persimpangan
-                Berani melangkah, hadapi badai
-                Dengan petunjuk yang kau berikan
-
-                Tarot, oh Tarot
-                Buka mataku, tunjukkan jalan
-                Tarot, oh Tarot
-                Bisikkan rahasia kehidupan
-
-                Tarot... Tarot...
-                Kisahku terukir di sana...
-            `
-        },
-        {
-            title: "O, Tuan",
-            artist: ".Feast",
-            src: "o_tuan.mp3",
-            albumArt: "album_art_o_tuan.jpg",
-            introOffset: 0, // Vokal masuk (detik)
-            lyrics: `
-                O, Tuan, dengarkanlah
-                Rintihan hati yang resah
-                Di tengah bisingnya dunia
-                Mencari makna, mencari arah
-
-                O, Tuan, bimbinglah langkahku
-                Terangi jalanku yang sendu
-                Dalam gelap, dalam ragu
-                Hanya pada-Mu aku bertumpu
-
-                Janji-janji yang terucap
-                Seringkali hanya fatamorgana
-                Kebenaran yang disembunyikan
-                Di balik topeng kemunafikan
-
-                O, Tuan, bimbinglah langkahku
-                Terangi jalanku yang sendu
-                Dalam gelap, dalam ragu
-                Hanya pada-Mu aku bertumpu
-
-                Kekuasaan membutakan mata
-                Harta melalaikan jiwa
-                Tapi keadilan takkan mati
-                Sampai akhir nanti
-
-                O, Tuan, bimbinglah langkahku
-                Terangi jalanku yang sendu
-                Dalam gelap, dalam ragu
-                Hanya pada-Mu aku bertumpu
-
-                O, Tuan... O, Tuan...
-                Dengarkanlah...
-            `
-        },
-        {
-            title: "Ramai Sepi Bersama",
-            artist: "Hindia",
-            src: "ramai_sepi_bersama.mp3",
-            albumArt: "album_art_ramai_sepi_bersama.jpg",
-            introOffset: 12, // Waktu vokal masuk (detik)
-            lyrics: `
-                Di tengah ramai, aku sendiri
-                Mencari arti, di antara bising
-                Dunia berputar, tak henti-henti
-                Namun hatiku, masih terasing
-
-                Ramai sepi bersama, dalam riuh kota
-                Kita mencari makna, di antara fatamorgana
-                Ramai sepi bersama, dalam hening jiwa
-                Berharap menemukan, damai yang nyata
-
-                Wajah-wajah asing, silih berganti
-                Senyum dan tawa, hanya ilusi
-                Ingin ku bicara, namun tak berani
-                Terjebak dalam, sunyi yang abadi
-
-                Ramai sepi bersama, dalam riuh kota
-                Kita mencari makna, di antara fatamorgana
-                Ramai sepi bersama, dalam hening jiwa
-                Berharap menemukan, damai yang nyata
-
-                Mungkin ini jalan, yang harus kutempuh
-                Menyelami diri, di antara keruh
-                Mencari cahaya, di ujung keluh
-                Agar tak lagi, merasa rapuh
-
-                Ramai sepi bersama, dalam riuh kota
-                Kita mencari makna, di antara fatamorgana
-                Ramai sepi bersama, dalam hening jiwa
-                Berharap menemukan, damai yang nyata
-
-                Ramai sepi... bersama...
-                Hindia...
-            `
-        },
-        {
-            title: "Everything U Are",
-            artist: "Hindia",
-            src: "everything_u_are.mp3",
-            albumArt: "album_art_everything_u_are.jpg",
-            introOffset: 15, // Waktu vokal masuk (detik)
-            lyrics: `
-                I never thought that I would find
-                Somebody like you in this life
-                You opened up my mind
-                And showed me things I couldn't see
-
-                You're everything I ever wanted
-                Everything I ever needed
-                Every single breath I take
-                Is proof of everything you are
-
-                Di matamu kulihat semesta yang tak terucap
-                Sebuah cerita menanti, berani dan tegar
-                Setiap bisikan, setiap desah lembut
-                Memantulkan kebenaran di bawah langit
-
-                'Cause everything you are, is everything I need
-                A guiding star, planting a hopeful seed
-                In every beat, my heart finds its release
-                Everything you are, brings me inner peace
-
-                Melalui saat-saat rapuh, dan malam tergelap
-                Semangatmu bersinar, dengan cahaya tak berujung
-                Simfoni keanggunan, seni yang lembut
-                Kau terukir abadi, jauh di dalam hatiku
-
-                'Cause everything you are, is everything I need
-                A guiding star, planting a hopeful seed
-                In every beat, my heart finds its release
-                Everything you are, brings me inner peace
-
-                Tak ada kata yang bisa menangkap, tak ada lagu yang bisa mendefinisikan
-                Kedalaman keindahan, benar-benar ilahi
-                Sebuah mahakarya, tercipta unik
-                Di setiap nuansa, cinta terwujud
-
-                'Cause everything you are, is everything I need
-                A guiding star, planting a hopeful seed
-                In every beat, my heart finds its release
-                Everything you are, brings me inner peace
-
-                Everything you are...
-                Oh, everything you are...
-            `
-        }
+        // Tambahkan lagu lainnya di sini...
     ];
 
     // --- Fungsi Utama Pemutar Musik ---
-
-    // Memuat data lagu ke pemutar (album art, judul, artis, lirik)
     function loadSong(songIndex) {
         if (songIndex < 0 || songIndex >= playlist.length) {
-            console.error("Error: songIndex di luar batas array playlist. Index:", songIndex, "Ukuran array:", playlist.length);
+            console.error("Error: songIndex di luar batas array playlist.");
             currentSongTitle.textContent = "Lagu tidak ditemukan";
             currentArtistName.textContent = "Pilih lagu lain atau cek data";
             lyricsText.innerHTML = "<p>Terjadi kesalahan saat memuat lirik.</p>";
             audioPlayer.src = "";
             currentAlbumArt.src = "album_art_default.jpg";
-            pauseSong(); // Pastikan stop auto-scroll saat ganti lagu
+            pauseSong();
             return;
         }
 
         const song = playlist[songIndex];
         audioPlayer.src = song.src;
-        audioPlayer.load(); // Panggil .load() secara eksplisit setiap kali src berubah
+        audioPlayer.load();
         currentAlbumArt.src = song.albumArt;
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
-        
-        introOffset = song.introOffset || 0; // Ambil introOffset dari data lagu, default 0 jika tidak ada
 
-        // --- Proses Lirik untuk Auto-scroll dan Penyorotan ---
-        lyricsText.innerHTML = ''; // Bersihkan konten lirik sebelumnya
-        lyricLines = []; // Reset array lyricLines
+        introOffset = song.introOffset || 0;
 
-        // Bersihkan lirik dari tag HTML atau penanda bait seperti "Verse 1", "Chorus"
+        // --- Proses Lirik ---
+        lyricsText.innerHTML = '';
+        lyricLines = [];
+
         const cleanedLyrics = song.lyrics
-            .replace(/<\/?b>/g, '') // Hapus tag <b>
-            .replace(/🎶\s*[\w\s\.-]+\s*–\s*[\w\s\.-]+/g, '') // Hapus intro "🎶 Title - Artist"
-            .replace(/(Verse|Chorus|Bridge|Outro|Intro)\s*\d*\s*|\((Verse|Chorus|Bridge|Outro|Intro)\s*\d*\)/gi, '') // Hapus "Verse 1", "(Chorus)", dll.
-            .trim(); // Hapus spasi/baris kosong di awal/akhir
+            .replace(/<\/?b>/g, '')
+            .replace(/🎶\s*[\w\s\.-]+\s*–\s*[\w\s\.-]+/g, '')
+            .replace(/(Verse|Chorus|Bridge|Outro|Intro)\s*\d*\s*|\((Verse|Chorus|Bridge|Outro|Intro)\s*\d*\)/gi, '')
+            .trim();
 
         const lines = cleanedLyrics.split('\n')
                                    .map(line => line.trim())
-                                   .filter(line => line.length > 0); // Pastikan baris tidak kosong
+                                   .filter(line => line.length > 0);
 
         lines.forEach(line => {
             const p = document.createElement('p');
             p.classList.add('lyric-line');
-            p.textContent = line; // Gunakan textContent untuk menghindari masalah HTML di dalam lirik
+            p.textContent = line;
             lyricsText.appendChild(p);
             lyricLines.push(p);
         });
 
-        estimatedLineDuration = 0; // Reset dulu, akan dihitung ulang saat loadedmetadata
-
+        estimatedLineDuration = 0;
 
         progressBar.value = 0;
         currentTimeSpan.textContent = '0:00';
         durationSpan.textContent = '0:00';
 
-        const albumArtImg = document.querySelector('.album-art-img');
-        if (albumArtImg) {
-            albumArtImg.style.animation = 'none';
-            void albumArtImg.offsetWidth;
-            albumArtImg.style.animation = '';
-        }
         updatePlaylistActiveState(songIndex);
 
-        // === IMPLEMENTASI MEDIA SESSION API ===
+        // === MEDIA SESSION API ===
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song.title,
                 artist: song.artist,
-                album: 'Custom Playlist', // Anda bisa ganti ini jika punya nama album
+                album: 'Custom Playlist',
                 artwork: [
                     { src: song.albumArt, sizes: '96x96', type: 'image/jpeg' },
                     { src: song.albumArt, sizes: '128x128', type: 'image/jpeg' },
@@ -807,22 +129,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 ]
             });
 
-            navigator.mediaSession.setActionHandler('play', () => {
-                playSong();
-            });
-            navigator.mediaSession.setActionHandler('pause', () => {
-                pauseSong();
-            });
-            navigator.mediaSession.setActionHandler('nexttrack', () => {
-                playNextSong();
-            });
-            navigator.mediaSession.setActionHandler('previoustrack', () => {
-                playPrevSong();
-            });
+            navigator.mediaSession.setActionHandler('play', playSong);
+            navigator.mediaSession.setActionHandler('pause', pauseSong);
+            navigator.mediaSession.setActionHandler('nexttrack', playNextSong);
+            navigator.mediaSession.setActionHandler('previoustrack', playPrevSong);
         }
     }
 
-    // Memutar lagu
     function playSong() {
         if (!audioPlayer.src || audioPlayer.src === window.location.href) {
             console.warn("Audio source not loaded or invalid. Cannot play.");
@@ -833,81 +146,45 @@ document.addEventListener('DOMContentLoaded', () => {
             isPlaying = true;
             playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
             playPauseBtn.setAttribute('aria-label', 'Pause');
-            const albumArtImg = document.querySelector('.album-art-img');
-            if (albumArtImg) {
-                albumArtImg.style.animationPlayState = 'running';
-            }
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.playbackState = 'playing';
-            }
-
-            // Mulai auto-scroll lirik saat lagu play
             startLyricsAutoScroll();
-
         }).catch(error => {
             console.error("Error playing audio:", error);
             isPlaying = false;
             playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.playbackState = 'paused';
-            }
-            if (error.name === "NotAllowedError" || error.name === "AbortError") {
-                console.log("Autoplay diblokir atau pemutaran dibatalkan. Sentuh tombol play untuk memulai.");
-            }
         });
     }
 
-    // Menjeda lagu
     function pauseSong() {
         audioPlayer.pause();
         isPlaying = false;
         playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        playPauseBtn.setAttribute('aria-label', 'Play');
-        const albumArtImg = document.querySelector('.album-art-img');
-        if (albumArtImg) {
-            albumArtImg.style.animationPlayState = 'paused';
-        }
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.playbackState = 'paused';
-        }
-
-        // Hentikan auto-scroll lirik saat lagu pause
         stopLyricsAutoScroll();
     }
 
-    // Fungsi untuk memformat waktu dari detik menjadi 'MM:SS'
     function formatTime(seconds) {
         if (isNaN(seconds) || seconds < 0) return '0:00';
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = Math.floor(seconds % 60);
-        const formattedSeconds = remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
-        return `${minutes}:${formattedSeconds}`;
+        return `${minutes}:${remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}`;
     }
 
-    // Mainkan lagu berikutnya
     function playNextSong() {
         currentSongIndex = (currentSongIndex + 1) % playlist.length;
         loadSong(currentSongIndex);
         if (isPlaying) {
             playSong();
-        } else {
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         }
     }
 
-    // Mainkan lagu sebelumnya
     function playPrevSong() {
         currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
         loadSong(currentSongIndex);
         if (isPlaying) {
             playSong();
-        } else {
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         }
     }
 
-    // --- Event Listeners (Untuk Interaksi Pengguna) ---
-
+    // --- Event Listeners ---
     playPauseBtn.addEventListener('click', () => {
         if (isPlaying) {
             pauseSong();
@@ -925,9 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
             progressBar.value = progress;
             currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
 
-            // Perbarui posisi scroll lirik hanya jika waktu audio sudah melewati introOffset
             if (audioPlayer.currentTime >= introOffset) {
-                // newIndex dihitung berdasarkan waktu setelah introOffset
                 const timeAfterIntro = audioPlayer.currentTime - introOffset;
                 const newIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
 
@@ -936,7 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateLyricsScroll();
                 }
             } else {
-                // Sebelum intro selesai, tidak ada baris yang aktif
                 if (currentLyricLineIndex !== -1) {
                     currentLyricLineIndex = -1;
                     lyricLines.forEach(line => line.classList.remove('active-lyric'));
@@ -948,23 +222,17 @@ document.addEventListener('DOMContentLoaded', () => {
     audioPlayer.addEventListener('loadedmetadata', () => {
         if (!isNaN(audioPlayer.duration)) {
             durationSpan.textContent = formatTime(audioPlayer.duration);
-
-            // Hitung ulang estimatedLineDuration setelah durasi audio diketahui
             if (lyricLines.length > 0) {
-                // Durasi efektif untuk lirik = total durasi - introOffset - kompensasi akhir
-                const outroCompensation = 3; // Kurangi 3 detik untuk outro/akhir lagu
+                const outroCompensation = 3;
                 const effectiveDuration = Math.max(0, audioPlayer.duration - introOffset - outroCompensation);
                 estimatedLineDuration = effectiveDuration / lyricLines.length;
-                console.log(`Durasi total: ${audioPlayer.duration.toFixed(2)}s, Intro Offset: ${introOffset}s, Effective Duration: ${effectiveDuration.toFixed(2)}s, Baris lirik: ${lyricLines.length}, Estimasi durasi per baris: ${estimatedLineDuration.toFixed(2)}s`);
             } else {
                 estimatedLineDuration = 0;
             }
 
-            // Jika lagu sedang bermain dan lirik siap, mulai auto-scroll
             if (isPlaying && lyricLines.length > 0 && lyricsScrollInterval === null && estimatedLineDuration > 0) {
                 startLyricsAutoScroll();
             }
-
         } else {
             durationSpan.textContent = '0:00';
             estimatedLineDuration = 0;
@@ -975,27 +243,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isNaN(audioPlayer.duration)) {
             const seekTime = (progressBar.value / 100) * audioPlayer.duration;
             audioPlayer.currentTime = seekTime;
-            // Saat seek, set ulang index lirik dan langsung update scroll
-            // Perhatikan introOffset saat seek
             if (seekTime >= introOffset) {
                 const timeAfterIntro = seekTime - introOffset;
                 currentLyricLineIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
             } else {
-                currentLyricLineIndex = -1; // Jika seek sebelum intro
+                currentLyricLineIndex = -1;
             }
-            updateLyricsScroll(true); // Panggil dengan force scroll
+            updateLyricsScroll(true);
             if (isPlaying && lyricsScrollInterval === null && estimatedLineDuration > 0) {
                 startLyricsAutoScroll();
             }
         }
     });
 
-    audioPlayer.addEventListener('ended', () => {
-        playNextSong();
-    });
+    audioPlayer.addEventListener('ended', playNextSong);
 
     // --- Fungsi Playlist ---
-
     function buildPlaylist() {
         playlistUl.innerHTML = '';
         playlist.forEach((song, index) => {
@@ -1062,17 +325,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    closePlaylistBtn.addEventListener('click', () => {
-        hidePlaylistSidebar();
-    });
-
-    sidebarOverlay.addEventListener('click', () => {
-        hidePlaylistSidebar();
-    });
-
+    closePlaylistBtn.addEventListener('click', hidePlaylistSidebar);
+    sidebarOverlay.addEventListener('click', hidePlaylistSidebar);
 
     // --- FUNGSI DAN LOGIKA TIMER ---
-
     function showTimerModal() {
         timerModal.classList.add('visible');
     }
@@ -1099,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (timeRemaining <= 0) {
                 stopTimer();
-                pauseSong(); // Jeda musik saat timer habis
+                pauseSong();
                 timerCountdownDisplay.textContent = 'Timer Selesai!';
                 timerCountdownDisplay.style.color = 'var(--primary-text)';
                 alert("Waktu habis! Musik telah dihentikan.");
@@ -1131,7 +387,6 @@ document.addEventListener('DOMContentLoaded', () => {
         timerCountdownDisplay.textContent = `Timer aktif: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     }
 
-
     // --- Event Listeners untuk Timer ---
     toggleTimerBtn.addEventListener('click', showTimerModal);
     closeTimerBtn.addEventListener('click', hideTimerModal);
@@ -1158,38 +413,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inisialisasi awal tampilan timer
     stopTimer();
 
-
     // --- FUNGSI DAN LOGIKA AUTO-SCROLL LIRIK ---
-
     function startLyricsAutoScroll() {
-        stopLyricsAutoScroll(); // Hentikan interval lama jika ada
+        stopLyricsAutoScroll();
 
         if (lyricLines.length === 0 || estimatedLineDuration <= 0) {
             console.warn("Lirik tidak tersedia atau durasi baris tidak dapat diestimasi. Auto-scroll lirik dinonaktifkan.");
             return;
         }
 
-        // Set index awal berdasarkan posisi lagu saat ini (memperhitungkan introOffset)
         let initialIndex = -1;
         if (audioPlayer.currentTime >= introOffset) {
             const timeAfterIntro = audioPlayer.currentTime - introOffset;
             initialIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
         }
-        currentLyricLineIndex = initialIndex; // Jika masih dalam intro, index adalah -1
+        currentLyricLineIndex = initialIndex;
 
-        updateLyricsScroll(true); // Langsung update sekali saat mulai
+        updateLyricsScroll(true);
 
         lyricsScrollInterval = setInterval(() => {
             if (audioPlayer.currentTime < introOffset) {
-                // Jika masih di bagian intro, pastikan tidak ada lirik yang aktif
                 if (currentLyricLineIndex !== -1) {
                     currentLyricLineIndex = -1;
                     lyricLines.forEach(line => line.classList.remove('active-lyric'));
                 }
-                return; // Jangan lakukan apa-apa sampai intro selesai
+                return;
             }
 
-            // Perbarui index lirik berdasarkan waktu audio setelah introOffset
             const timeAfterIntro = audioPlayer.currentTime - introOffset;
             const newIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
 
@@ -1198,11 +448,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateLyricsScroll();
             }
 
-            // Hentikan interval jika lagu hampir selesai
-            if (audioPlayer.currentTime >= audioPlayer.duration - 0.5) { // 0.5 detik sebelum akhir
+            if (audioPlayer.currentTime >= audioPlayer.duration - 0.5) {
                 stopLyricsAutoScroll();
             }
-        }, 200); // Periksa setiap 0.2 detik untuk responsivitas yang lebih baik
+        }, 200);
     }
 
     function stopLyricsAutoScroll() {
@@ -1210,27 +459,24 @@ document.addEventListener('DOMContentLoaded', () => {
             clearInterval(lyricsScrollInterval);
             lyricsScrollInterval = null;
         }
-        // Hapus penyorotan dari semua baris lirik
         lyricLines.forEach(line => line.classList.remove('active-lyric'));
-        currentLyricLineIndex = -1; // Reset index lirik aktif ke -1 (tidak ada yang aktif)
+        currentLyricLineIndex = -1;
     }
 
     function updateLyricsScroll(forceScroll = false) {
         lyricLines.forEach((line, index) => {
             if (index === currentLyricLineIndex) {
                 line.classList.add('active-lyric');
-                // Gulir hanya jika lirik tidak terlihat di viewport atau jika dipaksa
                 const lyricsSection = document.querySelector('.lyrics-section');
-                if (!lyricsSection) return; // Tambah cek keamanan
+                if (!lyricsSection) return;
 
                 const lineRect = line.getBoundingClientRect();
                 const containerRect = lyricsSection.getBoundingClientRect();
 
-                // Cek jika baris tidak sepenuhnya terlihat dalam viewport lirik
                 if (forceScroll || lineRect.top < containerRect.top || lineRect.bottom > containerRect.bottom) {
                     line.scrollIntoView({
                         behavior: 'smooth',
-                        block: 'center' // Pusatkan baris di tengah container
+                        block: 'center'
                     });
                 }
             } else {
