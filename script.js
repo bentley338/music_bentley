@@ -38,14 +38,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentLyricLineIndex = 0; // Index baris lirik yang aktif
     let lyricsScrollInterval = null; // Interval untuk auto-scroll lirik
     let estimatedLineDuration = 0; // Durasi rata-rata per baris lirik
+    let introOffset = 0; // Durasi intro instrumental dalam detik (akan diambil dari data lagu)
 
-    // --- DATA LAGU (LIRIK SUDAH DIBERSIHKAN DAN AKURAT) ---
+    // --- DATA LAGU (LIRIK SANGAT BERSIH & ADA INTRO OFFSET) ---
     const playlist = [
         {
             title: "Back to Friends",
             artist: "Sombr",
             src: "back_to_friends.mp3",
             albumArt: "album_art_back_to_friends.jpg",
+            introOffset: 12, // Estimasi saat vokal masuk
             lyrics: `
                 Touch my body tender
                 'Cause the feeling makes me weak
@@ -91,36 +93,37 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Nadhif Basalamah",
             src: "bergema_sampai_selamanya.mp3",
             albumArt: "album_art_bergema_sampai_selamanya.jpg",
+            introOffset: 25, // Estimasi saat vokal masuk
             lyrics: `
-                Dengarkan hati bicara
-                Di setiap desah napasmu
-                Ada cerita yang takkan pudar
-                Di setiap langkah kakimu
+                Mungkin bila nanti
+                Kita kan bertemu lagi
+                Satu cerita
+                Tuk berjanji
 
+                Dan takkan ku sia-siakan
+                Peranmu dalam hidupku
+                Kan selalu ada
                 Bergema sampai selamanya
-                Cinta kita takkan sirna
-                Di setiap nada yang tercipta
-                Hanyalah namamu yang ada
 
-                Waktu terus berjalan
-                Namun rasa ini takkan lekang
-                Seperti bintang yang takkan padam
-                Bersinarlah di setiap malam
+                Waktu demi waktu
+                T'lah berlalu begitu cepat
+                Semua kenangan
+                Telah melekat
 
+                Dan takkan ku sia-siakan
+                Peranmu dalam hidupku
+                Kan selalu ada
                 Bergema sampai selamanya
-                Cinta kita takkan sirna
-                Di setiap nada yang tercipta
-                Hanyalah namamu yang ada
 
-                Tiada akhir bagi kisah kita
-                Terukir abadi di jiwa
-                Kan selalu ada, kan selalu nyata
-                Janji yang takkan pernah pudar
+                Takkan ada yang bisa
+                Mengganti semua ini
+                Yang t'lah kita ukir
+                Bersama
 
+                Dan takkan ku sia-siakan
+                Peranmu dalam hidupku
+                Kan selalu ada
                 Bergema sampai selamanya
-                Cinta kita takkan sirna
-                Di setiap nada yang tercipta
-                Hanyalah namamu yang ada
 
                 Bergema... sampai selamanya...
                 Oh-oh-oh...
@@ -131,6 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "SoMo",
             src: "ride.mp3",
             albumArt: "album_art_ride.jpg",
+            introOffset: 12, // Estimasi saat vokal masuk
             lyrics: `
                 I'm riding high, I'm riding low
                 I'm going where the wind don't blow
@@ -172,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "God Bless",
             src: "rumah_kita.mp3",
             albumArt: "album_art_rumah_kita.jpg",
+            introOffset: 0, // Vokal masuk di awal lagu
             lyrics: `
                 Hanya bilik bambu
                 Tempat tinggal kita
@@ -215,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "style.mp3",
             albumArt: "album_art_style.jpg",
+            introOffset: 12, // Estimasi saat vokal masuk
             lyrics: `
                 Midnight, you come and pick me up, no headlights
                 Long drive, could end in burning flames or paradise
@@ -263,6 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "message_in_a_bottle.mp3",
             albumArt: "album_art_message_in_a_bottle.jpg",
+            introOffset: 0, // Estimasi saat vokal masuk
             lyrics: `
                 I was ridin' in a getaway car
                 I was crying in a getaway car
@@ -303,6 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Ariana Grande",
             src: "supernatural.mp3",
             albumArt: "album_art_supernatural.jpg",
+            introOffset: 12, // Estimasi saat vokal masuk
             lyrics: `
                 You're my supernatural, my magic
                 Every touch, a dream, a sweet habit
@@ -343,6 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Yaeow",
             src: "favorite_lesson.mp3",
             albumArt: "album_art_favorite_lesson.jpg",
+            introOffset: 15, // Estimasi saat vokal masuk
             lyrics: `
                 Always telling me that I should find the time for me
                 Working tirelessly until I lose my energy
@@ -395,6 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "so_high_school.mp3",
             albumArt: "album_art_so_high_school.jpg",
+            introOffset: 9, // Estimasi saat vokal masuk
             lyrics: `
                 I feel like I'm back in high school again
                 Butterflies every time you walk in
@@ -435,6 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Ed Sheeran",
             src: "photograph.mp3",
             albumArt: "album_art_photograph.jpg",
+            introOffset: 0, // Vokal masuk di awal lagu
             lyrics: `
                 Loving can hurt, loving can hurt sometimes
                 But it's the only thing that I know
@@ -483,6 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Niki",
             src: "youll_be_in_my_heart.mp3",
             albumArt: "album_art_youll_be_in_my_heart.jpg",
+            introOffset: 0, // Vokal masuk di awal lagu
             lyrics: `
                 Come stop your crying
                 It'll be alright
@@ -546,6 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: ".Feast",
             src: "tarot.mp3",
             albumArt: "album_art_tarot.jpg",
+            introOffset: 0, // Vokal masuk di awal lagu
             lyrics: `
                 Di antara kartu-kartu tua
                 Terbentang kisah yang tak terduga
@@ -586,6 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: ".Feast",
             src: "o_tuan.mp3",
             albumArt: "album_art_o_tuan.jpg",
+            introOffset: 0, // Vokal masuk di awal lagu
             lyrics: `
                 O, Tuan, dengarkanlah
                 Rintihan hati yang resah
@@ -626,6 +640,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Hindia",
             src: "ramai_sepi_bersama.mp3",
             albumArt: "album_art_ramai_sepi_bersama.jpg",
+            introOffset: 12, // Estimasi saat vokal masuk
             lyrics: `
                 Di tengah ramai, aku sendiri
                 Mencari arti, di antara bising
@@ -666,31 +681,42 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Hindia",
             src: "everything_u_are.mp3",
             albumArt: "album_art_everything_u_are.jpg",
+            introOffset: 15, // Estimasi saat vokal masuk
             lyrics: `
-                In your eyes, I see a universe untold
-                A story waiting, brave and bold
-                Every whisper, every gentle sigh
-                Reflects the truth beneath the sky
+                I never thought that I would find
+                Somebody like you in this life
+                You opened up my mind
+                And showed me things I couldn't see
+
+                You're everything I ever wanted
+                Everything I ever needed
+                Every single breath I take
+                Is proof of everything you are
+
+                Di matamu kulihat semesta yang tak terucap
+                Sebuah cerita menanti, berani dan tegar
+                Setiap bisikan, setiap desah lembut
+                Memantulkan kebenaran di bawah langit
 
                 'Cause everything you are, is everything I need
                 A guiding star, planting a hopeful seed
                 In every beat, my heart finds its release
                 Everything you are, brings me inner peace
 
-                Through fragile moments, and darkest nights
-                Your spirit shines, with endless lights
-                A symphony of grace, a gentle art
-                You're etched forever, deep within my heart
+                Melalui saat-saat rapuh, dan malam tergelap
+                Semangatmu bersinar, dengan cahaya tak berujung
+                Simfoni keanggunan, seni yang lembut
+                Kau terukir abadi, jauh di dalam hatiku
 
                 'Cause everything you are, is everything I need
                 A guiding star, planting a hopeful seed
                 In every beat, my heart finds its release
                 Everything you are, brings me inner peace
 
-                No words can capture, no song can define
-                The depth of beauty, truly divine
-                A masterpiece, uniquely made
-                In every shade, a love displayed
+                Tak ada kata yang bisa menangkap, tak ada lagu yang bisa mendefinisikan
+                Kedalaman keindahan, benar-benar ilahi
+                Sebuah mahakarya, tercipta unik
+                Di setiap nuansa, cinta terwujud
 
                 'Cause everything you are, is everything I need
                 A guiding star, planting a hopeful seed
@@ -724,6 +750,8 @@ document.addEventListener('DOMContentLoaded', () => {
         currentAlbumArt.src = song.albumArt;
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
+        
+        introOffset = song.introOffset || 0; // Ambil introOffset dari data lagu, default 0 jika tidak ada
 
         // --- Proses Lirik untuk Auto-scroll dan Penyorotan ---
         lyricsText.innerHTML = ''; // Bersihkan konten lirik sebelumnya
@@ -892,25 +920,27 @@ document.addEventListener('DOMContentLoaded', () => {
     nextBtn.addEventListener('click', playNextSong);
 
     audioPlayer.addEventListener('timeupdate', () => {
-        if (!isNaN(audioPlayer.duration)) {
+        if (!isNaN(audioPlayer.duration) && lyricLines.length > 0 && estimatedLineDuration > 0) {
             const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
             progressBar.value = progress;
             currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
 
-            // Perbarui posisi scroll lirik saat waktu berubah
-            if (lyricsScrollInterval !== null && lyricLines.length > 0 && estimatedLineDuration > 0) {
-                const newIndex = Math.min(lyricLines.length - 1, Math.floor(audioPlayer.currentTime / estimatedLineDuration));
+            // Perbarui posisi scroll lirik hanya jika waktu audio sudah melewati introOffset
+            if (audioPlayer.currentTime >= introOffset) {
+                // newIndex dihitung berdasarkan waktu setelah introOffset
+                const timeAfterIntro = audioPlayer.currentTime - introOffset;
+                const newIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
+
                 if (newIndex !== currentLyricLineIndex) {
                     currentLyricLineIndex = newIndex;
                     updateLyricsScroll();
                 }
-            } else if (lyricsScrollInterval === null && lyricLines.length > 0 && estimatedLineDuration > 0) {
-                 // Kalau interval tidak aktif, tapi lagu jalan (misal setelah seek manual)
-                 const newIndex = Math.min(lyricLines.length - 1, Math.floor(audioPlayer.currentTime / estimatedLineDuration));
-                 if (newIndex !== currentLyricLineIndex) {
-                    currentLyricLineIndex = newIndex;
-                    updateLyricsScroll();
-                 }
+            } else {
+                // Sebelum intro selesai, tidak ada baris yang aktif
+                if (currentLyricLineIndex !== -1) {
+                    currentLyricLineIndex = -1;
+                    lyricLines.forEach(line => line.classList.remove('active-lyric'));
+                }
             }
         }
     });
@@ -921,12 +951,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Hitung ulang estimatedLineDuration setelah durasi audio diketahui
             if (lyricLines.length > 0) {
-                // Kurangi sedikit durasi total (misal 5-10 detik) agar tidak menggulir terlalu cepat di akhir
-                // Ini juga bisa membantu mengkompensasi intro instrumental yang tidak ada liriknya
-                const introOutroCompensation = 5; // Detik yang dikurangi dari total durasi
-                const adjustedDuration = Math.max(0, audioPlayer.duration - introOutroCompensation);
-                estimatedLineDuration = adjustedDuration / lyricLines.length;
-                console.log(`Durasi lagu: ${audioPlayer.duration}s, Baris lirik: ${lyricLines.length}, Estimasi durasi per baris: ${estimatedLineDuration.toFixed(2)}s`);
+                // Durasi efektif untuk lirik = total durasi - introOffset - kompensasi akhir
+                const effectiveDuration = Math.max(0, audioPlayer.duration - introOffset - 3); // Kurangi 3 detik untuk outro juga
+                estimatedLineDuration = effectiveDuration / lyricLines.length;
+                console.log(`Durasi total: ${audioPlayer.duration.toFixed(2)}s, Intro Offset: ${introOffset}s, Effective Duration: ${effectiveDuration.toFixed(2)}s, Baris lirik: ${lyricLines.length}, Estimasi durasi per baris: ${estimatedLineDuration.toFixed(2)}s`);
             } else {
                 estimatedLineDuration = 0;
             }
@@ -947,10 +975,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const seekTime = (progressBar.value / 100) * audioPlayer.duration;
             audioPlayer.currentTime = seekTime;
             // Saat seek, set ulang index lirik dan langsung update scroll
-            currentLyricLineIndex = Math.min(lyricLines.length - 1, Math.floor(seekTime / estimatedLineDuration));
+            // Perhatikan introOffset saat seek
+            if (seekTime >= introOffset) {
+                const timeAfterIntro = seekTime - introOffset;
+                currentLyricLineIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
+            } else {
+                currentLyricLineIndex = -1; // Jika seek sebelum intro
+            }
             updateLyricsScroll(true); // Panggil dengan force scroll
-            // Jika lagu sedang pause setelah seek, kita tidak perlu memulai interval
-            // Tapi jika sedang play, pastikan interval tetap berjalan atau dimulai kembali
             if (isPlaying && lyricsScrollInterval === null && estimatedLineDuration > 0) {
                 startLyricsAutoScroll();
             }
@@ -1136,14 +1168,29 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Set index awal berdasarkan posisi lagu saat ini
-        currentLyricLineIndex = Math.min(lyricLines.length - 1, Math.floor(audioPlayer.currentTime / estimatedLineDuration));
+        // Set index awal berdasarkan posisi lagu saat ini (memperhitungkan introOffset)
+        let initialIndex = -1;
+        if (audioPlayer.currentTime >= introOffset) {
+            const timeAfterIntro = audioPlayer.currentTime - introOffset;
+            initialIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
+        }
+        currentLyricLineIndex = initialIndex; // Jika masih dalam intro, index adalah -1
+
         updateLyricsScroll(true); // Langsung update sekali saat mulai
 
         lyricsScrollInterval = setInterval(() => {
-            // Perbarui index lirik berdasarkan waktu audio
-            // Gunakan Math.min untuk memastikan index tidak melebihi batas array
-            const newIndex = Math.min(lyricLines.length - 1, Math.floor(audioPlayer.currentTime / estimatedLineDuration));
+            if (audioPlayer.currentTime < introOffset) {
+                // Jika masih di bagian intro, pastikan tidak ada lirik yang aktif
+                if (currentLyricLineIndex !== -1) {
+                    currentLyricLineIndex = -1;
+                    lyricLines.forEach(line => line.classList.remove('active-lyric'));
+                }
+                return; // Jangan lakukan apa-apa sampai intro selesai
+            }
+
+            // Perbarui index lirik berdasarkan waktu audio setelah introOffset
+            const timeAfterIntro = audioPlayer.currentTime - introOffset;
+            const newIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
 
             if (newIndex !== currentLyricLineIndex) {
                 currentLyricLineIndex = newIndex;
@@ -1154,7 +1201,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (audioPlayer.currentTime >= audioPlayer.duration - 0.5) { // 0.5 detik sebelum akhir
                 stopLyricsAutoScroll();
             }
-        }, 500); // Periksa setiap 0.5 detik untuk responsivitas yang baik
+        }, 200); // Periksa setiap 0.2 detik untuk responsivitas yang lebih baik
     }
 
     function stopLyricsAutoScroll() {
@@ -1164,7 +1211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // Hapus penyorotan dari semua baris lirik
         lyricLines.forEach(line => line.classList.remove('active-lyric'));
-        currentLyricLineIndex = 0; // Reset index lirik aktif
+        currentLyricLineIndex = -1; // Reset index lirik aktif ke -1 (tidak ada yang aktif)
     }
 
     function updateLyricsScroll(forceScroll = false) {
