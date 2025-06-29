@@ -35,19 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let timeRemaining = 0; // Waktu tersisa dalam detik
 
     let lyricLines = []; // Menyimpan elemen <p> lirik
-    let currentLyricLineIndex = 0; // Index baris lirik yang aktif
+    let currentLyricLineIndex = -1; // Index baris lirik yang aktif, -1 berarti tidak ada yang aktif (misal saat intro)
     let lyricsScrollInterval = null; // Interval untuk auto-scroll lirik
     let estimatedLineDuration = 0; // Durasi rata-rata per baris lirik
     let introOffset = 0; // Durasi intro instrumental dalam detik (akan diambil dari data lagu)
 
-    // --- DATA LAGU (LIRIK SANGAT BERSIH & ADA INTRO OFFSET) ---
+    // --- DATA LAGU (LIRIK SANGAT BERSIH & ADA INTRO OFFSET YANG DIPERKIRAKAN) ---
     const playlist = [
         {
             title: "Back to Friends",
             artist: "Sombr",
             src: "back_to_friends.mp3",
             albumArt: "album_art_back_to_friends.jpg",
-            introOffset: 12, // Estimasi saat vokal masuk
+            introOffset: 12, // Waktu vokal masuk (detik)
             lyrics: `
                 Touch my body tender
                 'Cause the feeling makes me weak
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Nadhif Basalamah",
             src: "bergema_sampai_selamanya.mp3",
             albumArt: "album_art_bergema_sampai_selamanya.jpg",
-            introOffset: 25, // Estimasi saat vokal masuk
+            introOffset: 25, // Waktu vokal masuk (detik)
             lyrics: `
                 Mungkin bila nanti
                 Kita kan bertemu lagi
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "SoMo",
             src: "ride.mp3",
             albumArt: "album_art_ride.jpg",
-            introOffset: 12, // Estimasi saat vokal masuk
+            introOffset: 12, // Waktu vokal masuk (detik)
             lyrics: `
                 I'm riding high, I'm riding low
                 I'm going where the wind don't blow
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "God Bless",
             src: "rumah_kita.mp3",
             albumArt: "album_art_rumah_kita.jpg",
-            introOffset: 0, // Vokal masuk di awal lagu
+            introOffset: 0, // Vokal masuk (detik)
             lyrics: `
                 Hanya bilik bambu
                 Tempat tinggal kita
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "style.mp3",
             albumArt: "album_art_style.jpg",
-            introOffset: 12, // Estimasi saat vokal masuk
+            introOffset: 12, // Waktu vokal masuk (detik)
             lyrics: `
                 Midnight, you come and pick me up, no headlights
                 Long drive, could end in burning flames or paradise
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "message_in_a_bottle.mp3",
             albumArt: "album_art_message_in_a_bottle.jpg",
-            introOffset: 0, // Estimasi saat vokal masuk
+            introOffset: 0, // Vokal masuk (detik)
             lyrics: `
                 I was ridin' in a getaway car
                 I was crying in a getaway car
@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Ariana Grande",
             src: "supernatural.mp3",
             albumArt: "album_art_supernatural.jpg",
-            introOffset: 12, // Estimasi saat vokal masuk
+            introOffset: 12, // Waktu vokal masuk (detik)
             lyrics: `
                 You're my supernatural, my magic
                 Every touch, a dream, a sweet habit
@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Yaeow",
             src: "favorite_lesson.mp3",
             albumArt: "album_art_favorite_lesson.jpg",
-            introOffset: 15, // Estimasi saat vokal masuk
+            introOffset: 15, // Waktu vokal masuk (detik)
             lyrics: `
                 Always telling me that I should find the time for me
                 Working tirelessly until I lose my energy
@@ -404,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "so_high_school.mp3",
             albumArt: "album_art_so_high_school.jpg",
-            introOffset: 9, // Estimasi saat vokal masuk
+            introOffset: 9, // Waktu vokal masuk (detik)
             lyrics: `
                 I feel like I'm back in high school again
                 Butterflies every time you walk in
@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Ed Sheeran",
             src: "photograph.mp3",
             albumArt: "album_art_photograph.jpg",
-            introOffset: 0, // Vokal masuk di awal lagu
+            introOffset: 0, // Vokal masuk (detik)
             lyrics: `
                 Loving can hurt, loving can hurt sometimes
                 But it's the only thing that I know
@@ -491,10 +491,10 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             title: "You'll Be In My Heart",
-            artist: "Niki",
+            artist: "Niki", // Asumsi ini versi Niki yang akustik/cover
             src: "youll_be_in_my_heart.mp3",
             albumArt: "album_art_youll_be_in_my_heart.jpg",
-            introOffset: 0, // Vokal masuk di awal lagu
+            introOffset: 0, // Vokal masuk (detik)
             lyrics: `
                 Come stop your crying
                 It'll be alright
@@ -558,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: ".Feast",
             src: "tarot.mp3",
             albumArt: "album_art_tarot.jpg",
-            introOffset: 0, // Vokal masuk di awal lagu
+            introOffset: 0, // Vokal masuk (detik)
             lyrics: `
                 Di antara kartu-kartu tua
                 Terbentang kisah yang tak terduga
@@ -599,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: ".Feast",
             src: "o_tuan.mp3",
             albumArt: "album_art_o_tuan.jpg",
-            introOffset: 0, // Vokal masuk di awal lagu
+            introOffset: 0, // Vokal masuk (detik)
             lyrics: `
                 O, Tuan, dengarkanlah
                 Rintihan hati yang resah
@@ -640,7 +640,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Hindia",
             src: "ramai_sepi_bersama.mp3",
             albumArt: "album_art_ramai_sepi_bersama.jpg",
-            introOffset: 12, // Estimasi saat vokal masuk
+            introOffset: 12, // Waktu vokal masuk (detik)
             lyrics: `
                 Di tengah ramai, aku sendiri
                 Mencari arti, di antara bising
@@ -681,7 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Hindia",
             src: "everything_u_are.mp3",
             albumArt: "album_art_everything_u_are.jpg",
-            introOffset: 15, // Estimasi saat vokal masuk
+            introOffset: 15, // Waktu vokal masuk (detik)
             lyrics: `
                 I never thought that I would find
                 Somebody like you in this life
@@ -740,7 +740,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lyricsText.innerHTML = "<p>Terjadi kesalahan saat memuat lirik.</p>";
             audioPlayer.src = "";
             currentAlbumArt.src = "album_art_default.jpg";
-            pauseSong();
+            pauseSong(); // Pastikan stop auto-scroll saat ganti lagu
             return;
         }
 
@@ -952,7 +952,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Hitung ulang estimatedLineDuration setelah durasi audio diketahui
             if (lyricLines.length > 0) {
                 // Durasi efektif untuk lirik = total durasi - introOffset - kompensasi akhir
-                const effectiveDuration = Math.max(0, audioPlayer.duration - introOffset - 3); // Kurangi 3 detik untuk outro juga
+                const outroCompensation = 3; // Kurangi 3 detik untuk outro/akhir lagu
+                const effectiveDuration = Math.max(0, audioPlayer.duration - introOffset - outroCompensation);
                 estimatedLineDuration = effectiveDuration / lyricLines.length;
                 console.log(`Durasi total: ${audioPlayer.duration.toFixed(2)}s, Intro Offset: ${introOffset}s, Effective Duration: ${effectiveDuration.toFixed(2)}s, Baris lirik: ${lyricLines.length}, Estimasi durasi per baris: ${estimatedLineDuration.toFixed(2)}s`);
             } else {
