@@ -151,6 +151,7 @@ header {
     margin-top: 5px;
 }
 
+
 .header-buttons-vertical {
     display: flex;
     flex-direction: column;
@@ -660,7 +661,8 @@ header {
 
 /* Timer Modal Styling */
 .modal {
-    display: none; /* Hidden by default */
+    /* INI ADALAH BAGIAN KRUSIAL UNTUK MENCEGAH MODAL MUNCUL OTOMATIS */
+    display: none !important; /* Gunakan !important untuk memastikan tidak ditimpa */
     position: fixed;
     z-index: 101;
     left: 0;
@@ -669,13 +671,12 @@ header {
     height: 100%;
     overflow: auto;
     background-color: rgba(0,0,0,0.4);
-    display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .modal.visible {
-    display: flex;
+    display: flex !important; /* Pastikan modal muncul saat kelas visible ditambahkan */
 }
 
 .modal-content {
@@ -785,7 +786,7 @@ header {
     padding-top: 15px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Default ke column */
     align-items: center;
     gap: 10px;
     color: var(--primary-text);
@@ -998,23 +999,29 @@ header {
     background-color: var(--bg-dark);
     color: var(--primary-text);
     font-family: 'Roboto', sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 30px; /* Sesuaikan padding */
+    /* Ubah ini dari 'display: flex' langsung di sini agar tidak konflik dengan body */
+    /* Akan diatur secara khusus untuk body.contact-page di bawah */
+    padding: 30px;
     box-sizing: border-box;
     text-align: center;
     position: relative;
     overflow: hidden;
 }
 
+/* Memastikan body pada halaman kontak memiliki layout yang benar */
+body.contact-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
 .contact-page .container {
     width: 100%;
-    max-width: 800px; /* Lebarkan sedikit container di halaman kontak */
-    padding: 40px; /* Padding lebih besar untuk konten kontak */
-    background: var(--player-bg-dark); /* Gunakan glass-effect background */
+    max-width: 800px;
+    padding: 40px;
+    background: var(--player-bg-dark);
     backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
     -webkit-backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
     border: 1px solid var(--player-border);
@@ -1029,9 +1036,9 @@ header {
 
 .contact-header h1 {
     font-family: 'Montserrat', sans-serif;
-    font-size: 3em; /* Ukuran h1 yang lebih besar */
-    color: var(--primary-text); /* Gunakan primary-text untuk konsistensi */
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.5); /* Shadow lebih gelap */
+    font-size: 3em;
+    color: var(--primary-text);
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
     margin-bottom: 10px;
 }
 
@@ -1045,50 +1052,50 @@ header {
 }
 
 .contact-info {
-    display: grid; /* Gunakan CSS Grid untuk layout yang lebih fleksibel */
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Kolom adaptif */
-    gap: 25px; /* Jarak antar kartu */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
     margin-bottom: 50px;
 }
 
 .contact-card {
     padding: 25px;
     text-align: center;
-    border-radius: var(--border-radius-main); /* Gunakan variabel */
+    border-radius: var(--border-radius-main);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    background: rgba(255, 255, 255, 0.05); /* Background kartu sedikit lebih terang */
-    border: 1px solid rgba(255, 255, 255, 0.1); /* Border tipis */
-    display: flex; /* Jadikan flex untuk konten vertikal */
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between; /* Untuk mendorong tombol ke bawah */
+    justify-content: space-between;
 }
 
 .contact-card:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 15px 40px var(--shadow-deep);
-    background: rgba(255, 255, 255, 0.08); /* Sedikit lebih terang saat hover */
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .contact-card .icon {
-    font-size: 3.8em; /* Ukuran ikon lebih besar */
-    color: var(--accent-red); /* Warna ikon sesuai aksen */
+    font-size: 3.8em;
+    color: var(--accent-red);
     margin-bottom: 15px;
-    filter: drop-shadow(0 0 12px rgba(255, 69, 0, 0.5)); /* Glow lebih kuat */
+    filter: drop-shadow(0 0 12px rgba(255, 69, 0, 0.5));
 }
 
 .contact-card h3 {
     font-family: 'Montserrat', sans-serif;
     color: var(--primary-text);
     margin-bottom: 10px;
-    font-size: 1.6em; /* Ukuran judul kartu */
+    font-size: 1.6em;
 }
 
 .contact-card p {
     font-size: 0.95em;
     color: var(--secondary-text);
-    margin-bottom: 25px; /* Jarak lebih besar dari tombol */
-    flex-grow: 1; /* Agar paragraf mengisi ruang sisa */
+    margin-bottom: 25px;
+    flex-grow: 1;
 }
 
 .contact-card a {
@@ -1100,8 +1107,8 @@ header {
     text-decoration: none;
     font-weight: 600;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    width: fit-content; /* Sesuaikan lebar tombol dengan konten */
-    margin-top: auto; /* Dorong tombol ke bawah */
+    width: fit-content;
+    margin-top: auto;
 }
 
 .contact-card a:hover {
@@ -1126,7 +1133,7 @@ header {
     }
 
     .contact-info {
-        grid-template-columns: 1fr; /* Satu kolom di layar kecil */
+        grid-template-columns: 1fr;
         gap: 20px;
     }
 
