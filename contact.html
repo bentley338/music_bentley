@@ -3,12 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kontak | MelodyVerse</title>
+    <title>Contact Us - BentleyBeats</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="app_icon.png" type="image/png">
+    <style>
+        /* Tambahkan styling khusus untuk halaman kontak di sini jika diperlukan,
+           atau bisa juga diletakkan di style.css */
+        .home-button {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--accent-purple);
+            color: white;
+            padding: 15px 30px;
+            border-radius: var(--border-radius-main);
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .home-button:hover {
+            background-color: var(--accent-red);
+            transform: translateX(-50%) translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+        }
+    </style>
 </head>
-<body>
+<body class="contact-page">
     <div class="video-background">
         <video id="background-video" autoplay loop muted playsinline>
             <source src="abstract_wave_bg.mp4" type="video/mp4">
@@ -17,35 +47,48 @@
         <div class="video-overlay"></div>
     </div>
 
-    <div class="container contact-page-container">
-        <header class="contact-header">
-            <h1 class="app-title-new">
-                <i class="fas fa-music"></i> Kontak MelodyVerse
-            </h1>
-            <a href="index.html" class="btn btn-playlist back-to-player-btn">
-                <i class="fas fa-compact-disc"></i> Kembali ke Pemutar
-            </a>
-        </header>
+    <div class="container">
+        <div class="contact-header">
+            <h1>Hubungi Kami</h1>
+            <p>Kami senang mendengar dari Anda! Silakan hubungi kami melalui platform di bawah ini.</p>
+        </div>
 
-        <main class="contact-content glass-effect">
-            <h2 class="contact-title">Hubungi Saya</h2>
-            <p class="contact-description">Temukan saya di media sosial atau hubungi langsung!</p>
-
-            <div class="social-icons-grid">
-                <a href="https://wa.me/6285810073341" target="_blank" aria-label="WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                    <span>WhatsApp</span>
-                </a>
-                <a href="https://www.instagram.com/beentley16?igsh=MW5yZTE5ZjdidXc2Zw==" target="_blank" aria-label="Instagram">
-                    <i class="fab fa-instagram"></i>
-                    <span>Instagram</span>
-                </a>
-                <a href="https://t.me/bentley160" target="_blank" aria-label="Telegram">
-                    <i class="fab fa-telegram-plane"></i>
-                    <span>Telegram</span>
-                </a>
+        <div class="contact-info">
+            <div class="contact-card glass-effect">
+                <i class="fab fa-whatsapp icon"></i>
+                <h3>WhatsApp</h3>
+                <p>Chat langsung dengan kami.</p>
+                <a href="https://wa.me/6285810073341" target="_blank">Kirim Pesan</a>
             </div>
-        </main>
+
+            <div class="contact-card glass-effect">
+                <i class="fab fa-instagram icon"></i>
+                <h3>Instagram</h3>
+                <p>Ikuti kami untuk update terbaru.</p>
+                <a href="https://www.instagram.com/beentley16?igsh=MW5yZTE5ZjdidXc2Zw==" target="_blank">Kunjungi Profil</a>
+            </div>
+
+            <div class="contact-card glass-effect">
+                <i class="fab fa-telegram-plane icon"></i>
+                <h3>Telegram</h3>
+                <p>Terhubung melalui Telegram.</p>
+                <a href="https://t.me/bentley160" target="_blank">Kirim Pesan</a>
+            </div>
+        </div>
     </div>
+
+    <a href="index.html" class="home-button">
+        <i class="fas fa-home"></i> Kembali ke Pemutar Musik
+    </a>
+
+    <script>
+        // Optional: Ensure video background plays
+        const backgroundVideo = document.getElementById('background-video');
+        if (backgroundVideo) {
+            backgroundVideo.play().catch(error => {
+                console.log("Video autoplay blocked on contact page:", error);
+            });
+        }
+    </script>
 </body>
 </html>
