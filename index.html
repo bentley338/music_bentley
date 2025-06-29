@@ -25,12 +25,17 @@
                 </h1>
             </div>
 
-            <div class="header-buttons-vertical"> <button id="toggle-playlist" class="btn btn-playlist">
+            <div class="header-buttons-vertical">
+                <button id="toggle-playlist" class="btn btn-playlist">
                     <i class="fas fa-list-music"></i> Daftar Putar
                 </button>
-                <a href="contact.html" class="btn btn-contact"> <i class="fas fa-address-book"></i> Kontak
+                <a href="contact.html" class="btn btn-contact">
+                    <i class="fas fa-address-book"></i> Kontak
                 </a>
-                </div>
+                <button id="set-timer-btn" class="btn btn-timer">
+                    <i class="fas fa-clock"></i> Set Timer
+                </button>
+            </div>
         </header>
 
         <main class="music-player glass-effect">
@@ -63,6 +68,13 @@
                 </div>
             </div>
 
+            <div id="player-timer-display" class="player-timer-display" style="display: none;">
+                <i class="fas fa-hourglass-half"></i> Timer Aktif: <span id="player-timer-countdown"></span>
+                <button id="player-cancel-timer-btn" class="btn-icon-sm" aria-label="Batalkan Timer">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
             <div class="controls-section">
                 <button id="prev-btn" class="control-btn small-btn" aria-label="Previous Song"><i class="fas fa-backward"></i></button>
                 <button id="play-pause-btn" class="control-btn large-btn" aria-label="Play/Pause"><i class="fas fa-play"></i></button>
@@ -83,8 +95,32 @@
                 </ul>
         </aside>
 
-        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+        <div id="timer-modal" class="modal">
+            <div class="modal-content glass-effect">
+                <span class="close-button" id="close-timer-modal">&times;</span>
+                <h2>Atur Timer Tidur</h2>
+                <div class="timer-options">
+                    <button class="timer-option-btn" data-minutes="5">5 Menit</button>
+                    <button class="timer-option-btn" data-minutes="15">15 Menit</button>
+                    <button class="timer-option-btn" data-minutes="30">30 Menit</button>
+                    <button class="timer-option-btn" data-minutes="45">45 Menit</button>
+                    <button class="timer-option-btn" data-minutes="60">60 Menit</button>
+                    <button class="timer-option-btn" data-minutes="90">90 Menit</button>
+                </div>
+                <div class="custom-timer-input">
+                    <input type="number" id="custom-timer-minutes" min="1" placeholder="Menit kustom">
+                    <button id="set-custom-timer-btn" class="btn btn-primary">Atur</button>
+                </div>
+                <div id="modal-active-timer-display" class="modal-active-timer-display" style="display: none;">
+                    <p>Timer saat ini: <span id="modal-timer-countdown"></span></p>
+                    <button id="modal-cancel-timer-btn" class="btn btn-secondary">Batalkan Timer</button>
+                </div>
+            </div>
         </div>
+
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+        <div id="modal-overlay" class="sidebar-overlay"></div>
+    </div>
 
     <script src="script.js"></script>
 </body>
