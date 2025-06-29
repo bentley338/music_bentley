@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Elemen DOM (Pastikan ID di HTML cocok dengan ini) ---
+    // --- Elemen DOM ---
     const audioPlayer = document.getElementById('audio-player');
     const playPauseBtn = document.getElementById('play-pause-btn');
     const prevBtn = document.getElementById('prev-btn');
@@ -18,18 +18,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarOverlay = document.getElementById('sidebar-overlay');
     const backgroundVideo = document.getElementById('background-video');
 
-    // BAGIAN INI DIHAPUS: TIMER ELEMENTS
+    // Timer elements (modal)
+    const setTimerBtn = document.getElementById('set-timer-btn');
+    const timerModal = document.getElementById('timer-modal');
+    const closeModalBtn = document.getElementById('close-timer-modal');
+    const timerOptionBtns = document.querySelectorAll('.timer-option-btn');
+    const customTimerInput = document.getElementById('custom-timer-minutes');
+    const setCustomTimerBtn = document.getElementById('set-custom-timer-btn');
+    const modalOverlay = document.getElementById('modal-overlay');
+
+    // Timer elements (display di player utama)
+    const playerTimerDisplay = document.getElementById('player-timer-display');
+    const playerTimerCountdown = document.getElementById('player-timer-countdown');
+    const playerCancelTimerBtn = document.getElementById('player-cancel-timer-btn'); // Tombol cancel di player utama
+
+    // Timer elements (display di dalam modal)
+    const modalActiveTimerDisplay = document.getElementById('modal-active-timer-display');
+    const modalTimerCountdown = document.getElementById('modal-timer-countdown');
+    const modalCancelTimerBtn = document.getElementById('modal-cancel-timer-btn'); // Tombol cancel di dalam modal
 
     // --- Variabel State ---
     let currentSongIndex = 0;
     let isPlaying = false;
+    let sleepTimerTimeoutId = null; // ID untuk setTimeout yang menghentikan musik
+    let sleepTimerIntervalId = null; // ID untuk setInterval yang mengupdate hitung mundur
+    let timeRemaining = 0; // Waktu tersisa dalam detik
 
-    // BAGIAN INI DIHAPUS: VARIABEL TIMER STATE
-
-    // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCCK DENGAN FILE FISIK ANDA) ---
-    // Pastikan NAMA FILE di properti 'src' (untuk MP3) dan 'albumArt' (untuk JPG/PNG)
-    // sama PERSIS (termasuk huruf besar/kecil dan ekstensinya) dengan nama file di folder proyek Anda.
-    // Semua file MP3, JPG/PNG, dan MP4 video background harus berada di folder yang sama dengan index.html, style.css, dan script.js.
+    // --- DATA LAGU (Playlist tetap sama seperti sebelumnya) ---
     const playlist = [
         {
             title: "Back to Friends",
@@ -182,17 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 Ada suka, ada duka<br>
                 Semua bersatu di sini<br>
                 Dalam hangatnya keluarga<br><br>
-                <b>Chorus</b><br>
-                Rumah kita, rumah kita<br>
-                Lebih baik, lebih baik<br>
-                Lebih dari istana<br>
-                Rumah kita, rumah kita<br>
-                Tempat kita berbagi cerita<br><br>
-                <b>Bridge</b><br>
-                Takkan ada yang bisa mengganti<br>
-                Hangatnya pelukmu, ibu<br>
-                Tawa riang adik kakakku<br>
-                Di rumah kita, tempat berlindung<br><br>
                 <b>Chorus</b><br>
                 Rumah kita, rumah kita<br>
                 Lebih baik, lebih baik<br>
@@ -597,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Chorus</b><br>
                 O, Tuan, bimbinglah langkahku<br>
                 Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<br>
+                Dalam gelap, dalam ragu<<br>
                 Hanya pada-Mu aku bertumpu<br><br>
                 <b>Verse 2</b><br>
                 Janji-janji yang terucap<br>
@@ -637,7 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Namun hatiku, masih terasing<br><br>
                 <b>Chorus</b><br>
                 Ramai sepi bersama, dalam riuh kota<br>
-                Kita mencari makna, di antara fatamorgana<br>
+                Kita mencari makna, di antara fatamorgana<<br>
                 Ramai sepi bersama, dalam hening jiwa<br>
                 Berharap menemukan, damai yang nyata<br><br>
                 <b>Verse 2</b><br>
@@ -710,7 +714,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Fungsi Utama Pemutar Musik ---
 
-    // Memuat data lagu ke pemutar (album art, judul, artis, lirik)
     function loadSong(songIndex) {
         if (songIndex < 0 || songIndex >= playlist.length) {
             console.error("Error: songIndex di luar batas array playlist. Index:", songIndex, "Ukuran array:", playlist.length);
@@ -725,7 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const song = playlist[songIndex];
         audioPlayer.src = song.src;
-        audioPlayer.load(); // Panggil .load() secara eksplisit setiap kali src berubah
+        audioPlayer.load();
         currentAlbumArt.src = song.albumArt;
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
@@ -743,7 +746,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         updatePlaylistActiveState(songIndex);
 
-        // === IMPLEMENTASI MEDIA SESSION API ===
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song.title,
@@ -759,8 +761,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ]
             });
 
-            // Pastikan action handlers diatur sekali saja atau diatur ulang
-            // agar tidak ada duplikasi listener
             navigator.mediaSession.setActionHandler('play', () => {
                 playSong();
             });
@@ -776,15 +776,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Memutar lagu
     function playSong() {
-        // Cek jika audioPlayer.src valid sebelum mencoba play
         if (!audioPlayer.src || audioPlayer.src === window.location.href) {
             console.warn("Audio source not loaded or invalid. Cannot play.");
             return;
         }
 
-        // Coba putar audio dan tangani Promise
         audioPlayer.play().then(() => {
             isPlaying = true;
             playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -803,18 +800,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'paused';
             }
-            // Notifikasi pengguna jika pemutaran otomatis diblokir
             if (error.name === "NotAllowedError" || error.name === "AbortError") {
-                // NotAllowedError: Browser memblokir autoplay
-                // AbortError: Pengguna mungkin menghentikan pemutaran terlalu cepat
                 console.log("Autoplay diblokir atau pemutaran dibatalkan. Sentuh tombol play untuk memulai.");
-                // Jika ingin memberi tahu user secara visual:
-                // alert("Pemutaran otomatis diblokir. Silakan sentuh tombol play untuk memulai.");
             }
         });
     }
 
-    // Menjeda lagu
     function pauseSong() {
         audioPlayer.pause();
         isPlaying = false;
@@ -829,7 +820,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Fungsi untuk memformat waktu dari detik menjadi 'MM:SS'
     function formatTime(seconds) {
         if (isNaN(seconds) || seconds < 0) return '0:00';
         const minutes = Math.floor(seconds / 60);
@@ -838,22 +828,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${minutes}:${formattedSeconds}`;
     }
 
-    // Mainkan lagu berikutnya
     function playNextSong() {
         currentSongIndex = (currentSongIndex + 1) % playlist.length;
         loadSong(currentSongIndex);
-        if (isPlaying) { // Pertahankan status play jika sedang bermain
+        if (isPlaying) {
             playSong();
         } else {
             playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         }
     }
 
-    // Mainkan lagu sebelumnya
     function playPrevSong() {
         currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
         loadSong(currentSongIndex);
-        if (isPlaying) { // Pertahankan status play jika sedang bermain
+        if (isPlaying) {
             playSong();
         } else {
             playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
@@ -917,7 +905,7 @@ document.addEventListener('DOMContentLoaded', () => {
             li.addEventListener('click', () => {
                 currentSongIndex = index;
                 loadSong(currentSongIndex);
-                playSong(); // Panggil play() setelah loadSong
+                playSong();
                 hidePlaylistSidebar();
             });
             playlistUl.appendChild(li);
@@ -976,12 +964,139 @@ document.addEventListener('DOMContentLoaded', () => {
         hidePlaylistSidebar();
     });
 
-    // BAGIAN INI DIHAPUS: FUNGSI-FUNGSI SLEEP TIMER
+    // --- Sleep Timer Functions ---
+
+    // Fungsi untuk menampilkan modal timer
+    function showTimerModal() {
+        // Saat modal dibuka, pastikan tampilan timer di dalam modal up-to-date
+        updateAllTimerDisplays();
+        timerModal.classList.add('visible');
+        modalOverlay.classList.add('visible');
+    }
+
+    // Fungsi untuk menyembunyikan modal timer
+    function hideTimerModal() {
+        timerModal.classList.remove('visible');
+        modalOverlay.classList.remove('visible');
+        // Bersihkan seleksi dan input kustom saat modal ditutup
+        timerOptionBtns.forEach(btn => btn.classList.remove('selected'));
+        customTimerInput.value = '';
+    }
+
+    // Fungsi untuk memulai sleep timer
+    function startSleepTimer(minutes) {
+        // Hentikan timer yang sedang berjalan (jika ada)
+        clearTimeout(sleepTimerTimeoutId);
+        clearInterval(sleepTimerIntervalId);
+
+        timeRemaining = minutes * 60; // Konversi menit ke detik
+
+        if (timeRemaining <= 0) {
+            alert("Durasi timer harus lebih dari 0 menit.");
+            resetSleepTimer(); // Pastikan state kembali normal jika input tidak valid
+            return;
+        }
+
+        // Set timeout untuk menjeda musik setelah waktu tertentu
+        sleepTimerTimeoutId = setTimeout(() => {
+            pauseSong();
+            alert("Sleep timer selesai! Musik dijeda.");
+            resetSleepTimer(); // Reset display setelah timer selesai
+            hideTimerModal(); // Tutup modal setelah timer selesai
+        }, timeRemaining * 1000);
+
+        // Set interval untuk mengupdate hitung mundur setiap detik
+        sleepTimerIntervalId = setInterval(() => {
+            timeRemaining--;
+            if (timeRemaining <= 0) {
+                clearInterval(sleepTimerIntervalId);
+                // setTimeout akan memicu pauseSong() dan reset, jadi tidak perlu duplikasi aksi.
+            }
+            updateAllTimerDisplays(); // Selalu update kedua tampilan timer
+        }, 1000);
+
+        updateAllTimerDisplays(); // Update tampilan segera setelah timer diatur
+        hideTimerModal(); // Tutup modal setelah timer berhasil diatur
+    }
+
+    // Fungsi untuk mengupdate tampilan timer di player utama dan di modal
+    function updateAllTimerDisplays() {
+        const displayTime = formatTime(timeRemaining);
+
+        if (timeRemaining > 0) {
+            // Tampilan di player utama
+            playerTimerDisplay.style.display = 'flex';
+            playerTimerCountdown.textContent = displayTime;
+
+            // Tampilan di dalam modal (jika modal terbuka)
+            modalActiveTimerDisplay.style.display = 'flex';
+            modalTimerCountdown.textContent = displayTime;
+            modalCancelTimerBtn.style.display = 'inline-block'; // Pastikan tombol cancel terlihat di modal
+        } else {
+            // Sembunyikan tampilan timer jika tidak ada timer aktif atau sudah selesai
+            playerTimerDisplay.style.display = 'none';
+            modalActiveTimerDisplay.style.display = 'none';
+            modalCancelTimerBtn.style.display = 'none'; // Sembunyikan tombol cancel di modal
+        }
+    }
+
+
+    // Fungsi untuk mereset sleep timer (membatalkan)
+    function resetSleepTimer() {
+        clearTimeout(sleepTimerTimeoutId);
+        clearInterval(sleepTimerIntervalId);
+        sleepTimerTimeoutId = null;
+        sleepTimerIntervalId = null;
+        timeRemaining = 0;
+        updateAllTimerDisplays(); // Update tampilan untuk mencerminkan reset
+    }
+
+    // Timer Event Listeners
+    setTimerBtn.addEventListener('click', showTimerModal);
+    closeModalBtn.addEventListener('click', hideTimerModal); // Tombol 'X' di modal
+    modalOverlay.addEventListener('click', hideTimerModal); // Klik overlay untuk menutup modal
+
+    // Event listener untuk tombol opsi preset timer
+    timerOptionBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            timerOptionBtns.forEach(b => b.classList.remove('selected')); // Deselect semua
+            btn.classList.add('selected'); // Pilih tombol yang diklik
+            const minutes = parseInt(btn.dataset.minutes);
+            startSleepTimer(minutes);
+        });
+    });
+
+    // Event listener untuk tombol custom timer
+    setCustomTimerBtn.addEventListener('click', () => {
+        const minutes = parseInt(customTimerInput.value);
+        if (minutes > 0) {
+            timerOptionBtns.forEach(b => b.classList.remove('selected')); // Deselect opsi preset
+            startSleepTimer(minutes);
+        } else {
+            alert("Mohon masukkan durasi timer yang valid (lebih dari 0 menit).");
+        }
+    });
+
+    // Event listener untuk tombol "Batalkan Timer" di player utama
+    playerCancelTimerBtn.addEventListener('click', () => {
+        resetSleepTimer();
+        alert("Sleep timer dibatalkan.");
+    });
+
+    // Event listener untuk tombol "Batalkan Timer" di dalam modal
+    modalCancelTimerBtn.addEventListener('click', () => {
+        resetSleepTimer();
+        alert("Sleep timer dibatalkan.");
+        hideTimerModal(); // Tutup modal setelah dibatalkan dari dalam modal
+    });
+
 
     // --- Inisialisasi Aplikasi (Fungsi yang Berjalan Saat Halaman Dimuat) ---
     if (playlist.length > 0) {
         loadSong(currentSongIndex);
         buildPlaylist();
+        // Inisialisasi tampilan timer tanpa memunculkan modal
+        updateAllTimerDisplays();
     } else {
         console.error("Tidak ada lagu ditemukan di array 'playlist'.");
         currentSongTitle.textContent = "Tidak ada lagu";
