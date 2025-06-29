@@ -34,22 +34,22 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval = null; // Untuk menyimpan ID interval timer
     let timeRemaining = 0; // Waktu tersisa dalam detik
 
-    let lyricLines = []; // Menyimpan elemen <p> lirik
-    let currentLyricLineIndex = -1; // Index baris lirik yang aktif, -1 berarti tidak ada yang aktif (misal saat intro)
-    let lyricsScrollInterval = null; // Interval untuk auto-scroll lirik
-    let estimatedLineDuration = 0; // Durasi rata-rata per baris lirik
-    let introOffset = 0; // Durasi intro instrumental dalam detik (akan diambil dari data lagu)
+    // Variabel terkait auto-scroll lirik telah DIHAPUS SEPENUHNYA
+    // let lyricLines = [];
+    // let currentLyricLineIndex = -1;
+    // let lyricsScrollInterval = null;
+    // let estimatedLineDuration = 0;
+    // let introOffset = 0; 
 
-    // --- DATA LAGU (LIRIK SANGAT BERSIH & ADA INTRO OFFSET YANG DIPERKIRAKAN) ---
-    // IntroOffset adalah perkiraan manual detik saat vokal pertama kali masuk.
+    // --- DATA LAGU (LIRIK SANGAT BERSIH & TANPA INTRO OFFSET LAGI) ---
     // Lirik telah dibersihkan dari semua tag, penanda bait, dan intro non-vokal.
+    // Properti introOffset juga sudah dihapus.
     const playlist = [
         {
             title: "Back to Friends",
             artist: "Sombr",
             src: "back_to_friends.mp3",
             albumArt: "album_art_back_to_friends.jpg",
-            introOffset: 12.00, // Estimasi waktu vokal masuk (detik)
             lyrics: `
                 Touch my body tender
                 'Cause the feeling makes me weak
@@ -95,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Nadhif Basalamah",
             src: "bergema_sampai_selamanya.mp3",
             albumArt: "album_art_bergema_sampai_selamanya.jpg",
-            introOffset: 25.00, // Estimasi waktu vokal masuk (detik)
             lyrics: `
                 Mungkin bila nanti
                 Kita kan bertemu lagi
@@ -136,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "SoMo",
             src: "ride.mp3",
             albumArt: "album_art_ride.jpg",
-            introOffset: 12.00, // Estimasi waktu vokal masuk (detik)
             lyrics: `
                 I'm riding high, I'm riding low
                 I'm going where the wind don't blow
@@ -178,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "God Bless",
             src: "rumah_kita.mp3",
             albumArt: "album_art_rumah_kita.jpg",
-            introOffset: 0.00, // Vokal masuk (detik)
             lyrics: `
                 Hanya bilik bambu
                 Tempat tinggal kita
@@ -222,7 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "style.mp3",
             albumArt: "album_art_style.jpg",
-            introOffset: 12.00, // Estimasi waktu vokal masuk (detik)
             lyrics: `
                 Midnight, you come and pick me up, no headlights
                 Long drive, could end in burning flames or paradise
@@ -271,7 +267,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "message_in_a_bottle.mp3",
             albumArt: "album_art_message_in_a_bottle.jpg",
-            introOffset: 0.00, // Vokal masuk (detik)
             lyrics: `
                 I was ridin' in a getaway car
                 I was crying in a getaway car
@@ -312,7 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Ariana Grande",
             src: "supernatural.mp3",
             albumArt: "album_art_supernatural.jpg",
-            introOffset: 12.00, // Estimasi waktu vokal masuk (detik)
             lyrics: `
                 You're my supernatural, my magic
                 Every touch, a dream, a sweet habit
@@ -353,7 +347,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Yaeow",
             src: "favorite_lesson.mp3",
             albumArt: "album_art_favorite_lesson.jpg",
-            introOffset: 15.00, // Estimasi waktu vokal masuk (detik)
             lyrics: `
                 Always telling me that I should find the time for me
                 Working tirelessly until I lose my energy
@@ -406,7 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Taylor Swift",
             src: "so_high_school.mp3",
             albumArt: "album_art_so_high_school.jpg",
-            introOffset: 9.00, // Estimasi waktu vokal masuk (detik)
             lyrics: `
                 I feel like I'm back in high school again
                 Butterflies every time you walk in
@@ -447,7 +439,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Ed Sheeran",
             src: "photograph.mp3",
             albumArt: "album_art_photograph.jpg",
-            introOffset: 0.00, // Vokal masuk (detik)
             lyrics: `
                 Loving can hurt, loving can hurt sometimes
                 But it's the only thing that I know
@@ -496,7 +487,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Niki",
             src: "youll_be_in_my_heart.mp3",
             albumArt: "album_art_youll_be_in_my_heart.jpg",
-            introOffset: 0.00, // Vokal masuk (detik)
             lyrics: `
                 Come stop your crying
                 It'll be alright
@@ -560,7 +550,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: ".Feast",
             src: "tarot.mp3",
             albumArt: "album_art_tarot.jpg",
-            introOffset: 0.00, // Vokal masuk (detik)
             lyrics: `
                 Di antara kartu-kartu tua
                 Terbentang kisah yang tak terduga
@@ -601,7 +590,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: ".Feast",
             src: "o_tuan.mp3",
             albumArt: "album_art_o_tuan.jpg",
-            introOffset: 0.00, // Vokal masuk (detik)
             lyrics: `
                 O, Tuan, dengarkanlah
                 Rintihan hati yang resah
@@ -642,7 +630,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Hindia",
             src: "ramai_sepi_bersama.mp3",
             albumArt: "album_art_ramai_sepi_bersama.jpg",
-            introOffset: 12.00, // Estimasi waktu vokal masuk (detik)
             lyrics: `
                 Di tengah ramai, aku sendiri
                 Mencari arti, di antara bising
@@ -683,7 +670,6 @@ document.addEventListener('DOMContentLoaded', () => {
             artist: "Hindia",
             src: "everything_u_are.mp3",
             albumArt: "album_art_everything_u_are.jpg",
-            introOffset: 15.00, // Estimasi waktu vokal masuk (detik)
             lyrics: `
                 Wajahmu kuingat selalu
                 Lupakan hal-hal yang menggangguku
@@ -763,13 +749,9 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
         
-        // --- Proses Lirik untuk Auto-scroll dan Penyorotan ---
+        // --- Proses Lirik (Sekarang hanya menampilkan teks statis, tanpa auto-scroll) ---
         lyricsText.innerHTML = ''; // Bersihkan konten lirik sebelumnya
-        lyricLines = []; // Reset array lirik yang sudah di-parse
         
-        // Ambil introOffset dari data lagu
-        introOffset = song.introOffset || 0; 
-
         // Pembersihan lirik dan pembuatan elemen p.lyric-line
         const cleanedLyrics = song.lyrics
             .replace(/<\/?b>/g, '') // Hapus tag <b>
@@ -778,19 +760,12 @@ document.addEventListener('DOMContentLoaded', () => {
             .split('\n') // Pisahkan per baris
             .map(line => line.trim()) // Hapus spasi di awal/akhir setiap baris
             .filter(line => line.length > 0) // Hapus baris yang kosong sepenuhnya
-            .join('\n'); // Gabungkan kembali menjadi string bersih
+            .join('<br>'); // Gabungkan kembali dengan <br> untuk tampilan baris baru
 
-        const lines = cleanedLyrics.split('\n'); // Sekarang pisahkan lagi baris yang sudah bersih
+        lyricsText.innerHTML = cleanedLyrics; // Tampilkan sebagai blok teks biasa
 
-        lines.forEach(line => {
-            const p = document.createElement('p');
-            p.classList.add('lyric-line');
-            p.textContent = line;
-            lyricsText.appendChild(p);
-            lyricLines.push(p); // Simpan referensi elemen DOM
-        });
-
-        estimatedLineDuration = 0; // Reset dulu, akan dihitung ulang saat loadedmetadata
+        // Variabel dan logika terkait auto-scroll telah DIHAPUS SEPENUHNYA
+        // lyricLines, currentLyricLineIndex, lyricsScrollInterval, estimatedLineDuration, introOffset tidak digunakan di sini.
 
 
         progressBar.value = 0;
@@ -855,8 +830,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 navigator.mediaSession.playbackState = 'playing';
             }
 
-            // Mulai auto-scroll lirik saat lagu play
-            startLyricsAutoScroll();
+            // Panggilan auto-scroll lirik telah DIHAPUS SEPENUHNYA
+            // startLyricsAutoScroll(); 
 
         }).catch(error => {
             console.error("Error playing audio:", error);
@@ -885,8 +860,8 @@ document.addEventListener('DOMContentLoaded', () => {
             navigator.mediaSession.playbackState = 'paused';
         }
 
-        // Hentikan auto-scroll lirik saat lagu pause
-        stopLyricsAutoScroll();
+        // Panggilan auto-scroll lirik telah DIHAPUS SEPENUHNYA
+        // stopLyricsAutoScroll();
     }
 
     // Fungsi untuk memformat waktu dari detik menjadi 'MM:SS'
@@ -934,26 +909,12 @@ document.addEventListener('DOMContentLoaded', () => {
     nextBtn.addEventListener('click', playNextSong);
 
     audioPlayer.addEventListener('timeupdate', () => {
-        if (!isNaN(audioPlayer.duration) && lyricLines.length > 0 && estimatedLineDuration > 0) {
+        if (!isNaN(audioPlayer.duration)) {
             const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
             progressBar.value = progress;
             currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
 
-            // Logika scroll untuk teks biasa (estimasi)
-            if (audioPlayer.currentTime >= introOffset) {
-                const timeAfterIntro = audioPlayer.currentTime - introOffset;
-                const newIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
-
-                if (newIndex !== currentLyricLineIndex) {
-                    currentLyricLineIndex = newIndex;
-                    updateLyricsScroll();
-                }
-            } else {
-                if (currentLyricLineIndex !== -1) {
-                    currentLyricLineIndex = -1;
-                    lyricLines.forEach(line => line.classList.remove('active-lyric'));
-                }
-            }
+            // Logika auto-scroll lirik telah DIHAPUS SEPENUHNYA
         }
     });
 
@@ -961,29 +922,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isNaN(audioPlayer.duration)) {
             durationSpan.textContent = formatTime(audioPlayer.duration);
 
-            // Hitung estimatedLineDuration
-            if (lyricLines.length > 0) {
-                const outroCompensation = 3; // Kurangi 3 detik untuk outro/akhir lagu
-                const effectiveDuration = Math.max(0, audioPlayer.duration - introOffset - outroCompensation);
-                
-                if (effectiveDuration > 0) { // Pastikan durasi efektif positif
-                    estimatedLineDuration = effectiveDuration / lyricLines.length;
-                } else {
-                    estimatedLineDuration = 0; // Jika durasi efektif nol atau negatif, set ke nol
-                }
-                console.log(`Durasi total: ${audioPlayer.duration.toFixed(2)}s, Intro Offset: ${introOffset.toFixed(2)}s, Effective Duration: ${effectiveDuration.toFixed(2)}s, Baris lirik: ${lyricLines.length}, Estimasi durasi per baris: ${estimatedLineDuration.toFixed(2)}s`);
-            } else {
-                estimatedLineDuration = 0;
-            }
-
-            // Jika lagu sedang bermain dan lirik siap, mulai auto-scroll
-            if (isPlaying && lyricLines.length > 0 && lyricsScrollInterval === null && estimatedLineDuration > 0) {
-                startLyricsAutoScroll();
-            }
-
+            // Logika auto-scroll lirik telah DIHAPUS SEPENUHNYA
         } else {
             durationSpan.textContent = '0:00';
-            estimatedLineDuration = 0;
         }
     });
 
@@ -992,17 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const seekTime = (progressBar.value / 100) * audioPlayer.duration;
             audioPlayer.currentTime = seekTime;
             
-            // Logika estimasi
-            if (seekTime >= introOffset) {
-                const timeAfterIntro = seekTime - introOffset;
-                currentLyricLineIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
-            } else {
-                currentLyricLineIndex = -1;
-            }
-            updateLyricsScroll(true); // Panggil dengan force scroll
-            if (isPlaying && lyricsScrollInterval === null && estimatedLineDuration > 0) {
-                startLyricsAutoScroll();
-            }
+            // Logika auto-scroll lirik telah DIHAPUS SEPENUHNYA
         }
     });
 
@@ -1174,91 +1105,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inisialisasi awal tampilan timer
     stopTimer();
 
+    // --- FUNGSI DAN LOGIKA AUTO-SCROLL LIRIK TELAH DIHAPUS SEPENUHNYA ---
+    // startLyricsAutoScroll, stopLyricsAutoScroll, updateLyricsScroll tidak ada lagi.
 
-    // --- FUNGSI DAN LOGIKA AUTO-SCROLL LIRIK (Disesuaikan untuk Teks Biasa) ---
-
-    function startLyricsAutoScroll() {
-        stopLyricsAutoScroll(); // Hentikan interval lama jika ada
-
-        if (lyricLines.length === 0 || estimatedLineDuration <= 0) {
-            console.warn("Lirik tidak tersedia atau durasi baris tidak dapat diestimasi. Auto-scroll lirik dinonaktifkan.");
-            return;
-        }
-
-        // Set index awal berdasarkan posisi lagu saat ini (memperhitungkan introOffset)
-        let initialIndex = -1;
-        if (audioPlayer.currentTime >= introOffset) {
-            const timeAfterIntro = audioPlayer.currentTime - introOffset;
-            initialIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
-        }
-        currentLyricLineIndex = initialIndex;
-
-        updateLyricsScroll(true); // Langsung update sekali saat mulai
-
-        lyricsScrollInterval = setInterval(() => {
-            if (!isPlaying) {
-                return;
-            }
-
-            if (audioPlayer.currentTime < introOffset) {
-                if (currentLyricLineIndex !== -1) {
-                    currentLyricLineIndex = -1;
-                    lyricLines.forEach(line => line.classList.remove('active-lyric'));
-                }
-                return;
-            }
-
-            const timeAfterIntro = audioPlayer.currentTime - introOffset;
-            const newIndex = Math.min(lyricLines.length - 1, Math.floor(timeAfterIntro / estimatedLineDuration));
-
-            if (newIndex !== currentLyricLineIndex) {
-                currentLyricLineIndex = newIndex;
-                updateLyricsScroll();
-            }
-
-            if (audioPlayer.currentTime >= audioPlayer.duration - 0.5 && lyricsScrollInterval) {
-                stopLyricsAutoScroll();
-            }
-        }, 100); // Periksa setiap 0.1 detik untuk responsivitas yang maksimal
-    }
-
-    function stopLyricsAutoScroll() {
-        if (lyricsScrollInterval) {
-            clearInterval(lyricsScrollInterval);
-            lyricsScrollInterval = null;
-        }
-        lyricLines.forEach(line => {
-            if (line) line.classList.remove('active-lyric'); // Cek jika elemen ada
-        });
-        currentLyricLineIndex = -1;
-    }
-
-    function updateLyricsScroll(forceScroll = false) {
-        lyricLines.forEach((line, index) => {
-            if (!line) return; // Pastikan elemen ada
-
-            if (index === currentLyricLineIndex) {
-                line.classList.add('active-lyric');
-                const lyricsSection = document.querySelector('.lyrics-section');
-                if (!lyricsSection) return;
-
-                const lineRect = line.getBoundingClientRect();
-                const containerRect = lyricsSection.getBoundingClientRect();
-
-                const isLineAboveCenter = lineRect.top + (lineRect.height / 2) < containerRect.top + (containerRect.height / 2);
-                const isLineBelowCenter = lineRect.top + (lineRect.height / 2) > containerRect.top + (containerRect.height / 2);
-
-                if (forceScroll || isLineAboveCenter || isLineBelowCenter) {
-                    line.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                }
-            } else {
-                line.classList.remove('active-lyric');
-            }
-        });
-    }
 
     // --- Inisialisasi Aplikasi ---
     if (playlist.length > 0) {
