@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Elemen DOM ---
     const audioPlayer = document.getElementById('audio-player');
-    const playPauseBtn = document.getElementById('play-pause-btn');
+    const playPauseBtn = document = document.getElementById('play-pause-btn');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
     const progressBar = document.getElementById('progress-bar');
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let lyricsScrollInterval = null; // Interval untuk auto-scroll lirik
     let estimatedLineDuration = 0; // Durasi rata-rata per baris lirik
 
-    // --- DATA LAGU (LIRIK DIUPDATE AGAR LEBIH AKURAT) ---
+    // --- DATA LAGU (LIRIK SUDAH DIBERSIHKAN DAN AKURAT) ---
     const playlist = [
         {
             title: "Back to Friends",
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Cause we never go out of style
                 We never go out of style
 
-                You got that long hair, slicked back, white T-shirt
+                You got that long hair, slick back, white T-shirt
                 And I got that good girl faith and a tight little skirt
                 And when we go crashing down, we come back every time
                 'Cause we never go out of style
@@ -726,13 +726,19 @@ document.addEventListener('DOMContentLoaded', () => {
         currentArtistName.textContent = song.artist;
 
         // --- Proses Lirik untuk Auto-scroll dan Penyorotan ---
-        // Bersihkan konten lirik sebelumnya
-        lyricsText.innerHTML = '';
+        lyricsText.innerHTML = ''; // Bersihkan konten lirik sebelumnya
         lyricLines = []; // Reset array lyricLines
 
-        // Hapus intro "🎶 Title - Artist" dan spasi/baris kosong di awal/akhir
-        const rawLyrics = song.lyrics.trim();
-        const lines = rawLyrics.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+        // Bersihkan lirik dari tag HTML atau penanda bait seperti "Verse 1", "Chorus"
+        const cleanedLyrics = song.lyrics
+            .replace(/<\/?b>/g, '') // Hapus tag <b>
+            .replace(/🎶\s*[\w\s\.-]+\s*–\s*[\w\s\.-]+/g, '') // Hapus intro "🎶 Title - Artist"
+            .replace(/(Verse|Chorus|Bridge|Outro|Intro)\s*\d*\s*|\((Verse|Chorus|Bridge|Outro|Intro)\s*\d*\)/gi, '') // Hapus "Verse 1", "(Chorus)", dll.
+            .trim(); // Hapus spasi/baris kosong di awal/akhir
+
+        const lines = cleanedLyrics.split('\n')
+                                   .map(line => line.trim())
+                                   .filter(line => line.length > 0); // Pastikan baris tidak kosong
 
         lines.forEach(line => {
             const p = document.createElement('p');
@@ -742,10 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lyricLines.push(p);
         });
 
-        // Hitung perkiraan durasi per baris
-        // Akan dihitung ulang saat loadedmetadata karena audioPlayer.duration baru tersedia
-        estimatedLineDuration = 0; // Reset dulu
-
+        estimatedLineDuration = 0; // Reset dulu, akan dihitung ulang saat loadedmetadata
 
         progressBar.value = 0;
         currentTimeSpan.textContent = '0:00';
@@ -893,10 +896,21 @@ document.addEventListener('DOMContentLoaded', () => {
             progressBar.value = progress;
             currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
 
-            // Update posisi scroll lirik saat waktu berubah (jika tidak sedang di auto-scroll interval)
-            // Ini bisa jadi fallback jika interval tidak tepat
-            if (lyricsScrollInterval === null && lyricLines.length > 0) {
-                 updateLyricsScroll(); // Panggil manual jika tidak ada interval aktif (misal setelah seek)
+            // Perbarui posisi scroll lirik saat waktu berubah
+            // Ini membantu koreksi jika interval tidak tepat atau saat seek
+            if (lyricsScrollInterval !== null && lyricLines.length > 0) {
+                const newIndex = Math.min(lyricLines.length - 1, Math.floor(audioPlayer.currentTime / estimatedLineDuration));
+                if (newIndex !== currentLyricLineIndex) {
+                    currentLyricLineIndex = newIndex;
+                    updateLyricsScroll();
+                }
+            } else if (lyricsScrollInterval === null && lyricLines.length > 0) {
+                 // Kalau interval tidak aktif, tapi lagu jalan (misal setelah seek manual)
+                 const newIndex = Math.min(lyricLines.length - 1, Math.floor(audioPlayer.currentTime / estimatedLineDuration));
+                 if (newIndex !== currentLyricLineIndex) {
+                    currentLyricLineIndex = newIndex;
+                    updateLyricsScroll();
+                 }
             }
         }
     });
@@ -907,15 +921,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Hitung ulang estimatedLineDuration setelah durasi audio diketahui
             if (lyricLines.length > 0) {
-                // Kurangi sedikit durasi total untuk memperhitungkan fade out atau akhir lagu
-                const adjustedDuration = audioPlayer.duration * 0.95;
+                // Kurangi sedikit durasi total (misal 5-10 detik) agar tidak menggulir terlalu cepat di akhir
+                const adjustedDuration = Math.max(0, audioPlayer.duration - 5);
                 estimatedLineDuration = adjustedDuration / lyricLines.length;
             } else {
                 estimatedLineDuration = 0;
             }
 
             // Jika lagu sedang bermain dan lirik siap, mulai auto-scroll
-            if (isPlaying && lyricLines.length > 0) {
+            if (isPlaying && lyricLines.length > 0 && lyricsScrollInterval === null) {
                 startLyricsAutoScroll();
             }
 
@@ -930,8 +944,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const seekTime = (progressBar.value / 100) * audioPlayer.duration;
             audioPlayer.currentTime = seekTime;
             // Saat seek, set ulang index lirik dan langsung update scroll
-            currentLyricLineIndex = Math.floor(seekTime / estimatedLineDuration);
+            currentLyricLineIndex = Math.min(lyricLines.length - 1, Math.floor(seekTime / estimatedLineDuration));
             updateLyricsScroll(true); // Panggil dengan force scroll
+            // Jika lagu sedang pause setelah seek, kita tidak perlu memulai interval
+            // Tapi jika sedang play, pastikan interval tetap berjalan atau dimulai kembali
+            if (isPlaying && lyricsScrollInterval === null && estimatedLineDuration > 0) {
+                startLyricsAutoScroll();
+            }
         }
     });
 
@@ -1044,7 +1063,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (timeRemaining <= 0) {
                 stopTimer();
-                pauseSong();
+                pauseSong(); // Jeda musik saat timer habis
                 timerCountdownDisplay.textContent = 'Timer Selesai!';
                 timerCountdownDisplay.style.color = 'var(--primary-text)';
                 alert("Waktu habis! Musik telah dihentikan.");
@@ -1109,19 +1128,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function startLyricsAutoScroll() {
         stopLyricsAutoScroll(); // Hentikan interval lama jika ada
 
-        if (lyricLines.length === 0 || estimatedLineDuration === 0) {
+        if (lyricLines.length === 0 || estimatedLineDuration <= 0) {
             console.warn("Lirik tidak tersedia atau durasi baris tidak dapat diestimasi. Auto-scroll lirik dinonaktifkan.");
             return;
         }
 
-        currentLyricLineIndex = Math.floor(audioPlayer.currentTime / estimatedLineDuration);
+        // Set index awal berdasarkan posisi lagu saat ini
+        currentLyricLineIndex = Math.min(lyricLines.length - 1, Math.floor(audioPlayer.currentTime / estimatedLineDuration));
         updateLyricsScroll(true); // Langsung update sekali saat mulai
 
         lyricsScrollInterval = setInterval(() => {
             // Perbarui index lirik berdasarkan waktu audio
-            const newIndex = Math.floor(audioPlayer.currentTime / estimatedLineDuration);
+            // Gunakan Math.min untuk memastikan index tidak melebihi batas array
+            const newIndex = Math.min(lyricLines.length - 1, Math.floor(audioPlayer.currentTime / estimatedLineDuration));
 
-            if (newIndex !== currentLyricLineIndex && newIndex < lyricLines.length) {
+            if (newIndex !== currentLyricLineIndex) {
                 currentLyricLineIndex = newIndex;
                 updateLyricsScroll();
             }
@@ -1130,7 +1151,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (audioPlayer.currentTime >= audioPlayer.duration - 0.5) { // 0.5 detik sebelum akhir
                 stopLyricsAutoScroll();
             }
-        }, 500); // Periksa setiap 0.5 detik
+        }, 500); // Periksa setiap 0.5 detik untuk responsivitas yang baik
     }
 
     function stopLyricsAutoScroll() {
@@ -1140,6 +1161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // Hapus penyorotan dari semua baris lirik
         lyricLines.forEach(line => line.classList.remove('active-lyric'));
+        currentLyricLineIndex = 0; // Reset index lirik aktif
     }
 
     function updateLyricsScroll(forceScroll = false) {
@@ -1148,10 +1170,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 line.classList.add('active-lyric');
                 // Gulir hanya jika lirik tidak terlihat di viewport atau jika dipaksa
                 const lyricsSection = document.querySelector('.lyrics-section');
+                if (!lyricsSection) return; // Tambah cek keamanan
+
                 const lineRect = line.getBoundingClientRect();
                 const containerRect = lyricsSection.getBoundingClientRect();
 
-                // Cek jika baris tidak sepenuhnya terlihat
+                // Cek jika baris tidak sepenuhnya terlihat dalam viewport lirik
                 if (forceScroll || lineRect.top < containerRect.top || lineRect.bottom > containerRect.bottom) {
                     line.scrollIntoView({
                         behavior: 'smooth',
