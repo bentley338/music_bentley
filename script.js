@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Elemen DOM ---
+    // --- Elemen DOM (Pastikan ID di HTML cocok dengan ini) ---
     const audioPlayer = document.getElementById('audio-player');
     const playPauseBtn = document.getElementById('play-pause-btn');
     const prevBtn = document.getElementById('prev-btn');
@@ -44,7 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let sleepTimerIntervalId = null; // ID untuk setInterval yang mengupdate hitung mundur
     let timeRemaining = 0; // Waktu tersisa dalam detik
 
-    // --- DATA LAGU (Playlist tetap sama seperti sebelumnya) ---
+    // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
+    // Pastikan NAMA FILE di properti 'src' (untuk MP3) dan 'albumArt' (untuk JPG/PNG)
+    // sama PERSIS (termasuk huruf besar/kecil dan ekstensinya) dengan nama file di folder proyek Anda.
+    // Semua file MP3, JPG/PNG, dan MP4 video background harus berada di folder yang sama dengan index.html, style.css, dan script.js.
     const playlist = [
         {
             title: "Back to Friends",
@@ -566,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Pedang dan cawan, koin dan tongkat<br>
                 Setiap simbol punya makna kuat<br>
                 Cahaya dan bayangan menari<<br>
-                Di panggung takdir yang abadi<br><br>
+                Di panggung takdir yang abadi<<br>
                 <b>Chorus</b><br>
                 Tarot, oh Tarot<br>
                 Buka mataku, tunjukkan jalan<br>
@@ -652,7 +655,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Chorus</b><br>
                 Ramai sepi bersama, dalam riuh kota<br>
                 Kita mencari makna, di antara fatamorgana<br>
-                Ramai sepi bersama, dalam hening jiwa<br>
+                Ramai sepi bersama, dalam hening jiwa<<br>
                 Berharap menemukan, damai yang nyata<br><br>
                 <b>Bridge</b><br>
                 Mungkin ini jalan, yang harus kutempuh<br>
@@ -709,11 +712,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 Everything you are...<br>
                 Oh, everything you are...
             `
+        },
+        {
+            title: "Guilty As Sin", // Lagu baru ditambahkan di sini
+            artist: "Taylor Swift",
+            src: "guilty_as_sin.mp3",
+            albumArt: "album_art_guilty_as_sin.jpg",
+            lyrics: `<b>🎶 Guilty As Sin – Taylor Swift</b><br><br>
+                <b>Verse 1</b><br>
+                What if I told you I'm in love with someone new?<br>
+                What if I told you that my heart broke for them too?<br>
+                Not your fault, not my fault, maybe it's the season<br>
+                But I can't shake this feeling, there's a reason<br><br>
+                <b>Chorus</b><br>
+                Guilty as sin, for the thoughts that I let creep in<br>
+                For the way my mind keeps wandering, where it shouldn't have been<br>
+                Oh, I'm guilty as sin, but the truth is I'm falling<br>
+                For a fantasy, a whisper, a silent calling<br><br>
+                <b>Verse 2</b><br>
+                I try to push it down, to lock it far away<br>
+                But every single night, it haunts me through the day<br>
+                A fragile dream, a secret, a forbidden delight<br>
+                Burning fiercely in the shadows of the night<br><br>
+                <b>Chorus</b><br>
+                Guilty as sin, for the thoughts that I let creep in<br>
+                For the way my mind keeps wandering, where it shouldn't have been<br>
+                Oh, I'm guilty as sin, but the truth is I'm falling<br>
+                For a fantasy, a whisper, a silent calling<br><br>
+                <b>Bridge</b><br>
+                They say temptation's a devil dressed in gold<br>
+                A story whispered, a story left untold<br>
+                But how can something so wrong feel so right?<br>
+                Lost in the shadows, bathed in the moonlight<br><br>
+                <b>Outro</b><br>
+                Guilty as sin... but I can't escape this pull<br>
+                Guilty as sin... losing all control...
+            `
         }
     ];
 
     // --- Fungsi Utama Pemutar Musik ---
 
+    // Memuat data lagu ke pemutar (album art, judul, artis, lirik)
     function loadSong(songIndex) {
         if (songIndex < 0 || songIndex >= playlist.length) {
             console.error("Error: songIndex di luar batas array playlist. Index:", songIndex, "Ukuran array:", playlist.length);
@@ -728,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const song = playlist[songIndex];
         audioPlayer.src = song.src;
-        audioPlayer.load();
+        audioPlayer.load(); // Panggil .load() secara eksplisit setiap kali src berubah
         currentAlbumArt.src = song.albumArt;
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
@@ -746,6 +786,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         updatePlaylistActiveState(songIndex);
 
+        // === IMPLEMENTASI MEDIA SESSION API ===
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song.title,
@@ -761,6 +802,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 ]
             });
 
+            // Pastikan action handlers diatur sekali saja atau diatur ulang
+            // agar tidak ada duplikasi listener
             navigator.mediaSession.setActionHandler('play', () => {
                 playSong();
             });
@@ -776,12 +819,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Memutar lagu
     function playSong() {
+        // Cek jika audioPlayer.src valid sebelum mencoba play
         if (!audioPlayer.src || audioPlayer.src === window.location.href) {
             console.warn("Audio source not loaded or invalid. Cannot play.");
             return;
         }
 
+        // Coba putar audio dan tangani Promise
         audioPlayer.play().then(() => {
             isPlaying = true;
             playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -800,12 +846,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'paused';
             }
+            // Notifikasi pengguna jika pemutaran otomatis diblokir
             if (error.name === "NotAllowedError" || error.name === "AbortError") {
+                // NotAllowedError: Browser memblokir autoplay
+                // AbortError: Pengguna mungkin menghentikan pemutaran terlalu cepat
                 console.log("Autoplay diblokir atau pemutaran dibatalkan. Sentuh tombol play untuk memulai.");
+                // Jika ingin memberi tahu user secara visual:
+                // alert("Pemutaran otomatis diblokir. Silakan sentuh tombol play untuk memulai.");
             }
         });
     }
 
+    // Menjeda lagu
     function pauseSong() {
         audioPlayer.pause();
         isPlaying = false;
@@ -820,6 +872,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Fungsi untuk memformat waktu dari detik menjadi 'MM:SS'
     function formatTime(seconds) {
         if (isNaN(seconds) || seconds < 0) return '0:00';
         const minutes = Math.floor(seconds / 60);
@@ -828,20 +881,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${minutes}:${formattedSeconds}`;
     }
 
+    // Mainkan lagu berikutnya
     function playNextSong() {
         currentSongIndex = (currentSongIndex + 1) % playlist.length;
         loadSong(currentSongIndex);
-        if (isPlaying) {
+        if (isPlaying) { // Pertahankan status play jika sedang bermain
             playSong();
         } else {
             playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         }
     }
 
+    // Mainkan lagu sebelumnya
     function playPrevSong() {
         currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
         loadSong(currentSongIndex);
-        if (isPlaying) {
+        if (isPlaying) { // Pertahankan status play jika sedang bermain
             playSong();
         } else {
             playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
