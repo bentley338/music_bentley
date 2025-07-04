@@ -54,9 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Audio Visualizer Elements
     const audioVisualizerCanvas = document.getElementById('audio-visualizer-canvas');
     const visualizerCtx = audioVisualizerCanvas.getContext('2d');
-    let audioContext;
-    let analyser;
-    let source;
+    let audioContext = null; // Inisialisasi null, akan dibuat saat play pertama
+    let analyser = null;
+    let source = null;
 
     // --- Variabel State ---
     let currentSongIndex = 0;
@@ -499,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Chorus</b><br>
                 And if you hurt me, that's okay, baby, only words bleed<br>
                 Inside these pages you just hold me<br>
-                And I won't ever let you go<br>
+                And I won't ever let you go<<br>
                 Wait for me to come home<br><br>
                 <b>Outro</b><br>
                 You can fit me inside the necklace you got when you were sixteen<br>
@@ -812,11 +812,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         updatePlaylistActiveState(songIndex);
 
-        // Inisialisasi Web Audio API saat lagu dimuat (jika belum)
-        if (!audioContext) {
-            initAudioVisualizer();
-        }
-
         // === IMPLEMENTASI MEDIA SESSION API ===
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
@@ -852,10 +847,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Memutar lagu
     function playSong() {
-        // Cek jika audioPlayer.src valid sebelum mencoba play
         if (!audioPlayer.src || audioPlayer.src === window.location.href) {
             console.warn("Audio source not loaded or invalid. Cannot play.");
             return;
+        }
+
+        // Inisialisasi Web Audio API saat play pertama kali
+        if (!audioContext) {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                source = audioContext.createMediaElementSource(audioPlayer);
+                source.connect(analyser);
+                analyser.connect(audioContext.destination); // Sambungkan ke output audio
+                analyser.fftSize = 256;
+                console.log("Web Audio API initialized successfully.");
+                drawVisualizer(); // Mulai menggambar visualizer
+            } catch (e) {
+                console.error("Gagal menginisialisasi Web Audio API:", e);
+                audioVisualizerCanvas.style.display = 'none'; // Sembunyikan visualizer jika error
+                // Lanjutkan pemutaran tanpa visualizer
+            }
         }
 
         // Pastikan AudioContext di-resume jika dalam keadaan suspended (misalnya setelah interaksi pengguna pertama)
@@ -864,7 +876,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('AudioContext resumed successfully');
             }).catch(e => console.error('Error resuming AudioContext:', e));
         }
-
 
         // Coba putar audio dan tangani Promise
         audioPlayer.play().then(() => {
@@ -878,12 +889,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'playing';
             }
-            // Mulai visualizer jika audio sedang dimainkan
-            if (analyser) {
-                drawVisualizer();
+            // Pastikan visualizer menggambar jika audio diputar
+            if (analyser && audioVisualizerCanvas.style.display !== 'none') {
+                // drawVisualizer() sudah dipanggil di initAudioVisualizer,
+                // tapi pastikan loop animasinya aktif
+                requestAnimationFrame(drawVisualizer);
             }
         }).catch(error => {
-            console.error("Error playing audio:", error);
+            console.error("Gagal memutar audio:", error);
             isPlaying = false;
             playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
             if ('mediaSession' in navigator) {
@@ -930,7 +943,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentSongIndex = (currentSongIndex + 1) % currentPlaylist.length;
             loadSong(currentSongIndex);
         } else { // Repeat off
-            if (currentSongIndex < playlist.length - 1) {
+            if (currentSongIndex < currentPlaylist.length - 1) {
                 currentSongIndex++;
                 loadSong(currentSongIndex);
             } else {
@@ -1263,12 +1276,12 @@ document.addEventListener('DOMContentLoaded', () => {
             originalPlaylistOrder = [...playlist]; // Simpan urutan asli
             shuffledPlaylist = shuffleArray([...playlist]); // Acak salinan
             // Perbarui currentSongIndex ke posisi lagu saat ini di playlist yang diacak
-            const currentSong = playlist[currentSongIndex];
+            const currentSong = playlist[currentSongIndex]; // Lagu yang sedang diputar (dari playlist asli)
             currentSongIndex = shuffledPlaylist.findIndex(song => song.title === currentSong.title && song.artist === currentSong.artist);
         } else {
             shuffleBtn.classList.remove('active');
             // Kembali ke urutan playlist asli
-            const currentSong = shuffledPlaylist[currentSongIndex]; // Lagu saat ini dari playlist acak
+            const currentSong = shuffledPlaylist[currentSongIndex]; // Lagu yang sedang diputar (dari playlist acak)
             currentSongIndex = originalPlaylistOrder.findIndex(song => song.title === currentSong.title && song.artist === currentSong.artist);
         }
         buildPlaylist(playlistSearchInput.value); // Rebuild playlist tampilan
@@ -1336,72 +1349,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Audio Visualizer ---
-    function initAudioVisualizer() {
-        try {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            source = audioContext.createMediaElementSource(audioPlayer);
+    function drawVisualizer() {
+        if (!analyser || !isPlaying) {
+            return; // Hanya menggambar jika analyser ada dan audio sedang diputar
+        }
 
-            source.connect(analyser);
-            analyser.connect(audioContext.destination);
+        requestAnimationFrame(drawVisualizer); // Loop animasi
 
-            analyser.fftSize = 256; // Ukuran FFT (Fast Fourier Transform)
-            const bufferLength = analyser.frequencyBinCount; // Jumlah data frekuensi
-            const dataArray = new Uint8Array(bufferLength); // Array untuk menyimpan data frekuensi
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        analyser.getByteFrequencyData(dataArray);
 
-            // Atur ukuran canvas agar responsif
-            function resizeCanvas() {
-                audioVisualizerCanvas.width = window.innerWidth;
-                audioVisualizerCanvas.height = window.innerHeight;
-            }
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
+        visualizerCtx.clearRect(0, 0, audioVisualizerCanvas.width, audioVisualizerCanvas.height);
 
-            function drawVisualizer() {
-                requestAnimationFrame(drawVisualizer); // Loop animasi
+        const barWidth = (audioVisualizerCanvas.width / bufferLength) * 2.5;
+        let x = 0;
 
-                analyser.getByteFrequencyData(dataArray); // Dapatkan data frekuensi
+        for (let i = 0; i < bufferLength; i++) {
+            let barHeight = dataArray[i] * 2;
 
-                visualizerCtx.clearRect(0, 0, audioVisualizerCanvas.width, audioVisualizerCanvas.height); // Bersihkan canvas
+            const gradient = visualizerCtx.createLinearGradient(0, audioVisualizerCanvas.height, 0, audioVisualizerCanvas.height - barHeight);
+            gradient.addColorStop(0, getComputedStyle(document.documentElement).getPropertyValue('--visualizer-fade-color'));
+            gradient.addColorStop(1, getComputedStyle(document.documentElement).getPropertyValue('--visualizer-bar-color'));
 
-                const barWidth = (audioVisualizerCanvas.width / bufferLength) * 2.5; // Lebar setiap bar
-                let x = 0;
+            visualizerCtx.fillStyle = gradient;
+            visualizerCtx.fillRect(x, audioVisualizerCanvas.height - barHeight, barWidth, barHeight);
 
-                for (let i = 0; i < bufferLength; i++) {
-                    let barHeight = dataArray[i] * 2; // Tinggi bar (dikalikan untuk visibilitas)
-
-                    // Gradient warna untuk bar
-                    const gradient = visualizerCtx.createLinearGradient(0, audioVisualizerCanvas.height, 0, audioVisualizerCanvas.height - barHeight);
-                    gradient.addColorStop(0, getComputedStyle(document.documentElement).getPropertyValue('--visualizer-fade-color'));
-                    gradient.addColorStop(1, getComputedStyle(document.documentElement).getPropertyValue('--visualizer-bar-color'));
-
-                    visualizerCtx.fillStyle = gradient;
-                    visualizerCtx.fillRect(x, audioVisualizerCanvas.height - barHeight, barWidth, barHeight);
-
-                    x += barWidth + 1; // Jarak antar bar
-                }
-            }
-            // Panggil drawVisualizer hanya jika audio sedang diputar
-            if (isPlaying) {
-                drawVisualizer();
-            }
-
-        } catch (e) {
-            console.error("Web Audio API tidak dapat diinisialisasi:", e);
-            // Sembunyikan visualizer jika ada error
-            audioVisualizerCanvas.style.display = 'none';
+            x += barWidth + 1;
         }
     }
 
+    // Atur ukuran canvas agar responsif
+    function resizeCanvas() {
+        audioVisualizerCanvas.width = window.innerWidth;
+        audioVisualizerCanvas.height = window.innerHeight;
+    }
+    resizeCanvas(); // Panggil sekali saat dimuat
+    window.addEventListener('resize', resizeCanvas); // Panggil saat resize
 
     // --- Theme Toggle Function ---
     function applyTheme(theme) {
         document.body.classList.remove('light-theme', 'dark-theme'); // Hapus semua tema
-        document.body.classList.add(theme + '-theme'); // Tambahkan tema baru
+        document.body.classList.add(theme); // Tambahkan tema baru (misal: 'light-theme')
         localStorage.setItem('theme', theme); // Simpan preferensi tema
 
         // Update tombol tema
-        if (theme === 'light') {
+        if (theme === 'light-theme') { // Perhatikan: kelas tema di body adalah 'light-theme' atau 'dark-theme'
             themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i> Mode Gelap';
             themeToggleBtn.setAttribute('aria-label', 'Ubah ke Mode Gelap');
         } else {
@@ -1411,11 +1404,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     themeToggleBtn.addEventListener('click', () => {
-        const currentTheme = localStorage.getItem('theme') || 'dark';
-        if (currentTheme === 'dark') {
-            applyTheme('light');
+        // Dapatkan tema saat ini dari body, bukan dari local storage yang mungkin belum diinisialisasi
+        const currentThemeClass = document.body.classList.contains('light-theme') ? 'light-theme' : 'dark-theme';
+        if (currentThemeClass === 'dark-theme') {
+            applyTheme('light-theme');
         } else {
-            applyTheme('dark');
+            applyTheme('dark-theme');
         }
     });
 
@@ -1430,12 +1424,10 @@ document.addEventListener('DOMContentLoaded', () => {
         updateAllTimerDisplays(); // Inisialisasi tampilan timer
         updateMuteButtonIcon(); // Inisialisasi ikon mute
         // Muat preferensi tema
-        const savedTheme = localStorage.getItem('theme') || 'dark';
+        const savedTheme = localStorage.getItem('theme') || 'dark-theme'; // Default ke 'dark-theme'
         applyTheme(savedTheme);
 
-        // Inisialisasi visualizer saat halaman dimuat, tetapi draw hanya saat play
-        initAudioVisualizer();
-
+        // Visualizer init dipindahkan ke playSong() pertama kali
     } else {
         console.error("Tidak ada lagu ditemukan di array 'playlist'.");
         currentSongTitle.textContent = "Tidak ada lagu";
