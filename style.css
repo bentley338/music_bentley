@@ -189,13 +189,19 @@ header {
     color: var(--accent-purple);
 }
 
-/* Styling khusus untuk tombol timer di header */
-.header-timer-btn {
+/* Wrapper untuk tombol timer dan volume di bawah branding */
+.header-audio-controls {
+    display: flex;
+    gap: 10px; /* Jarak antar tombol timer dan volume */
+    align-self: flex-start; /* Rata kiri di dalam app-branding */
+    margin-top: 5px; /* Sedikit jarak dari judul */
+}
+
+.header-timer-btn, .header-volume-btn {
     padding: 8px 12px;
     font-size: 0.8em;
-    align-self: flex-start;
-    margin-top: 5px;
 }
+
 
 .header-buttons-vertical {
     display: flex;
@@ -573,67 +579,9 @@ header {
 }
 
 
-/* Kontrol Volume */
+/* Kontrol Volume (dihapus dari sini, sekarang ada di modal) */
 .volume-control-section {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 80%;
-    margin-top: 20px;
-    padding: 10px 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.volume-btn {
-    width: 45px;
-    height: 45px;
-    font-size: 1.2em;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-}
-
-.volume-btn:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    transform: scale(1.1);
-}
-
-.volume-slider {
-    flex-grow: 1;
-    height: 5px;
-    -webkit-appearance: none;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-    outline: none;
-    cursor: pointer;
-}
-
-.volume-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--accent-purple);
-    cursor: pointer;
-    box-shadow: 0 0 8px rgba(138, 43, 226, 0.7);
-}
-
-.volume-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
-    box-shadow: 0 0 12px rgba(138, 43, 226, 1);
-}
-
-.volume-slider::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--accent-purple);
-    cursor: pointer;
-    box-shadow: 0 0 8px rgba(138, 43, 226, 0.7);
-}
-.volume-slider::-moz-range-thumb:hover {
-    transform: scale(1.2);
-    box-shadow: 0 0 12px rgba(138, 43, 226, 1);
+    display: none; /* Sembunyikan kontrol volume lama */
 }
 
 
@@ -964,6 +912,57 @@ header {
     color: var(--accent-red);
 }
 
+/* Audio Settings Modal Styling */
+.audio-control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.audio-control-group label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.1em;
+    color: var(--primary-text);
+    margin-bottom: 5px;
+}
+
+.audio-control-group .volume-slider {
+    width: 90%; /* Sesuaikan lebar slider di modal */
+    height: 8px; /* Sedikit lebih tebal */
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.audio-control-group .volume-slider::-webkit-slider-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--accent-purple);
+    box-shadow: 0 0 10px rgba(138, 43, 226, 0.7);
+}
+.audio-control-group .volume-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--accent-purple);
+    box-shadow: 0 0 10px rgba(138, 43, 226, 0.7);
+}
+
+.audio-control-group span {
+    font-size: 0.9em;
+    color: var(--secondary-text);
+    margin-top: 5px;
+}
+
+.audio-note {
+    font-size: 0.85em;
+    color: var(--secondary-text);
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+
 /* Responsive Design (umum) */
 @media (max-width: 768px) {
     .container {
@@ -983,7 +982,10 @@ header {
     .app-branding {
         gap: 5px;
     }
-    .header-timer-btn {
+    .header-audio-controls {
+        gap: 8px;
+    }
+    .header-timer-btn, .header-volume-btn {
         padding: 6px 10px;
         font-size: 0.75em;
     }
@@ -1049,17 +1051,6 @@ header {
         font-size: 2em;
     }
 
-    .volume-control-section {
-        width: 90%;
-        gap: 8px;
-    }
-
-    .volume-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1.1em;
-    }
-
     .progress-slider {
         height: 5px;
     }
@@ -1108,6 +1099,14 @@ header {
 
     .modal-active-timer-display p {
         font-size: 1em;
+    }
+
+    /* Audio Settings Modal Responsive */
+    .audio-control-group label {
+        font-size: 1em;
+    }
+    .audio-control-group .volume-slider {
+        width: 95%;
     }
 }
 
