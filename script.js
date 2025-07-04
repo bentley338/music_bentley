@@ -37,9 +37,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTimerCountdown = document.getElementById('modal-timer-countdown');
     const modalCancelTimerBtn = document.getElementById('modal-cancel-timer-btn'); // Tombol cancel di dalam modal
 
-    // Volume Control Elements
-    const volumeBar = document.getElementById('volume-bar');
-    const muteBtn = document.getElementById('mute-btn');
+    // Audio Settings Elements (NEW)
+    const audioSettingsBtn = document.getElementById('audio-settings-btn');
+    const audioSettingsModal = document.getElementById('audio-settings-modal');
+    const closeAudioSettingsModalBtn = document.getElementById('close-audio-settings-modal');
+
+    const masterVolumeSlider = document.getElementById('master-volume-slider');
+    const masterVolumeValue = document.getElementById('master-volume-value');
+    const bassLevelSlider = document.getElementById('bass-level-slider');
+    const bassLevelValue = document.getElementById('bass-level-value');
+    const effectLevelSlider = document.getElementById('effect-level-slider');
+    const effectLevelValue = document.getElementById('effect-level-value');
 
     // Shuffle and Repeat Elements
     const shuffleBtn = document.getElementById('shuffle-btn');
@@ -57,18 +65,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let audioContext = null; // Inisialisasi null, akan dibuat saat play pertama
     let analyser = null;
     let source = null;
+    let masterGainNode = null; // Node untuk volume utama
+    let bassFilter = null; // Node untuk bass (low-shelf filter)
+    let effectGainNode = null; // Node untuk level efek
 
     // --- Variabel State ---
     let currentSongIndex = 0;
     let isPlaying = false;
-    let sleepTimerTimeoutId = null; // ID untuk setTimeout yang menghentikan musik
-    let sleepTimerIntervalId = null; // ID untuk setInterval yang mengupdate hitung mundur
-    let timeRemaining = 0; // Waktu tersisa dalam detik
-    let lastVolume = 1; // Menyimpan volume terakhir sebelum mute
+    let sleepTimerTimeoutId = null;
+    let sleepTimerIntervalId = null;
+    let timeRemaining = 0;
     let isShuffling = false;
     let repeatMode = 'off'; // 'off', 'one', 'all'
-    let originalPlaylistOrder = []; // Menyimpan urutan playlist asli
-    let shuffledPlaylist = []; // Menyimpan urutan playlist yang diacak
+    let originalPlaylistOrder = [];
+    let shuffledPlaylist = [];
 
     // --- DATA LAGU (Playlist lengkap dengan lagu baru) ---
     const playlist = [
@@ -104,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Won’t deny the lies you’ve sold<br>
                 I’m holding on too tight<br>
                 While you let go<br>
-                This is casual<br><br>
+                This is casual<<br><br>
                 <b>Final Chorus</b><br>
                 How can we go back to being friends<br>
                 When we just shared a bed?<br>
@@ -475,7 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Chorus</b><br>
                 And if you hurt me, that's okay, baby, only words bleed<br>
                 Inside these pages you just hold me<br>
-                And I won't ever let you go<br>
+                And I won't ever let you go<<br>
                 Wait for me to come home<br><br>
                 <b>Verse 2</b><br>
                 Loving can heal, loving can mend your soul<br>
@@ -486,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Chorus</b><br>
                 And if you hurt me, that's okay, baby, only words bleed<br>
                 Inside these pages you just hold me<br>
-                And I won't ever let you go<br>
+                And I won't ever let you go<<br>
                 Wait for me to come home<br><br>
                 <b>Bridge</b><br>
                 You could fit me inside the necklace you got when you were sixteen<br>
@@ -534,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Cause you'll be in my heart<br>
                 Yes, you'll be in my heart<br>
                 From this day on<br>
-                Now and forever more<br><br>
+                Now and forever more<<br><br>
                 <b>Verse 2</b><br>
                 Why can't they understand the way we feel?<br>
                 They just don't trust what they can't explain<br>
@@ -671,7 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Ramai sepi bersama, dalam hening jiwa<br>
                 Berharap menemukan, damai yang nyata<br><br>
                 <b>Verse 2</b><br>
-                Wajah-wajah asing, silih berganti<br>
+                Wajah-wajah asing, silih berganti<<br>
                 Senyum dan tawa, hanya ilusi<br>
                 Ingin ku bicara, namun tak berani<br>
                 Terjebak dalam, sunyi yang abadi<br><br>
@@ -856,17 +866,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!audioContext) {
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
                 source = audioContext.createMediaElementSource(audioPlayer);
+
+                // Buat node-node efek
+                analyser = audioContext.createAnalyser();
+                masterGainNode = audioContext.createGain();
+                bassFilter = audioContext.createBiquadFilter();
+                effectGainNode = audioContext.createGain();
+
+                // Konfigurasi Bass Filter (Low-shelf filter)
+                bassFilter.type = 'lowshelf';
+                bassFilter.frequency.value = 250; // Frekuensi cutoff untuk bass (Hz)
+                bassFilter.gain.value = parseFloat(bassLevelSlider.value); // Gain awal dari slider
+
+                // Hubungkan node-node dalam graph:
+                // source -> analyser -> bassFilter -> effectGainNode -> masterGainNode -> destination
                 source.connect(analyser);
-                analyser.connect(audioContext.destination); // Sambungkan ke output audio
+                analyser.connect(bassFilter);
+                bassFilter.connect(effectGainNode);
+                effectGainNode.connect(masterGainNode);
+                masterGainNode.connect(audioContext.destination);
+
                 analyser.fftSize = 256;
-                console.log("Web Audio API initialized successfully.");
+                console.log("Web Audio API initialized successfully with effects chain.");
                 drawVisualizer(); // Mulai menggambar visualizer
             } catch (e) {
                 console.error("Gagal menginisialisasi Web Audio API:", e);
                 audioVisualizerCanvas.style.display = 'none'; // Sembunyikan visualizer jika error
-                // Lanjutkan pemutaran tanpa visualizer
+                // Jika API gagal, fallback ke pemutaran audio langsung
+                audioPlayer.connect(audioContext.destination); // Ini tidak akan bekerja jika audioContext gagal
+                // Jadi, jika ada error, kita harus memastikan audioPlayer tetap bisa memutar langsung
+                // tanpa Web Audio API chain. Untuk kesederhanaan, kita akan biarkan audioPlayer.src
+                // yang menangani pemutaran, dan Web Audio API hanya untuk efek tambahan.
+                // Jika audioContext gagal, efek tidak akan berfungsi, tapi play/pause tetap.
             }
         }
 
@@ -891,8 +923,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // Pastikan visualizer menggambar jika audio diputar
             if (analyser && audioVisualizerCanvas.style.display !== 'none') {
-                // drawVisualizer() sudah dipanggil di initAudioVisualizer,
-                // tapi pastikan loop animasinya aktif
                 requestAnimationFrame(drawVisualizer);
             }
         }).catch(error => {
@@ -1005,7 +1035,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isNaN(audioPlayer.duration)) {
             durationSpan.textContent = formatTime(audioPlayer.duration);
             // Set volume awal saat metadata dimuat
-            audioPlayer.volume = volumeBar.value / 100;
+            // Volume utama sekarang dikontrol oleh masterGainNode
+            // audioPlayer.volume = masterVolumeSlider.value / 100; // Ini tidak lagi diperlukan
         } else {
             durationSpan.textContent = '0:00';
         }
@@ -1228,36 +1259,55 @@ document.addEventListener('DOMContentLoaded', () => {
         hideTimerModal();
     });
 
-    // --- Volume Control Functions ---
-    volumeBar.addEventListener('input', () => {
-        audioPlayer.volume = volumeBar.value / 100;
-        updateMuteButtonIcon();
-    });
-
-    muteBtn.addEventListener('click', () => {
-        if (audioPlayer.volume > 0) {
-            lastVolume = audioPlayer.volume; // Simpan volume saat ini
-            audioPlayer.volume = 0;
-            volumeBar.value = 0;
-        } else {
-            audioPlayer.volume = lastVolume; // Kembalikan ke volume terakhir
-            volumeBar.value = lastVolume * 100;
+    // --- Audio Settings Modal Functions (NEW) ---
+    function showAudioSettingsModal() {
+        audioSettingsModal.classList.add('visible');
+        modalOverlay.classList.add('visible');
+        // Pastikan slider volume modal diperbarui dengan nilai masterGainNode saat dibuka
+        if (masterGainNode) {
+            masterVolumeSlider.value = masterGainNode.gain.value * 100;
+            masterVolumeValue.textContent = `${Math.round(masterGainNode.gain.value * 100)}%`;
         }
-        updateMuteButtonIcon();
-    });
-
-    function updateMuteButtonIcon() {
-        if (audioPlayer.volume === 0) {
-            muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
-            muteBtn.setAttribute('aria-label', 'Nyalakan Volume');
-        } else if (audioPlayer.volume < 0.5) {
-            muteBtn.innerHTML = '<i class="fas fa-volume-down"></i>';
-            muteBtn.setAttribute('aria-label', 'Bisukan Volume');
-        } else {
-            muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-            muteBtn.setAttribute('aria-label', 'Bisukan Volume');
+        if (bassFilter) {
+            bassLevelSlider.value = bassFilter.gain.value;
+            bassLevelValue.textContent = `${bassFilter.gain.value.toFixed(1)} dB`;
+        }
+        if (effectGainNode) {
+            effectLevelSlider.value = effectGainNode.gain.value * 100;
+            effectLevelValue.textContent = `${Math.round(effectGainNode.gain.value * 100)}%`;
         }
     }
+
+    function hideAudioSettingsModal() {
+        audioSettingsModal.classList.remove('visible');
+        modalOverlay.classList.remove('visible');
+    }
+
+    audioSettingsBtn.addEventListener('click', showAudioSettingsModal);
+    closeAudioSettingsModalBtn.addEventListener('click', hideAudioSettingsModal);
+
+    // --- Audio Control Sliders Event Listeners (NEW) ---
+    masterVolumeSlider.addEventListener('input', () => {
+        if (masterGainNode) {
+            masterGainNode.gain.value = masterVolumeSlider.value / 100;
+            masterVolumeValue.textContent = `${masterVolumeSlider.value}%`;
+        }
+    });
+
+    bassLevelSlider.addEventListener('input', () => {
+        if (bassFilter) {
+            bassFilter.gain.value = parseFloat(bassLevelSlider.value);
+            bassLevelValue.textContent = `${bassLevelSlider.value} dB`;
+        }
+    });
+
+    effectLevelSlider.addEventListener('input', () => {
+        if (effectGainNode) {
+            effectGainNode.gain.value = effectLevelSlider.value / 100;
+            effectLevelValue.textContent = `${effectLevelSlider.value}%`;
+        }
+    });
+
 
     // --- Shuffle and Repeat Functions ---
     function shuffleArray(array) {
@@ -1422,12 +1472,19 @@ document.addEventListener('DOMContentLoaded', () => {
         loadSong(currentSongIndex);
         buildPlaylist(); // Bangun playlist awal
         updateAllTimerDisplays(); // Inisialisasi tampilan timer
-        updateMuteButtonIcon(); // Inisialisasi ikon mute
+        // updateMuteButtonIcon(); // Tidak lagi diperlukan karena kontrol volume di modal
         // Muat preferensi tema
         const savedTheme = localStorage.getItem('theme') || 'dark-theme'; // Default ke 'dark-theme'
         applyTheme(savedTheme);
 
-        // Visualizer init dipindahkan ke playSong() pertama kali
+        // Inisialisasi slider volume modal dengan nilai default
+        masterVolumeSlider.value = 100;
+        masterVolumeValue.textContent = '100%';
+        bassLevelSlider.value = 0;
+        bassLevelValue.textContent = '0 dB';
+        effectLevelSlider.value = 0;
+        effectLevelValue.textContent = '0%';
+
     } else {
         console.error("Tidak ada lagu ditemukan di array 'playlist'.");
         currentSongTitle.textContent = "Tidak ada lagu";
