@@ -15,6 +15,8 @@
             Browser Anda tidak mendukung video HTML5.
         </video>
         <div class="video-overlay"></div>
+        <!-- Canvas untuk Visualizer Audio -->
+        <canvas id="audio-visualizer-canvas"></canvas>
     </div>
 
     <div class="container">
@@ -23,12 +25,18 @@
                 <h1 id="app-title-new" class="app-title-new">
                     <i class="fas fa-music"></i> MelodyVerse
                 </h1>
+                <!-- Tombol Set Timer dipindahkan ke sini -->
                 <button id="set-timer-btn" class="btn btn-timer header-timer-btn">
                     <i class="fas fa-clock"></i> Set Timer
                 </button>
             </div>
 
-            <div class="header-buttons-vertical"> <button id="toggle-playlist" class="btn btn-playlist">
+            <div class="header-buttons-vertical">
+                <!-- Tombol Tema -->
+                <button id="theme-toggle-btn" class="btn btn-theme">
+                    <i class="fas fa-sun"></i> Mode Terang
+                </button>
+                <button id="toggle-playlist" class="btn btn-playlist">
                     <i class="fas fa-list-music"></i> Daftar Putar
                 </button>
                 <a href="contact.html" class="btn btn-contact">
@@ -67,6 +75,7 @@
                 </div>
             </div>
 
+            <!-- Bagian ini untuk menampilkan timer aktif di player utama -->
             <div id="player-timer-display" class="player-timer-display" style="display: none;">
                 <i class="fas fa-hourglass-half"></i> Timer Aktif: <span id="player-timer-countdown"></span>
                 <button id="player-cancel-timer-btn" class="btn-icon-sm" aria-label="Batalkan Timer">
@@ -75,9 +84,25 @@
             </div>
 
             <div class="controls-section">
-                <button id="prev-btn" class="control-btn small-btn" aria-label="Previous Song"><i class="fas fa-backward"></i></button>
-                <button id="play-pause-btn" class="control-btn large-btn" aria-label="Play/Pause"><i class="fas fa-play"></i></button>
-                <button id="next-btn" class="control-btn small-btn" aria-label="Next Song"><i class="fas fa-forward"></i></button>
+                <!-- Tombol Shuffle -->
+                <button id="shuffle-btn" class="control-btn small-btn" aria-label="Acak Lagu">
+                    <i class="fas fa-shuffle"></i>
+                </button>
+                <button id="prev-btn" class="control-btn small-btn" aria-label="Lagu Sebelumnya"><i class="fas fa-backward"></i></button>
+                <button id="play-pause-btn" class="control-btn large-btn" aria-label="Putar/Jeda"><i class="fas fa-play"></i></button>
+                <button id="next-btn" class="control-btn small-btn" aria-label="Lagu Berikutnya"><i class="fas fa-forward"></i></button>
+                <!-- Tombol Repeat -->
+                <button id="repeat-btn" class="control-btn small-btn" aria-label="Ulangi Lagu">
+                    <i class="fas fa-repeat"></i>
+                </button>
+            </div>
+
+            <!-- Kontrol Volume -->
+            <div class="volume-control-section">
+                <button id="mute-btn" class="control-btn small-btn volume-btn" aria-label="Bisukan Volume">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <input type="range" id="volume-bar" value="100" min="0" max="100" class="volume-slider">
             </div>
 
             <audio id="audio-player"></audio>
@@ -86,14 +111,20 @@
         <aside id="playlist-sidebar" class="playlist-sidebar glass-effect">
             <div class="playlist-header">
                 <h2 class="playlist-title">Daftar Putar</h2>
-                <button id="close-playlist-btn" class="control-btn small-btn" aria-label="Close Playlist">
+                <button id="close-playlist-btn" class="control-btn small-btn" aria-label="Tutup Daftar Putar">
                     <i class="fas fa-times"></i>
                 </button>
+            </div>
+            <!-- Input Pencarian Playlist -->
+            <div class="playlist-search-section">
+                <input type="text" id="playlist-search-input" placeholder="Cari lagu..." class="search-input">
+                <i class="fas fa-search search-icon"></i>
             </div>
             <ul id="playlist" class="playlist-items">
                 </ul>
         </aside>
 
+        <!-- Timer Modal -->
         <div id="timer-modal" class="modal">
             <div class="modal-content glass-effect">
                 <span class="close-button" id="close-timer-modal">&times;</span>
