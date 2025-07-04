@@ -12,7 +12,7 @@
     <div class="video-background">
         <video id="background-video" autoplay loop muted playsinline>
             <source src="abstract_wave_bg.mp4" type="video/mp4">
-            Browser Anda tidak mendukung video HTML5.
+            Browser Anda tidak mendukung video HTML5.\n
         </video>
         <div class="video-overlay"></div>
         <!-- Canvas untuk Visualizer Audio -->
@@ -25,10 +25,16 @@
                 <h1 id="app-title-new" class="app-title-new">
                     <i class="fas fa-music"></i> MelodyVerse
                 </h1>
-                <!-- Tombol Set Timer dipindahkan ke sini -->
-                <button id="set-timer-btn" class="btn btn-timer header-timer-btn">
-                    <i class="fas fa-clock"></i> Set Timer
-                </button>
+                <div class="header-audio-controls">
+                    <!-- Tombol Set Timer -->
+                    <button id="set-timer-btn" class="btn btn-timer header-timer-btn">
+                        <i class="fas fa-clock"></i> Set Timer
+                    </button>
+                    <!-- Tombol Pengaturan Audio/Volume -->
+                    <button id="audio-settings-btn" class="btn btn-volume header-volume-btn">
+                        <i class="fas fa-volume-up"></i> Volume
+                    </button>
+                </div>
             </div>
 
             <div class="header-buttons-vertical">
@@ -97,13 +103,7 @@
                 </button>
             </div>
 
-            <!-- Kontrol Volume -->
-            <div class="volume-control-section">
-                <button id="mute-btn" class="control-btn small-btn volume-btn" aria-label="Bisukan Volume">
-                    <i class="fas fa-volume-up"></i>
-                </button>
-                <input type="range" id="volume-bar" value="100" min="0" max="100" class="volume-slider">
-            </div>
+            <!-- Kontrol Volume lama dihapus dari sini -->
 
             <audio id="audio-player"></audio>
         </main>
@@ -145,6 +145,31 @@
                     <p>Timer saat ini: <span id="modal-timer-countdown"></span></p>
                     <button id="modal-cancel-timer-btn" class="btn btn-secondary">Batalkan Timer</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Audio Settings Modal (Modal Baru) -->
+        <div id="audio-settings-modal" class="modal">
+            <div class="modal-content glass-effect">
+                <span class="close-button" id="close-audio-settings-modal">&times;</span>
+                <h2>Pengaturan Audio</h2>
+                <div class="audio-control-group">
+                    <label for="master-volume-slider">Volume Utama:</label>
+                    <input type="range" id="master-volume-slider" value="100" min="0" max="100" class="volume-slider">
+                    <span id="master-volume-value">100%</span>
+                </div>
+                <div class="audio-control-group">
+                    <label for="bass-level-slider">Bass Level:</label>
+                    <input type="range" id="bass-level-slider" value="0" min="-20" max="20" class="volume-slider">
+                    <span id="bass-level-value">0 dB</span>
+                </div>
+                <div class="audio-control-group">
+                    <label for="effect-level-slider">Level Efek:</label>
+                    <input type="range" id="effect-level-slider" value="0" min="0" max="100" class="volume-slider">
+                    <span id="effect-level-value">0%</span>
+                </div>
+                <!-- Mic Level tidak diimplementasikan karena kompleksitas dan relevansi -->
+                <p class="audio-note">Catatan: Fitur 'Mic Level' tidak tersedia dalam pemutar musik ini.</p>
             </div>
         </div>
 
