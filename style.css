@@ -518,10 +518,10 @@ header {
 /* Kontrol */
 .controls-section {
     display: flex;
-    gap: 15px; /* Kurangi gap agar lebih rapat */
+    gap: 15px;
     margin-top: 30px;
     align-items: center;
-    justify-content: center; /* Pusat kontrol */
+    justify-content: center;
     width: 100%;
 }
 
@@ -566,7 +566,7 @@ header {
 
 /* Styling untuk tombol shuffle/repeat yang aktif */
 .control-btn.active {
-    color: var(--accent-red); /* Warna aksen saat aktif */
+    color: var(--accent-red);
     border-color: var(--accent-red);
     box-shadow: 0 0 15px var(--accent-red);
     background-color: rgba(255, 69, 0, 0.2);
@@ -578,7 +578,7 @@ header {
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 80%; /* Lebar kontrol volume */
+    width: 80%;
     margin-top: 20px;
     padding: 10px 0;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -588,9 +588,9 @@ header {
     width: 45px;
     height: 45px;
     font-size: 1.2em;
-    background: transparent; /* Ubah background agar tidak terlalu menonjol */
-    border: none; /* Hilangkan border */
-    box-shadow: none; /* Hilangkan shadow */
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .volume-btn:hover {
@@ -599,7 +599,7 @@ header {
 }
 
 .volume-slider {
-    flex-grow: 1; /* Mengambil sisa ruang */
+    flex-grow: 1;
     height: 5px;
     -webkit-appearance: none;
     background: rgba(255, 255, 255, 0.1);
@@ -648,6 +648,7 @@ header {
     height: 100%;
     transform: translateX(100%);
     opacity: 0;
+    visibility: hidden;
     transition: transform 0.5s ease-out, opacity 0.5s ease-out;
     max-height: 100vh;
     overflow-y: auto;
@@ -658,6 +659,7 @@ header {
 .playlist-sidebar.visible {
     transform: translateX(0);
     opacity: 1;
+    visibility: visible;
 }
 
 .playlist-header {
@@ -705,8 +707,8 @@ header {
 }
 
 .playlist-search-section .search-input {
-    width: calc(100% - 40px); /* Kurangi lebar untuk ikon */
-    padding: 10px 15px 10px 40px; /* Padding kiri untuk ikon */
+    width: calc(100% - 40px);
+    padding: 10px 15px 10px 40px;
     border-radius: var(--border-radius-sm);
     border: 1px solid var(--input-border);
     background-color: var(--input-bg);
@@ -990,7 +992,7 @@ header {
         gap: 8px;
     }
 
-    .btn-playlist, .btn-contact, .btn-theme { /* Tambahkan btn-theme */
+    .btn-playlist, .btn-contact, .btn-theme {
         padding: 8px 12px;
         font-size: 0.8em;
     }
@@ -1032,7 +1034,7 @@ header {
     }
 
     .controls-section {
-        gap: 10px; /* Lebih rapat di mobile */
+        gap: 10px;
     }
 
     .control-btn {
