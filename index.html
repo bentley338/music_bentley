@@ -38,6 +38,10 @@
             </div>
 
             <div class="header-buttons-vertical">
+                <!-- Tombol Admin Panel (Hanya terlihat oleh admin) -->
+                <button id="admin-panel-btn" class="btn btn-admin" style="display: none;">
+                    <i class="fas fa-user-shield"></i> Admin
+                </button>
                 <!-- Tombol Tema -->
                 <button id="theme-toggle-btn" class="btn btn-theme">
                     <i class="fas fa-sun"></i> Mode Terang
@@ -146,7 +150,7 @@
             </div>
         </div>
 
-        <!-- Audio Settings Modal (Modal Baru) -->
+        <!-- Audio Settings Modal -->
         <div id="audio-settings-modal" class="modal">
             <div class="modal-content glass-effect">
                 <span class="close-button" id="close-audio-settings-modal">&times;</span>
@@ -189,6 +193,32 @@
                     <span id="effect-level-value">0%</span>
                 </div>
                 <p class="audio-note">Catatan: Fitur 'Mic Level' tidak tersedia dalam pemutar musik ini.</p>
+            </div>
+        </div>
+
+        <!-- Admin Panel Modal (NEW) -->
+        <div id="admin-panel-modal" class="modal">
+            <div class="modal-content glass-effect">
+                <span class="close-button" id="close-admin-panel-modal">&times;</span>
+                <h2>Admin Panel</h2>
+                <div class="admin-section">
+                    <h3>Tambah Lagu Baru</h3>
+                    <form id="add-song-form" class="admin-form">
+                        <input type="text" id="add-title" placeholder="Judul Lagu" required>
+                        <input type="text" id="add-artist" placeholder="Nama Artis" required>
+                        <input type="text" id="add-src" placeholder="Nama File MP3 (ex: song.mp3)" required>
+                        <input type="text" id="add-album-art" placeholder="Nama File Album Art (ex: album.jpg)" required>
+                        <textarea id="add-lyrics" placeholder="Lirik Lagu (opsional)"></textarea>
+                        <button type="submit" class="btn btn-primary">Tambah Lagu</button>
+                    </form>
+                </div>
+
+                <div class="admin-section">
+                    <h3>Kelola Lagu</h3>
+                    <ul id="admin-song-list" class="admin-song-list">
+                        <!-- Lagu akan dimuat di sini -->
+                    </ul>
+                </div>
             </div>
         </div>
 
