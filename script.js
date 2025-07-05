@@ -34,12 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeAudioModalBtn = document.getElementById('close-audio-modal');
     const masterVolumeControl = document.getElementById('master-volume');
     const volumeValueSpan = document.getElementById('volume-value');
-    const playbackSpeedControl = document.getElementById('playback-speed-control'); // New: Playback Speed
-    const playbackSpeedValueSpan = document.getElementById('playback-speed-value'); // New: Playback Speed Value
+    const playbackSpeedControl = document.getElementById('playback-speed-control');
+    const playbackSpeedValueSpan = document.getElementById('playback-speed-value');
     const trebleControl = document.getElementById('treble-control');
     const trebleValueSpan = document.getElementById('treble-value');
-    const midControl = document.getElementById('mid-control'); // New: Mid-range
-    const midValueSpan = document.getElementById('mid-value'); // New: Mid-range Value
+    const midControl = document.getElementById('mid-control');
+    const midValueSpan = document.getElementById('mid-value');
     const bassControl = document.getElementById('bass-control');
     const bassValueSpan = document.getElementById('bass-value');
     const effectLevelControl = document.getElementById('effect-level-control');
@@ -58,17 +58,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let source;
     const gainNode = audioContext.createGain();
     const bassFilter = audioContext.createBiquadFilter();
-    const midFilter = audioContext.createBiquadFilter(); // New: Mid-range Filter
+    const midFilter = audioContext.createBiquadFilter();
     const trebleFilter = audioContext.createBiquadFilter();
     const effectLevelGainNode = audioContext.createGain();
-    const analyser = audioContext.createAnalyser(); // New: Analyser for Visualizer
+    const analyser = audioContext.createAnalyser();
 
     // Pengaturan Filter EQ
     bassFilter.type = 'lowshelf';
     bassFilter.frequency.setValueAtTime(250, audioContext.currentTime);
-    midFilter.type = 'peaking'; // Peaking filter for mid-range
-    midFilter.frequency.setValueAtTime(1000, audioContext.currentTime); // Center frequency for mid
-    midFilter.Q.setValueAtTime(1, audioContext.currentTime); // Quality factor
+    midFilter.type = 'peaking';
+    midFilter.frequency.setValueAtTime(1000, audioContext.currentTime);
+    midFilter.Q.setValueAtTime(1, audioContext.currentTime);
     trebleFilter.type = 'highshelf';
     trebleFilter.frequency.setValueAtTime(2500, audioContext.currentTime);
 
@@ -85,10 +85,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let shuffleMode = false;
     let repeatMode = 'off'; // 'off', 'one', 'all'
     let originalPlaylistOrder = [];
-    let autoplayBlocked = false; // Flag for autoplay blocking
+    let autoplayBlocked = false;
 
     // --- DATA LAGU (LOAD DARI LOCALSTORAGE ATAU DEFAULT) ---
     let playlist = JSON.parse(localStorage.getItem('musicPlaylist')) || [
+        {
+            title: "Guilty as Sin?",
+            artist: "Taylor Swift",
+            src: "guilty_as_sin.mp3",
+            albumArt: "album_art_guilty_as_sin.jpg",
+            info: `<b>🎶 Guilty as Sin? – Taylor Swift</b><br><br>
+                Lagu ini mengeksplorasi nuansa moral dan godaan dalam sebuah hubungan. Taylor Swift merenungkan garis tipis antara keinginan yang bersalah dan kesetiaan yang tak tergoyahkan. Dengan lirik yang introspektif dan melodi yang memikat, lagu ini menggambarkan pergulatan batin saat menghadapi pertanyaan tentang loyalitas dan batas-batas emosional, membuat pendengar bertanya: apakah keinginan saja sudah cukup untuk merasa bersalah seperti dosa?`
+        },
         {
             title: "Back to Friends",
             artist: "Sombr",
@@ -219,9 +227,9 @@ document.addEventListener('DOMContentLoaded', () => {
             source = audioContext.createMediaElementSource(audioPlayer);
             // Connect nodes: source -> bass -> mid -> treble -> analyser -> effectLevelGain -> gain (master volume) -> destination
             source.connect(bassFilter);
-            bassFilter.connect(midFilter); // Connect mid filter
+            bassFilter.connect(midFilter);
             midFilter.connect(trebleFilter);
-            trebleFilter.connect(analyser); // Connect to analyser
+            trebleFilter.connect(analyser);
             analyser.connect(effectLevelGainNode);
             effectLevelGainNode.connect(gainNode);
             gainNode.connect(audioContext.destination);
@@ -238,23 +246,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const canvasHeight = audioVisualizer.height;
         visualizerCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-        const barWidth = (canvasWidth / bufferLength) * 2.5; // Adjust multiplier for bar width
+        const barWidth = (canvasWidth / bufferLength) * 2.5;
         let barHeight;
         let x = 0;
 
         for (let i = 0; i < bufferLength; i++) {
-            barHeight = dataArray[i] / 2; // Adjust divisor for bar height
+            barHeight = dataArray[i] / 2;
 
-            // Gradient for bars
             let gradient = visualizerCtx.createLinearGradient(0, canvasHeight, 0, 0);
-            gradient.addColorStop(0, 'rgba(138, 43, 226, 0.8)'); // Accent purple
-            gradient.addColorStop(0.5, 'rgba(255, 69, 0, 0.6)'); // Accent red
-            gradient.addColorStop(1, 'rgba(255, 255, 255, 0.4)'); // Lighter top
+            gradient.addColorStop(0, 'rgba(138, 43, 226, 0.8)');
+            gradient.addColorStop(0.5, 'rgba(255, 69, 0, 0.6)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0.4)');
             visualizerCtx.fillStyle = gradient;
 
             visualizerCtx.fillRect(x, canvasHeight - barHeight, barWidth, barHeight);
 
-            x += barWidth + 1; // Gap between bars
+            x += barWidth + 1;
         }
     }
 
@@ -263,6 +270,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadSong(songIndex) {
         if (playlist.length === 0) {
             console.warn("Playlist kosong. Tidak ada lagu untuk dimuat.");
+            // Cek jika ada lagu default yang diatur
+            const defaultSong = JSON.parse(localStorage.getItem('defaultMelodyVerseSong'));
+            if (defaultSong && defaultSong.src) {
+                audioPlayer.src = defaultSong.src;
+                currentAlbumArt.src = defaultSong.albumArt || "album_art_default.jpg";
+                currentSongTitle.textContent = defaultSong.title || "Lagu Default";
+                currentArtistName.textContent = defaultSong.artist || "Artis Default";
+                infoText.innerHTML = defaultSong.info || "<p>Tidak ada lagu di playlist utama. Ini adalah lagu default.</p>";
+                audioPlayer.load();
+                pauseSong();
+                return;
+            }
+
             currentSongTitle.textContent = "Tidak ada lagu";
             currentArtistName.textContent = "Tambahkan lagu di panel admin";
             infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album ada di folder yang sama dengan file HTML utama Anda di GitHub Pages.</p>";
@@ -304,7 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         updatePlaylistActiveState(songIndex);
 
-        // === IMPLEMENTASI MEDIA SESSION API ===
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song.title,
@@ -360,6 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (playlist.length > 0) {
                 loadSong(0);
             } else {
+                // If playlist is still empty, and no default song, just return
                 return;
             }
         }
@@ -393,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayAutoplayBlockedMessage() {
         if (!autoplayBlocked) {
             const message = "Autoplay diblokir. Mohon sentuh tombol putar untuk memulai musik.";
-            alert(message); // Or display a more subtle toast notification
+            alert(message);
             autoplayBlocked = true;
         }
     }
@@ -432,41 +452,45 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (shuffleMode) {
-            let nextIndex;
-            do {
-                nextIndex = Math.floor(Math.random() * playlist.length);
-            } while (nextIndex === currentSongIndex && playlist.length > 1);
-            currentSongIndex = nextIndex;
-        } else {
-            currentSongIndex = (currentSongIndex + 1) % playlist.length;
+        const nextSongCalculatedIndex = shuffleMode ? getRandomUniqueIndex() : (currentSongIndex + 1) % playlist.length;
+
+        // If not repeating all and it's the last song (or would loop back to start in non-shuffle mode),
+        // and current index is the last, then pause.
+        if (repeatMode === 'off' && !shuffleMode && currentSongIndex === playlist.length -1) {
+             pauseSong();
+             loadSong(0); // Load first song but don't play
+             currentSongIndex = 0;
+             return;
         }
 
-        if (currentSongIndex === 0 && repeatMode === 'off' && !shuffleMode) {
-            pauseSong();
+        // Crossfade effect
+        const fadeOutDuration = 0.5; // seconds
+        const fadeInDuration = 0.5; // seconds
+        const now = audioContext.currentTime;
+
+        gainNode.gain.cancelScheduledValues(now);
+        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+        gainNode.gain.linearRampToValueAtTime(0.001, now + fadeOutDuration);
+
+        setTimeout(() => {
+            currentSongIndex = nextSongCalculatedIndex;
             loadSong(currentSongIndex);
-            return;
-        } else {
-            // Crossfade effect
-            const fadeOutDuration = 1.0; // seconds
-            const fadeInDuration = 1.0; // seconds
-            const now = audioContext.currentTime;
-
-            // Fade out current song
-            gainNode.gain.cancelScheduledValues(now);
-            gainNode.gain.setValueAtTime(gainNode.gain.value, now);
-            gainNode.gain.linearRampToValueAtTime(0.001, now + fadeOutDuration);
-
-            setTimeout(() => {
-                loadSong(currentSongIndex);
-                audioPlayer.play();
-                // Fade in next song
-                gainNode.gain.cancelScheduledValues(audioContext.currentTime);
-                gainNode.gain.setValueAtTime(0.001, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(masterVolumeControl.value, audioContext.currentTime + fadeInDuration);
-            }, fadeOutDuration * 1000);
-        }
+            audioPlayer.play();
+            gainNode.gain.cancelScheduledValues(audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.001, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(masterVolumeControl.value, audioContext.currentTime + fadeInDuration);
+        }, fadeOutDuration * 1000);
     }
+
+    function getRandomUniqueIndex() {
+        if (playlist.length <= 1) return 0;
+        let nextIndex;
+        do {
+            nextIndex = Math.floor(Math.random() * playlist.length);
+        } while (nextIndex === currentSongIndex);
+        return nextIndex;
+    }
+
 
     function playPrevSong() {
         if (playlist.length === 0) {
@@ -483,11 +507,10 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
         
         // Crossfade effect
-        const fadeOutDuration = 1.0; // seconds
-        const fadeInDuration = 1.0; // seconds
+        const fadeOutDuration = 0.5; // seconds
+        const fadeInDuration = 0.5; // seconds
         const now = audioContext.currentTime;
 
-        // Fade out current song
         gainNode.gain.cancelScheduledValues(now);
         gainNode.gain.setValueAtTime(gainNode.gain.value, now);
         gainNode.gain.linearRampToValueAtTime(0.001, now + fadeOutDuration);
@@ -496,13 +519,11 @@ document.addEventListener('DOMContentLoaded', () => {
             loadSong(currentSongIndex);
             if (isPlaying) {
                 audioPlayer.play();
-                // Fade in next song
                 gainNode.gain.cancelScheduledValues(audioContext.currentTime);
                 gainNode.gain.setValueAtTime(0.001, audioContext.currentTime);
                 gainNode.gain.linearRampToValueAtTime(masterVolumeControl.value, audioContext.currentTime + fadeInDuration);
             } else {
                 playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                // Reset gain if not playing
                 gainNode.gain.setValueAtTime(masterVolumeControl.value, audioContext.currentTime);
             }
         }, fadeOutDuration * 1000);
@@ -534,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
             durationSpan.textContent = formatTime(audioPlayer.duration);
             gainNode.gain.setValueAtTime(masterVolumeControl.value, audioContext.currentTime);
             effectLevelGainNode.gain.setValueAtTime(effectLevelControl.value, audioContext.currentTime);
-            audioPlayer.playbackRate = parseFloat(playbackSpeedControl.value); // Apply saved playback speed
+            audioPlayer.playbackRate = parseFloat(playbackSpeedControl.value);
         } else {
             durationSpan.textContent = '0:00';
         }
@@ -664,7 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
         trebleValueSpan.textContent = `${value} dB`;
     });
 
-    midControl.addEventListener('input', () => { // Mid-range control
+    midControl.addEventListener('input', () => {
         const value = parseFloat(midControl.value);
         midFilter.gain.setValueAtTime(value, audioContext.currentTime);
         midValueSpan.textContent = `${value} dB`;
@@ -685,10 +706,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inisialisasi nilai Kontrol Audio
     masterVolumeControl.value = audioPlayer.volume;
     volumeValueSpan.textContent = `${Math.round(audioPlayer.volume * 100)}%`;
-    playbackSpeedControl.value = audioPlayer.playbackRate; // Set initial speed
+    playbackSpeedControl.value = audioPlayer.playbackRate;
     playbackSpeedValueSpan.textContent = `${audioPlayer.playbackRate.toFixed(2)}x`;
     trebleValueSpan.textContent = `${trebleControl.value} dB`;
-    midValueSpan.textContent = `${midControl.value} dB`; // Initial mid value
+    midValueSpan.textContent = `${midControl.value} dB`;
     bassValueSpan.textContent = `${bassControl.value} dB`;
     effectLevelValueSpan.textContent = `${Math.round(effectLevelControl.value * 100)}%`;
 
@@ -841,7 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function showPlaylistSidebar() {
-        buildPlaylist(playlistSearchInput.value); // Rebuild playlist on open
+        buildPlaylist(playlistSearchInput.value);
         playlistSidebar.classList.add('visible');
         sidebarOverlay.classList.add('visible');
         audioControlsModal.classList.remove('visible');
@@ -879,37 +900,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Pintasan Keyboard ---
     document.addEventListener('keydown', (event) => {
         if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
-            return; // Don't trigger shortcuts if user is typing in an input field
+            return;
         }
 
         switch (event.key) {
-            case ' ': // Spacebar for Play/Pause
-                event.preventDefault(); // Prevent page scroll
+            case ' ':
+                event.preventDefault();
                 playPauseToggle();
                 break;
-            case 'ArrowRight': // Right arrow for Next Song
+            case 'ArrowRight':
                 playNextSong();
                 break;
-            case 'ArrowLeft': // Left arrow for Previous Song
+            case 'ArrowLeft':
                 playPrevSong();
                 break;
-            case 'm': // 'M' for Mute/Unmute (toggle volume to 0 or original)
+            case 'm':
                 if (audioPlayer.volume > 0) {
-                    audioPlayer.dataset.previousVolume = audioPlayer.volume; // Store current volume
+                    audioPlayer.dataset.previousVolume = audioPlayer.volume;
                     audioPlayer.volume = 0;
                     masterVolumeControl.value = 0;
                 } else {
-                    audioPlayer.volume = parseFloat(audioPlayer.dataset.previousVolume || 0.7); // Restore previous volume or default
+                    audioPlayer.volume = parseFloat(audioPlayer.dataset.previousVolume || 0.7);
                     masterVolumeControl.value = audioPlayer.volume;
                 }
                 gainNode.gain.setValueAtTime(audioPlayer.volume, audioContext.currentTime);
                 volumeValueSpan.textContent = `${Math.round(audioPlayer.volume * 100)}%`;
                 break;
-            case 'l': // 'L' for opening playlist
+            case 'l':
                 event.preventDefault();
                 togglePlaylistBtn.click();
                 break;
-            case 'o': // 'O' for opening audio controls
+            case 'o':
                 event.preventDefault();
                 openAudioModalBtn.click();
                 break;
@@ -923,50 +944,78 @@ document.addEventListener('DOMContentLoaded', () => {
         originalPlaylistOrder = [...playlist];
     }
 
+    // Default song setup if playlist is empty or if no default is set yet
+    const currentDefaultSong = JSON.parse(localStorage.getItem('defaultMelodyVerseSong'));
+    if (!currentDefaultSong && playlist.length > 0) {
+        localStorage.setItem('defaultMelodyVerseSong', JSON.stringify(playlist[0]));
+    } else if (!currentDefaultSong && playlist.length === 0) {
+         // Fallback if playlist and default is empty
+         localStorage.setItem('defaultMelodyVerseSong', JSON.stringify({
+            title: "Selamat Datang di MelodyVerse",
+            artist: "Admin",
+            src: "abstract_wave_bg.mp4", // Or a silent mp3 file if you have one
+            albumArt: "album_art_default.jpg",
+            info: "<p>Playlist Anda kosong! Tambahkan lagu baru melalui panel admin untuk memulai petualangan musik Anda.</p>"
+        }));
+    }
+
+
     if (playlist.length > 0) {
         loadSong(currentSongIndex);
         buildPlaylist();
     } else {
-        console.warn("No songs found in 'playlist' array.");
-        currentSongTitle.textContent = "Tidak ada lagu";
-        currentArtistName.textContent = "Silakan tambahkan lagu di panel admin";
-        infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album ada di folder yang sama dengan file HTML utama Anda di GitHub Pages.</p>";
+        console.warn("No songs found in 'playlist' array. Loading default song.");
+        // Load the default song explicitly if playlist is empty
+        const defaultSongToLoad = JSON.parse(localStorage.getItem('defaultMelodyVerseSong'));
+        if (defaultSongToLoad) {
+            audioPlayer.src = defaultSongToLoad.src;
+            currentAlbumArt.src = defaultSongToLoad.albumArt || "album_art_default.jpg";
+            currentSongTitle.textContent = defaultSongToLoad.title || "Lagu Default";
+            currentArtistName.textContent = defaultSongToLoad.artist || "Artis Default";
+            infoText.innerHTML = defaultSongToLoad.info || "<p>Tidak ada lagu di playlist utama. Ini adalah lagu default.</p>";
+            audioPlayer.load();
+        } else {
+            currentSongTitle.textContent = "Tidak ada lagu";
+            currentArtistName.textContent = "Silakan tambahkan lagu di panel admin";
+            infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album ada di folder yang sama dengan file HTML utama Anda di GitHub Pages.</p>";
+        }
     }
 
-    // Inisialisasi Web Audio API dan Visualizer setelah gesture pengguna (putar pertama kali)
+
     audioPlayer.addEventListener('play', () => {
         setupAudioContext();
-        drawVisualizer(); // Start visualizer only when playing
-        gainNode.gain.setValueAtTime(masterVolumeControl.value, audioContext.currentTime); // Ensure gain is set on play
+        drawVisualizer();
+        gainNode.gain.setValueAtTime(masterVolumeControl.value, audioContext.currentTime);
     }, { once: true });
 
-    // Handle initial video autoplay
     if (backgroundVideo) {
         backgroundVideo.play().catch(error => {
             console.log('Autoplay video dicegah. Interaksi pengguna mungkin diperlukan.', error);
         });
     }
 
-    // Jika admin panel melakukan perubahan, kita perlu me-refresh playlist utama
     window.addEventListener('storage', (event) => {
-        if (event.key === 'musicPlaylist') {
-            console.log('Perubahan playlist terdeteksi dari localStorage, memuat ulang playlist.');
+        if (event.key === 'musicPlaylist' || event.key === 'defaultMelodyVerseSong') {
+            console.log('Perubahan playlist atau lagu default terdeteksi dari localStorage, memuat ulang playlist.');
             const newPlaylist = JSON.parse(localStorage.getItem('musicPlaylist')) || [];
-            if (JSON.stringify(playlist) !== JSON.stringify(newPlaylist)) { // Only update if content changed
+            if (JSON.stringify(playlist) !== JSON.stringify(newPlaylist)) {
                 playlist = newPlaylist;
                 originalPlaylistOrder = [...playlist];
                 if (playlist.length > 0 && currentSongIndex >= playlist.length) {
                     currentSongIndex = 0;
                 } else if (playlist.length === 0) {
-                    currentSongIndex = 0; // Reset index if playlist becomes empty
+                    currentSongIndex = 0;
                 }
                 loadSong(currentSongIndex);
                 buildPlaylist();
                 if (isPlaying && playlist.length > 0) {
                     playSong();
                 } else if (playlist.length === 0) {
-                    pauseSong(); // Pause if playlist becomes empty
+                    pauseSong();
                 }
+            } else if (event.key === 'defaultMelodyVerseSong' && playlist.length === 0) {
+                // If only default song changes and playlist is empty, reload default song
+                loadSong(currentSongIndex); // This will pick up the new default song
             }
         }
     });
