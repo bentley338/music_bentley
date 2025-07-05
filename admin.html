@@ -21,7 +21,7 @@
             text-align: center;
             background: var(--player-bg-dark);
             backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
-            -webkit-backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
+            -webkit-backdrop-filter: blur(var(--blur-intensity)) saturate(15-%);
             border: 1px solid var(--player-border);
             border-radius: var(--border-radius-main);
             box-shadow: 0 15px 50px var(--shadow-deep);
@@ -35,7 +35,6 @@
 
         .admin-container h2 {
             font-family: 'Montserrat', sans-serif;
-            color: var(--primary-text);
             font-size: 2.5em; /* Judul lebih besar */
             margin-bottom: 30px;
             transition: color 0.5s ease;
@@ -423,6 +422,7 @@
             min-width: 120px;
             margin-top: 0;
         }
+        /* Style for hidden file input's label */
         .import-export-buttons input[type="file"] {
             display: none;
         }
@@ -447,6 +447,25 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
+
+        /* New style for URL import section */
+        .import-url-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed rgba(255,255,255,0.1);
+        }
+        body.light-mode .import-url-section {
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+        .import-url-section .input-group {
+            margin-bottom: 10px;
+        }
+        .import-url-section .admin-btn {
+            width: auto;
+            padding: 10px 20px;
+            margin-top: 5px;
+        }
+
 
         /* Album art preview */
         .album-art-preview {
@@ -521,6 +540,24 @@
             border-bottom: none;
         }
 
+        /* Global message editor specific styles */
+        #global-message-editor textarea {
+            min-height: 100px;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        .global-message-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .global-message-controls .admin-btn {
+            flex-grow: 1;
+            min-width: 140px;
+        }
+
+
         /* Panel Admin Responsif */
         @media (max-width: 768px) {
             .admin-container {
@@ -568,6 +605,9 @@
             .batch-edit-controls label {
                 width: 100%;
                 justify-content: flex-start;
+            }
+            .global-message-controls {
+                flex-direction: column;
             }
         }
         @media (max-width: 480px) {
@@ -652,32 +692,31 @@
             </div>
 
             <div id="admin-panel">
-                <div class="admin-section">
-                    <h3>Tambah Lagu Baru</h3>
+
+                <div class="admin-section" id="global-message-editor">
+                    <h3>Pengaturan Pesan Global</h3>
                     <div class="admin-section-content">
+                        <p style="font-size: 0.9em; color: var(--secondary-text); margin-bottom: 15px;">
+                            Ketik pesan di sini. Untuk membuatnya terlihat oleh semua orang, Anda perlu **menyalin pesan ini** dan **menempelkannya secara manual** ke dalam kode `index.html` Anda di GitHub.
+                        </p>
                         <div class="input-group">
-                            <label for="song-title">Judul Lagu:</label>
-                            <input type="text" id="song-title">
+                            <label for="global-message-text-input">Pesan:</label>
+                            <textarea id="global-message-text-input" placeholder="Tulis pesan global di sini..."></textarea>
                         </div>
-                        <div class="input-group">
-                            <label for="song-artist">Artis:</label>
-                            <input type="text" id="song-artist">
+                        <div class="global-message-controls">
+                            <button id="apply-global-message-local-btn" class="admin-btn"><i class="fas fa-save"></i> Terapkan Perubahan Lokal</button>
+                            <button id="copy-global-message-btn" class="admin-btn" style="background-color: #007bff;"><i class="fas fa-copy"></i> Salin Pesan untuk GitHub</button>
                         </div>
-                        <div class="input-group">
-                            <label for="song-src">Nama File MP3 (ex: song.mp3):</label>
-                            <input type="text" id="song-src" placeholder="misalnya: song.mp3">
-                        </div>
-                        <div class="input-group">
-                            <label for="song-album-art">Nama File Album Art (ex: album_art.jpg):</label>
-                            <input type="text" id="song-album-art" placeholder="misalnya: album_art.jpg">
-                            <img id="add-album-art-preview" class="album-art-preview" src="album_art_default.jpg" alt="Album Art Preview">
-                        </div>
-                        <div class="input-group">
-                            <label for="song-info">Info Lagu (Gunakan &lt;br&gt; untuk baris baru):</label>
-                            <textarea id="song-info"></textarea>
-                        </div>
-                        <button id="add-song-btn" class="admin-btn">Tambah Lagu</button>
-                        <p id="add-song-message" style="color: green; margin-top: 10px;"></p>
+                        <p id="global-message-status" style="color: green; margin-top: 10px;"></p>
+                        <p style="font-size: 0.8em; color: var(--secondary-text); margin-top: 10px;">
+                            **Cara Menyebarkan Pesan Global:**<br>
+                            1. Salin pesan di atas dengan tombol "Salin Pesan untuk GitHub".<br>
+                            2. Buka file `index.html` di editor kode/GitHub Anda.<br>
+                            3. Cari `div` dengan ID `global-message-text` (sekitar baris 40-an).<br>
+                            4. Tempel (paste) pesan yang Anda salin di dalamnya.<br>
+                            5. Pastikan `div` dengan ID `global-message-display` di `index.html` memiliki `style="display: block;"` jika Anda ingin pesan langsung terlihat.<br>
+                            6. Simpan perubahan dan push ke GitHub Pages.
+                        </p>
                     </div>
                 </div>
 
@@ -717,9 +756,17 @@
                     <h3>Import / Export Playlist</h3>
                     <div class="admin-section-content">
                         <div class="import-export-buttons">
-                            <label for="import-playlist-file" class="import-export-label"><i class="fas fa-file-import"></i> Import Playlist</label>
+                            <label for="import-playlist-file" class="import-export-label"><i class="fas fa-file-import"></i> Import dari File</label>
                             <input type="file" id="import-playlist-file" accept=".json">
-                            <button id="export-playlist-btn" class="admin-btn"><i class="fas fa-file-export"></i> Export Playlist</button>
+                            <button id="export-playlist-btn" class="admin-btn"><i class="fas fa-file-export"></i> Export ke File</button>
+                        </div>
+                        <div class="import-url-section">
+                            <p style="font-size: 0.9em; color: var(--secondary-text); margin-bottom: 10px;">Atau impor playlist dari URL Gist/Host Statis (mis: `https://gist.githubusercontent.com/.../playlist.json`)</p>
+                            <div class="input-group">
+                                <label for="import-playlist-url">URL Playlist:</label>
+                                <input type="text" id="import-playlist-url" placeholder="Masukkan URL playlist JSON">
+                            </div>
+                            <button id="import-from-url-btn" class="admin-btn"><i class="fas fa-link"></i> Import dari URL</button>
                         </div>
                         <p id="import-export-message" style="color: green; margin-top: 10px;"></p>
                     </div>
@@ -805,14 +852,12 @@
             const loginSection = document.getElementById('login-section');
             const adminPanel = document.getElementById('admin-panel');
 
-            const songTitleInput = document.getElementById('song-title');
-            const songArtistInput = document.getElementById('song-artist');
-            const songSrcInput = document.getElementById('song-src');
-            const songAlbumArtInput = document.getElementById('song-album-art');
-            const addAlbumArtPreview = document.getElementById('add-album-art-preview');
-            const songInfoInput = document.getElementById('song-info');
-            const addSongBtn = document.getElementById('add-song-btn');
-            const addSongMessage = document.getElementById('add-song-message');
+            // Global Message elements
+            const globalMessageTextInput = document.getElementById('global-message-text-input');
+            const applyGlobalMessageLocalBtn = document.getElementById('apply-global-message-local-btn');
+            const copyGlobalMessageBtn = document.getElementById('copy-global-message-btn');
+            const globalMessageStatus = document.getElementById('global-message-status');
+
             const manageSongList = document.getElementById('manage-song-list');
             const manageSongSearchInput = document.getElementById('manage-song-search');
 
@@ -833,9 +878,11 @@
 
             const importPlaylistFile = document.getElementById('import-playlist-file');
             const exportPlaylistBtn = document.getElementById('export-playlist-btn');
+            const importPlaylistUrlInput = document.getElementById('import-playlist-url');
+            const importFromUrlBtn = document.getElementById('import-from-url-btn');
             const importExportMessage = document.getElementById('import-export-message');
 
-            // New elements for Batch Edit
+            // Batch Edit elements
             const selectAllSongsCheckbox = document.getElementById('select-all-songs');
             const editSelectedBtn = document.getElementById('edit-selected-btn');
             const deleteSelectedBtn = document.getElementById('delete-selected-btn');
@@ -844,17 +891,16 @@
             const batchEditArtistInput = document.getElementById('batch-edit-artist');
             const batchEditInfoInput = document.getElementById('batch-edit-info');
             const saveBatchEditBtn = document.getElementById('save-batch-edit-btn');
-            let selectedSongIndexes = new Set(); // To store indexes of selected songs
+            let selectedSongIndexes = new Set();
 
-            // New elements for Default Song Settings
+            // Default Song Settings elements
             const defaultSongSelect = document.getElementById('default-song-select');
             const setDefaultSongBtn = document.getElementById('set-default-song-btn');
             const defaultSongMessage = document.getElementById('default-song-message');
 
-            // New element for Admin Activity Log
+            // Admin Activity Log elements
             const adminActivityLogDiv = document.getElementById('admin-activity-log');
             let adminLog = JSON.parse(localStorage.getItem('adminActivityLog')) || [];
-
 
             const toggleThemeBtn = document.getElementById('toggle-theme-btn');
             const backgroundVideo = document.getElementById('background-video');
@@ -869,8 +915,8 @@
                     year: 'numeric', month: 'numeric', day: 'numeric',
                     hour: '2-digit', minute: '2-digit', second: '2-digit'
                 });
-                adminLog.unshift(`[${timestamp}] ${message}`); // Add to the beginning
-                if (adminLog.length > 50) { // Keep only latest 50 entries
+                adminLog.unshift(`[${timestamp}] ${message}`);
+                if (adminLog.length > 50) {
                     adminLog = adminLog.slice(0, 50);
                 }
                 localStorage.setItem('adminActivityLog', JSON.stringify(adminLog));
@@ -885,10 +931,9 @@
                 }
             }
 
-
             function renderSongList(searchTerm = '') {
                 manageSongList.innerHTML = '';
-                selectedSongIndexes.clear(); // Clear selections on re-render
+                selectedSongIndexes.clear();
                 updateBatchEditButtons();
                 selectAllSongsCheckbox.checked = false;
 
@@ -910,9 +955,8 @@
                 }
 
                 filteredSongs.forEach((song, index) => {
-                    // Find original index in the main playlist array for manipulation
                     const originalIndex = playlist.indexOf(song);
-                    if (originalIndex === -1) return; // Should not happen if filteredSongs correctly derived
+                    if (originalIndex === -1) return;
 
                     const li = document.createElement('li');
                     li.innerHTML = `
@@ -932,13 +976,17 @@
                         </div>
                     `;
                     manageSongList.appendChild(li);
+
+                    if (selectedSongIndexes.has(originalIndex)) {
+                        li.querySelector('.song-select-checkbox').checked = true;
+                    }
                 });
             }
 
             function savePlaylist() {
                 try {
                     localStorage.setItem('musicPlaylist', JSON.stringify(playlist));
-                    window.dispatchEvent(new Event('storage')); // Notify main app
+                    window.dispatchEvent(new Event('storage'));
                     console.log("Playlist saved to localStorage.");
                 } catch (e) {
                     console.error("Error saving playlist to localStorage:", e);
@@ -961,6 +1009,7 @@
                     renderSongList();
                     renderDefaultSongSelect();
                     renderAdminLog();
+                    loadGlobalMessage(); // Load global message from local storage
                     addLogEntry("Login Admin Berhasil.");
                 } else {
                     loginMessage.textContent = 'Password salah!';
@@ -969,79 +1018,48 @@
                 adminPasswordInput.value = '';
             });
 
-            // --- Logika Tambah Lagu ---
-            addSongBtn.addEventListener('click', () => {
-                const title = songTitleInput.value.trim();
-                const artist = songArtistInput.value.trim();
-                const src = songSrcInput.value.trim();
-                const albumArt = songAlbumArtInput.value.trim();
-                const info = songInfoInput.value.trim();
-
-                if (!title || !artist || !src || !albumArt || !info) {
-                    addSongMessage.style.color = 'red';
-                    addSongMessage.textContent = 'Semua field harus diisi!';
-                    return;
-                }
-
-                const fileExtensionRegex = /\.(mp3|wav|ogg|m4a)$/i;
-                const imageExtensionRegex = /\.(jpg|jpeg|png|gif|webp)$/i;
-
-                if (!fileExtensionRegex.test(src)) {
-                    addSongMessage.style.color = 'red';
-                    addSongMessage.textContent = 'Nama file MP3 harus memiliki ekstensi audio yang valid (mis: .mp3)!';
-                    return;
-                }
-                if (!imageExtensionRegex.test(albumArt)) {
-                    addSongMessage.style.color = 'red';
-                    addSongMessage.textContent = 'Nama file Album Art harus memiliki ekstensi gambar yang valid (mis: .jpg)!';
-                    return;
-                }
-
-                const { srcExists, albumArtExists } = isSrcOrAlbumArtDuplicate(src, albumArt);
-                if (srcExists) {
-                    addSongMessage.style.color = 'red';
-                    addSongMessage.textContent = 'Nama file MP3 sudah ada di playlist!';
-                    return;
-                }
-                if (albumArtExists) {
-                    addSongMessage.style.color = 'red';
-                    addSongMessage.textContent = 'Nama file Album Art sudah ada di playlist!';
-                    return;
-                }
-
-                const newSong = { title, artist, src, albumArt, info };
-                playlist.push(newSong);
-                savePlaylist();
-                renderSongList(manageSongSearchInput.value);
-                renderDefaultSongSelect(); // Update default song select options
-                addSongMessage.style.color = 'green';
-                addSongMessage.textContent = 'Lagu berhasil ditambahkan dan tersedia untuk semua orang (pastikan file ada di GitHub Pages)!';
-                addLogEntry(`Menambah lagu: "${title}" oleh "${artist}"`);
-                songTitleInput.value = '';
-                songArtistInput.value = '';
-                songSrcInput.value = '';
-                songAlbumArtInput.value = '';
-                addAlbumArtPreview.src = 'album_art_default.jpg'; // Reset preview
-                songInfoInput.value = '';
-            });
-
-            // Preview Album Art for Add Song
-            songAlbumArtInput.addEventListener('input', () => {
-                const fileName = songAlbumArtInput.value.trim();
-                if (fileName) {
-                    addAlbumArtPreview.src = fileName;
+            // --- Logika Pengaturan Pesan Global ---
+            function loadGlobalMessage() {
+                const savedMessage = localStorage.getItem('globalMelodyVerseMessage');
+                if (savedMessage) {
+                    globalMessageTextInput.value = savedMessage;
                 } else {
-                    addAlbumArtPreview.src = 'album_art_default.jpg';
+                    globalMessageTextInput.value = "Selamat datang di MelodyVerse! Nikmati musiknya.";
                 }
+            }
+
+            applyGlobalMessageLocalBtn.addEventListener('click', () => {
+                const message = globalMessageTextInput.value.trim();
+                localStorage.setItem('globalMelodyVerseMessage', message);
+                globalMessageStatus.style.color = 'green';
+                globalMessageStatus.textContent = 'Pesan global tersimpan secara lokal di perangkat ini!';
+                addLogEntry(`Pesan global diperbarui secara lokal.`);
+                // Trigger an event to potentially update the message on the main page if visible
+                window.dispatchEvent(new Event('storage'));
             });
-            addAlbumArtPreview.addEventListener('error', () => {
-                addAlbumArtPreview.src = 'album_art_default.jpg'; // Fallback if image fails to load
+
+            copyGlobalMessageBtn.addEventListener('click', async () => {
+                const message = globalMessageTextInput.value.trim();
+                if (!message) {
+                    globalMessageStatus.style.color = 'red';
+                    globalMessageStatus.textContent = 'Pesan global tidak boleh kosong untuk disalin!';
+                    return;
+                }
+                try {
+                    await navigator.clipboard.writeText(message);
+                    globalMessageStatus.style.color = 'green';
+                    globalMessageStatus.textContent = 'Pesan berhasil disalin! Sekarang tempel di index.html Anda.';
+                    addLogEntry(`Pesan global disalin untuk GitHub.`);
+                } catch (err) {
+                    console.error('Gagal menyalin pesan: ', err);
+                    globalMessageStatus.style.color = 'red';
+                    globalMessageStatus.textContent = 'Gagal menyalin pesan. Silakan salin manual.';
+                }
             });
 
 
             // --- Logika Hapus Lagu & Pindah Posisi ---
             manageSongList.addEventListener('click', (event) => {
-                // Delete single song
                 const targetDeleteButton = event.target.closest('.delete-btn');
                 if (targetDeleteButton) {
                     const indexToDelete = parseInt(targetDeleteButton.dataset.index);
@@ -1055,7 +1073,6 @@
                     }
                 }
 
-                // Move Up
                 const moveUpButton = event.target.closest('.move-up-btn');
                 if (moveUpButton) {
                     const indexToMove = parseInt(moveUpButton.dataset.index);
@@ -1068,7 +1085,6 @@
                     }
                 }
 
-                // Move Down
                 const moveDownButton = event.target.closest('.move-down-btn');
                 if (moveDownButton) {
                     const indexToMove = parseInt(moveDownButton.dataset.index);
@@ -1081,7 +1097,6 @@
                     }
                 }
 
-                // Checkbox for batch selection
                 const checkbox = event.target.closest('.song-select-checkbox');
                 if (checkbox) {
                     const index = parseInt(checkbox.dataset.index);
@@ -1091,8 +1106,7 @@
                         selectedSongIndexes.delete(index);
                     }
                     updateBatchEditButtons();
-                    // Update 'Select All' checkbox state
-                    if (selectedSongIndexes.size === playlist.length && playlist.length > 0) {
+                    if (playlist.length > 0 && selectedSongIndexes.size === playlist.length) {
                         selectAllSongsCheckbox.checked = true;
                     } else {
                         selectAllSongsCheckbox.checked = false;
@@ -1100,7 +1114,6 @@
                 }
             });
 
-            // Handle 'Select All' checkbox
             selectAllSongsCheckbox.addEventListener('change', () => {
                 const checkboxes = manageSongList.querySelectorAll('.song-select-checkbox');
                 selectedSongIndexes.clear();
@@ -1119,7 +1132,6 @@
                 deleteSelectedBtn.disabled = !hasSelection;
             }
 
-            // Open Batch Edit Modal
             editSelectedBtn.addEventListener('click', () => {
                 if (selectedSongIndexes.size === 0) {
                     alert('Pilih setidaknya satu lagu untuk diedit.');
@@ -1130,12 +1142,10 @@
                 batchEditModal.classList.add('visible');
             });
 
-            // Close Batch Edit Modal
             batchEditModalCloseBtn.addEventListener('click', () => {
                 batchEditModal.classList.remove('visible');
             });
 
-            // Save Batch Edit Changes
             saveBatchEditBtn.addEventListener('click', () => {
                 const newArtist = batchEditArtistInput.value.trim();
                 const newInfo = batchEditInfoInput.value.trim();
@@ -1147,7 +1157,9 @@
 
                 if (confirm(`Anda yakin ingin menerapkan perubahan ini pada ${selectedSongIndexes.size} lagu terpilih?`)) {
                     let changesMade = false;
-                    selectedSongIndexes.forEach(index => {
+                    const sortedIndexes = Array.from(selectedSongIndexes).sort((a, b) => a - b);
+
+                    sortedIndexes.forEach(index => {
                         if (playlist[index]) {
                             if (newArtist) {
                                 playlist[index].artist = newArtist;
@@ -1163,9 +1175,10 @@
                     if (changesMade) {
                         savePlaylist();
                         renderSongList(manageSongSearchInput.value);
+                        renderDefaultSongSelect();
                         batchEditModal.classList.remove('visible');
                         alert('Perubahan massal berhasil diterapkan!');
-                        addLogEntry(`Mengedit ${selectedSongIndexes.size} lagu secara massal.`);
+                        addLogEntry(`Mengedit ${selectedSongIndexes.size} lagu secara massal (artis: ${newArtist || '[tidak diubah]'}, info: ${newInfo ? 'diubah' : '[tidak diubah]'})`);
                     } else {
                         alert('Tidak ada perubahan yang diterapkan.');
                     }
@@ -1174,7 +1187,6 @@
                 }
             });
 
-            // Delete Selected Songs (Batch Delete)
             deleteSelectedBtn.addEventListener('click', () => {
                 if (selectedSongIndexes.size === 0) {
                     alert('Pilih setidaknya satu lagu untuk dihapus.');
@@ -1182,19 +1194,19 @@
                 }
 
                 if (confirm(`Anda yakin ingin menghapus ${selectedSongIndexes.size} lagu terpilih secara permanen?`)) {
-                    // Convert Set to Array, sort in descending order to avoid index issues during deletion
+                    const deletedTitles = [];
                     const indexesToDelete = Array.from(selectedSongIndexes).sort((a, b) => b - a);
                     indexesToDelete.forEach(index => {
                         if (playlist[index]) {
-                            const songTitle = playlist[index].title;
+                            deletedTitles.push(playlist[index].title);
                             playlist.splice(index, 1);
-                            addLogEntry(`Menghapus lagu (batch): "${songTitle}"`);
                         }
                     });
                     savePlaylist();
                     renderSongList(manageSongSearchInput.value);
-                    renderDefaultSongSelect(); // Update default song select options
+                    renderDefaultSongSelect();
                     alert(`${indexesToDelete.length} lagu berhasil dihapus.`);
+                    addLogEntry(`Menghapus ${indexesToDelete.length} lagu secara massal: ${deletedTitles.join(', ')}`);
                     selectedSongIndexes.clear();
                     updateBatchEditButtons();
                 }
@@ -1218,7 +1230,7 @@
                     editSongArtistInput.value = song.artist;
                     editSongSrcInput.value = song.src;
                     editSongAlbumArtInput.value = song.albumArt;
-                    editAlbumArtPreview.src = song.albumArt; // Set preview image
+                    editAlbumArtPreview.src = song.albumArt;
                     editSongInfoInput.value = song.info;
 
                     editSongModal.classList.add('visible');
@@ -1229,9 +1241,13 @@
             editModalCloseBtn.addEventListener('click', () => {
                 editSongModal.classList.remove('visible');
             });
+            batchEditModalCloseBtn.addEventListener('click', () => {
+                batchEditModal.classList.remove('visible');
+            });
             window.addEventListener('click', (event) => {
-                if (event.target == editSongModal || event.target == batchEditModal) {
+                if (event.target == editSongModal) {
                     editSongModal.classList.remove('visible');
+                } else if (event.target == batchEditModal) {
                     batchEditModal.classList.remove('visible');
                 }
             });
@@ -1246,7 +1262,7 @@
                 }
             });
             editAlbumArtPreview.addEventListener('error', () => {
-                editAlbumArtPreview.src = 'album_art_default.jpg'; // Fallback if image fails to load
+                editAlbumArtPreview.src = 'album_art_default.jpg';
             });
 
 
@@ -1260,10 +1276,6 @@
                 }
 
                 const oldTitle = playlist[index].title;
-                const oldArtist = playlist[index].artist;
-                const oldAlbumArt = playlist[index].albumArt;
-                const oldInfo = playlist[index].info;
-
                 const newTitle = editSongTitleInput.value.trim();
                 const newArtist = editSongArtistInput.value.trim();
                 const newAlbumArt = editSongAlbumArtInput.value.trim();
@@ -1303,12 +1315,17 @@
             clearDataBtn.addEventListener('click', () => {
                 if (confirm('Ini akan menghapus SEMUA lagu dari playlist Anda secara permanen. Lanjutkan?')) {
                     localStorage.removeItem('musicPlaylist');
-                    localStorage.removeItem('defaultMelodyVerseSong'); // Also clear default song
+                    localStorage.removeItem('defaultMelodyVerseSong');
+                    localStorage.removeItem('adminActivityLog');
+                    localStorage.removeItem('globalMelodyVerseMessage'); // Clear global message
                     playlist = [];
+                    adminLog = [];
                     renderSongList();
                     renderDefaultSongSelect();
+                    renderAdminLog();
+                    loadGlobalMessage(); // Reset global message input
                     alert('Semua data lagu telah dihapus!');
-                    savePlaylist(); // Send storage event
+                    savePlaylist();
                     addLogEntry("Membersihkan semua data lagu.");
                 }
             });
@@ -1322,7 +1339,7 @@
                 }, 1000);
             });
 
-            // --- Import Playlist ---
+            // --- Import Playlist dari File ---
             importPlaylistFile.addEventListener('change', (event) => {
                 const file = event.target.files[0];
                 if (!file) {
@@ -1351,31 +1368,80 @@
                                 renderSongList(manageSongSearchInput.value);
                                 renderDefaultSongSelect();
                                 importExportMessage.style.color = 'green';
-                                importExportMessage.textContent = 'Playlist berhasil diimpor!';
-                                addLogEntry("Playlist berhasil diimpor.");
+                                importExportMessage.textContent = 'Playlist berhasil diimpor dari file!';
+                                addLogEntry("Playlist berhasil diimpor dari file.");
                             } else {
                                 importExportMessage.textContent = '';
-                                addLogEntry("Impor playlist dibatalkan oleh admin.");
+                                addLogEntry("Impor playlist dari file dibatalkan oleh admin.");
                             }
                         } else {
                             importExportMessage.style.color = 'red';
                             importExportMessage.textContent = 'Format file JSON tidak valid (bukan playlist).';
-                            addLogEntry("Gagal impor playlist: Format JSON tidak sesuai struktur playlist.");
+                            addLogEntry("Gagal impor playlist dari file: Format JSON tidak sesuai struktur playlist.");
                         }
                     } catch (error) {
                         importExportMessage.style.color = 'red';
                         importExportMessage.textContent = 'Gagal memparsing file JSON: ' + error.message;
-                        addLogEntry(`Gagal impor playlist: Parsing JSON error - ${error.message}`);
+                        addLogEntry(`Gagal impor playlist dari file: Parsing JSON error - ${error.message}`);
                     }
                 };
                 reader.onerror = () => {
                     importExportMessage.style.color = 'red';
                     importExportMessage.textContent = 'Gagal membaca file.';
-                    addLogEntry("Gagal impor playlist: Kesalahan membaca file.");
+                    addLogEntry("Gagal impor playlist dari file: Kesalahan membaca file.");
                 };
                 reader.readAsText(file);
                 event.target.value = '';
             });
+
+            // --- Import Playlist dari URL ---
+            importFromUrlBtn.addEventListener('click', async () => {
+                const url = importPlaylistUrlInput.value.trim();
+                if (!url) {
+                    importExportMessage.style.color = 'red';
+                    importExportMessage.textContent = 'Mohon masukkan URL playlist.';
+                    addLogEntry("Gagal impor playlist dari URL: URL kosong.");
+                    return;
+                }
+
+                importExportMessage.style.color = 'orange';
+                importExportMessage.textContent = 'Mengunduh playlist dari URL...';
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const importedData = await response.json();
+
+                    if (Array.isArray(importedData) && importedData.every(song =>
+                        song.title && song.artist && song.src && song.albumArt && song.info !== undefined
+                    )) {
+                        if (confirm('Ini akan mengganti playlist yang ada dengan data dari URL. Lanjutkan?')) {
+                            playlist = importedData;
+                            savePlaylist();
+                            renderSongList(manageSongSearchInput.value);
+                            renderDefaultSongSelect();
+                            importExportMessage.style.color = 'green';
+                            importExportMessage.textContent = 'Playlist berhasil diimpor dari URL!';
+                            addLogEntry(`Playlist berhasil diimpor dari URL: ${url}`);
+                        } else {
+                            importExportMessage.textContent = '';
+                            addLogEntry("Impor playlist dari URL dibatalkan oleh admin.");
+                        }
+                    } else {
+                        importExportMessage.style.color = 'red';
+                        importExportMessage.textContent = 'Data dari URL bukan format playlist yang valid.';
+                        addLogEntry(`Gagal impor playlist dari URL: Format data tidak valid - ${url}`);
+                    }
+                } catch (error) {
+                    importExportMessage.style.color = 'red';
+                    importExportMessage.textContent = `Gagal mengimpor dari URL: ${error.message}. Pastikan URL benar dan publik.`;
+                    addLogEntry(`Gagal impor playlist dari URL: ${error.message} - ${url}`);
+                }
+                importPlaylistUrlInput.value = '';
+            });
+
 
             // --- Export Playlist ---
             exportPlaylistBtn.addEventListener('click', () => {
@@ -1416,10 +1482,9 @@
                     if (foundIndex !== -1) {
                         defaultSongSelect.value = foundIndex;
                     } else {
-                        // If current default song is no longer in playlist, reset selection
                         defaultSongSelect.value = "";
                         defaultSongMessage.style.color = 'orange';
-                        defaultSongMessage.textContent = 'Lagu default sebelumnya tidak ditemukan di playlist.';
+                        defaultSongMessage.textContent = 'Lagu default sebelumnya tidak ditemukan di playlist. Silakan pilih lagi.';
                     }
                 } else {
                     defaultSongSelect.value = "";
@@ -1440,7 +1505,7 @@
                     defaultSongMessage.textContent = `Lagu default diatur ke: "${selectedSong.title}"`;
                     addLogEntry(`Lagu default diatur ke: "${selectedSong.title}"`);
                 }
-                window.dispatchEvent(new Event('storage')); // Notify main app
+                window.dispatchEvent(new Event('storage'));
             });
 
 
