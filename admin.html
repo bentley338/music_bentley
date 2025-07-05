@@ -9,6 +9,13 @@
     <link rel="icon" href="app_icon.png" type="image/png">
     <style>
         /* Gaya spesifik untuk halaman admin */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            min-height: 100vh;
+        }
+
         .admin-container {
             padding: 40px;
             text-align: center;
@@ -18,19 +25,21 @@
             border: 1px solid var(--player-border);
             border-radius: var(--border-radius-main);
             box-shadow: 0 15px 50px var(--shadow-deep);
-            max-width: 700px;
+            max-width: 800px; /* Wider for more content */
             width: 90%;
             margin: auto;
-            margin-top: 100px;
+            margin-top: 100px; /* Space from header */
+            margin-bottom: 20px;
             transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
         }
 
         .admin-container h2 {
             font-family: 'Montserrat', sans-serif;
             color: var(--primary-text);
-            font-size: 2em;
-            margin-bottom: 25px;
+            font-size: 2.5em; /* Larger title */
+            margin-bottom: 30px;
             transition: color 0.5s ease;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
         }
 
         #login-section, #admin-panel {
@@ -40,6 +49,7 @@
             background: rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.05);
             transition: background 0.5s ease, border-color 0.5s ease;
+            text-align: left; /* Align text left within panels */
         }
         body.light-mode #login-section,
         body.light-mode #admin-panel {
@@ -49,7 +59,6 @@
 
         .input-group {
             margin-bottom: 15px;
-            text-align: left;
         }
 
         .input-group label {
@@ -62,7 +71,8 @@
 
         .input-group input[type="text"],
         .input-group input[type="password"],
-        .input-group textarea {
+        .input-group textarea,
+        .admin-section-content input[type="text"] { /* For other inputs in admin panel */
             width: calc(100% - 20px);
             padding: 10px;
             background: var(--input-bg);
@@ -74,23 +84,25 @@
             transition: all 0.3s ease;
         }
         body.light-mode .input-group input,
-        body.light-mode .input-group textarea {
+        body.light-mode .input-group textarea,
+        body.light-mode .admin-section-content input {
             background: rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(0, 0, 0, 0.15);
             color: var(--input-text);
         }
 
         .input-group input:focus,
-        .input-group textarea:focus {
+        .input-group textarea:focus,
+        .admin-section-content input:focus {
             border-color: var(--accent-purple);
             box-shadow: 0 0 8px rgba(138, 43, 226, 0.5);
         }
         body.light-mode .input-group input:focus,
-        body.light-mode .input-group textarea:focus {
+        body.light-mode .input-group textarea:focus,
+        body.light-mode .admin-section-content input:focus {
             border-color: var(--accent-red);
             box-shadow: 0 0 8px rgba(255, 69, 0, 0.5);
         }
-
 
         textarea {
             resize: vertical;
@@ -117,9 +129,45 @@
         }
 
         #admin-panel {
-            display: none; /* Sembunyikan panel admin secara default */
-            text-align: left;
+            display: none;
+            padding: 30px; /* More padding for a cleaner look */
         }
+
+        .admin-section {
+            margin-bottom: 40px; /* Space between sections */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Separator */
+            padding-bottom: 20px;
+        }
+        .admin-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        body.light-mode .admin-section {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+
+        .admin-section h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8em;
+            color: var(--primary-text);
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center; /* Center section titles */
+        }
+
+        .admin-section-content {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius-sm);
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        body.light-mode .admin-section-content {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
 
         .song-list {
             list-style: none;
@@ -129,6 +177,7 @@
 
         .song-list li {
             display: flex;
+            flex-wrap: wrap; /* Allow wrapping on mobile */
             justify-content: space-between;
             align-items: center;
             background: rgba(255, 255, 255, 0.05);
@@ -146,6 +195,7 @@
 
         .song-list li .song-info {
             flex-grow: 1;
+            margin-right: 10px; /* Space from actions */
         }
         .song-list li .song-info h3 {
             margin: 0;
@@ -157,11 +207,28 @@
             font-size: 0.9em;
             color: var(--secondary-text);
         }
+        .song-list li .song-info small {
+            display: block;
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 5px;
+            word-break: break-all; /* Break long filenames */
+        }
+        body.light-mode .song-list li .song-info small {
+            color: rgba(0, 0, 0, 0.4);
+        }
 
         .song-list li .actions {
             display: flex;
             gap: 10px;
+            margin-top: 10px; /* Push actions to new line on wrap */
         }
+        @media (min-width: 481px) { /* Prevent wrapping on larger screens */
+            .song-list li .actions {
+                margin-top: 0;
+            }
+        }
+
 
         .song-list li .actions .action-btn {
             background: var(--button-bg);
@@ -189,36 +256,41 @@
         }
 
         .action-btn.delete {
-            background-color: #dc3545; /* Merah untuk delete */
+            background-color: #dc3545;
             border-color: #dc3545;
+            color: white;
         }
         .action-btn.delete:hover {
             background-color: #c82333;
             border-color: #bd2130;
         }
         .action-btn.edit {
-            background-color: #007bff; /* Biru untuk edit */
+            background-color: #007bff;
             border-color: #007bff;
+            color: white;
         }
         .action-btn.edit:hover {
             background-color: #0056b3;
             border-color: #004085;
         }
 
-        /* Modal styling */
+        /* Modal styling (same as index.html for consistency) */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 101; /* Sit on top */
+            display: none;
+            position: fixed;
+            z-index: 101;
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
             justify-content: center;
             align-items: center;
+            animation: fadeInModal 0.3s ease-out forwards;
         }
+        .modal.visible { display: flex; }
+        @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
 
         .modal-content {
             background: var(--player-bg-dark);
@@ -232,7 +304,9 @@
             max-width: 500px;
             text-align: left;
             position: relative;
+            animation: slideInModal 0.4s ease-out forwards;
         }
+        @keyframes slideInModal { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         .modal-content h3 {
             font-family: 'Montserrat', sans-serif;
@@ -269,22 +343,100 @@
 
         .back-home-btn {
             display: inline-block;
-            margin-top: 30px;
-            padding: 12px 25px;
+            margin-top: 40px;
+            padding: 15px 30px;
             background: var(--accent-purple);
             color: white;
             text-decoration: none;
             border-radius: var(--border-radius-sm);
-            font-weight: 600;
+            font-weight: 700;
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
         .back-home-btn:hover {
             background-color: var(--accent-red);
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+        }
+
+        #reload-message {
+            color: green;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        /* Responsive Admin Panel */
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 30px;
+            }
+            .admin-container h2 {
+                font-size: 2em;
+            }
+            .admin-section h3 {
+                font-size: 1.5em;
+            }
+            .song-list li {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .song-list li .song-info {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            .song-list li .actions {
+                width: 100%;
+                justify-content: flex-end;
+                margin-top: 0;
+            }
+            .back-home-btn {
+                padding: 12px 25px;
+                font-size: 0.9em;
+            }
+        }
+        @media (max-width: 480px) {
+            .admin-container {
+                padding: 20px;
+            }
+            .admin-container h2 {
+                font-size: 1.8em;
+            }
+            .admin-section h3 {
+                font-size: 1.3em;
+            }
+            .input-group label {
+                font-size: 0.9em;
+            }
+            .input-group input,
+            .input-group textarea,
+            .admin-section-content input {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+            .admin-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+            .song-list li .song-info h3 {
+                font-size: 1em;
+            }
+            .song-list li .song-info p, .song-list li .song-info small {
+                font-size: 0.8em;
+            }
+            .song-list li .actions .action-btn {
+                padding: 6px 10px;
+                font-size: 0.8em;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+            .modal-content h3 {
+                font-size: 1.3em;
+            }
         }
     </style>
 </head>
@@ -314,44 +466,64 @@
         <div class="admin-container">
             <h2>Panel Admin</h2>
 
-            <div id="login-section">
+            <div id="login-section" class="admin-section">
                 <h3>Login Admin</h3>
-                <div class="input-group">
-                    <label for="admin-password">Password:</label>
-                    <input type="password" id="admin-password" placeholder="Masukkan password admin">
+                <div class="admin-section-content">
+                    <div class="input-group">
+                        <label for="admin-password">Password:</label>
+                        <input type="password" id="admin-password" placeholder="Masukkan password admin">
+                    </div>
+                    <button id="login-btn" class="admin-btn">Login</button>
+                    <p id="login-message" style="color: red; margin-top: 10px;"></p>
                 </div>
-                <button id="login-btn" class="admin-btn">Login</button>
-                <p id="login-message" style="color: red; margin-top: 10px;"></p>
             </div>
 
             <div id="admin-panel">
-                <h3>Tambah Lagu Baru</h3>
-                <div class="input-group">
-                    <label for="song-title">Judul Lagu:</label>
-                    <input type="text" id="song-title">
+                <div class="admin-section">
+                    <h3>Tambah Lagu Baru</h3>
+                    <div class="admin-section-content">
+                        <div class="input-group">
+                            <label for="song-title">Judul Lagu:</label>
+                            <input type="text" id="song-title">
+                        </div>
+                        <div class="input-group">
+                            <label for="song-artist">Artis:</label>
+                            <input type="text" id="song-artist">
+                        </div>
+                        <div class="input-group">
+                            <label for="song-src">Nama File MP3 (ex: my_song.mp3):</label>
+                            <input type="text" id="song-src">
+                        </div>
+                        <div class="input-group">
+                            <label for="song-album-art">Nama File Album Art (ex: album_art.jpg):</label>
+                            <input type="text" id="song-album-art">
+                        </div>
+                        <div class="input-group">
+                            <label for="song-lyrics">Lirik (Gunakan &lt;br&gt; untuk baris baru):</label>
+                            <textarea id="song-lyrics"></textarea>
+                        </div>
+                        <button id="add-song-btn" class="admin-btn">Tambah Lagu</button>
+                        <p id="add-song-message" style="color: green; margin-top: 10px;"></p>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label for="song-artist">Artis:</label>
-                    <input type="text" id="song-artist">
-                </div>
-                <div class="input-group">
-                    <label for="song-src">Nama File MP3 (ex: my_song.mp3):</label>
-                    <input type="text" id="song-src">
-                </div>
-                <div class="input-group">
-                    <label for="song-album-art">Nama File Album Art (ex: album_art.jpg):</label>
-                    <input type="text" id="song-album-art">
-                </div>
-                <div class="input-group">
-                    <label for="song-lyrics">Lirik (Gunakan &lt;br&gt; untuk baris baru):</label>
-                    <textarea id="song-lyrics"></textarea>
-                </div>
-                <button id="add-song-btn" class="admin-btn">Tambah Lagu</button>
-                <p id="add-song-message" style="color: green; margin-top: 10px;"></p>
 
-                <h3 style="margin-top: 40px;">Kelola Lagu</h3>
-                <ul id="manage-song-list" class="song-list">
-                    </ul>
+                <div class="admin-section">
+                    <h3>Kelola Lagu</h3>
+                    <div class="admin-section-content">
+                        <ul id="manage-song-list" class="song-list">
+                            </ul>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <h3>Opsi Lain</h3>
+                    <div class="admin-section-content">
+                        <button id="clear-data-btn" class="admin-btn" style="background-color: #ffc107; color: black;"><i class="fas fa-eraser"></i> Bersihkan Semua Data Lagu</button>
+                        <p style="font-size: 0.9em; color: var(--secondary-text); margin-top: 10px;">(Ini akan menghapus semua lagu yang tersimpan di browser Anda)</p>
+                        <button id="reload-app-btn" class="admin-btn" style="background-color: #17a2b8;"><i class="fas fa-sync-alt"></i> Muat Ulang Aplikasi (Client Side)</button>
+                        <p id="reload-message"></p>
+                    </div>
+                </div>
             </div>
 
             <a href="index.html" class="back-home-btn">Kembali ke Pemutar Musik</a>
@@ -359,7 +531,7 @@
     </div>
 
     <div id="editSongModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content glass-effect">
             <span class="close-button">&times;</span>
             <h3>Edit Lagu</h3>
             <input type="hidden" id="edit-song-index">
@@ -373,7 +545,8 @@
             </div>
             <div class="input-group">
                 <label for="edit-song-src">Nama File MP3:</label>
-                <input type="text" id="edit-song-src" disabled> </div>
+                <input type="text" id="edit-song-src" disabled>
+            </div>
             <div class="input-group">
                 <label for="edit-song-album-art">Nama File Album Art:</label>
                 <input type="text" id="edit-song-album-art">
@@ -413,6 +586,10 @@
             const editSongLyricsInput = document.getElementById('edit-song-lyrics');
             const saveEditBtn = document.getElementById('save-edit-btn');
 
+            const clearDataBtn = document.getElementById('clear-data-btn');
+            const reloadAppBtn = document.getElementById('reload-app-btn');
+            const reloadMessage = document.getElementById('reload-message');
+
             const toggleThemeBtn = document.getElementById('toggle-theme-btn');
             const backgroundVideo = document.getElementById('background-video');
 
@@ -423,6 +600,18 @@
 
             function renderSongList() {
                 manageSongList.innerHTML = '';
+                if (playlist.length === 0) {
+                    const noSongsLi = document.createElement('li');
+                    noSongsLi.style.justifyContent = 'center';
+                    noSongsLi.style.backgroundColor = 'transparent';
+                    noSongsLi.style.borderLeft = 'none';
+                    noSongsLi.style.padding = '10px 0';
+                    noSongsLi.style.color = 'var(--secondary-text)';
+                    noSongsLi.textContent = "Tidak ada lagu dalam playlist.";
+                    manageSongList.appendChild(noSongsLi);
+                    return;
+                }
+
                 playlist.forEach((song, index) => {
                     const li = document.createElement('li');
                     li.innerHTML = `
@@ -442,9 +631,10 @@
 
             function savePlaylist() {
                 localStorage.setItem('musicPlaylist', JSON.stringify(playlist));
-                // Optional: Notify main page to refresh playlist if it's open
-                // In a real app, you'd use a shared worker or broadcast channel for this.
-                // For simplicity, we'll assume the user will navigate back to index.html to see changes.
+                // Optional: You might want to send a message to the main page here
+                // using BroadcastChannel API or similar if the main page is open
+                // and needs live updates without a full refresh.
+                // For this example, we rely on the main page reloading from localStorage on next visit.
             }
 
             // Login Logic
@@ -490,9 +680,9 @@
 
             // Delete Song Logic
             manageSongList.addEventListener('click', (event) => {
-                if (event.target.classList.contains('delete-btn') || event.target.closest('.delete-btn')) {
-                    const button = event.target.closest('.delete-btn');
-                    const indexToDelete = parseInt(button.dataset.index);
+                const targetButton = event.target.closest('.delete-btn');
+                if (targetButton) {
+                    const indexToDelete = parseInt(targetButton.dataset.index);
                     if (confirm(`Anda yakin ingin menghapus lagu "${playlist[indexToDelete].title}"?`)) {
                         playlist.splice(indexToDelete, 1);
                         savePlaylist();
@@ -503,29 +693,29 @@
 
             // Edit Song Logic (Open Modal)
             manageSongList.addEventListener('click', (event) => {
-                if (event.target.classList.contains('edit-btn') || event.target.closest('.edit-btn')) {
-                    const button = event.target.closest('.edit-btn');
-                    const indexToEdit = parseInt(button.dataset.index);
+                const targetButton = event.target.closest('.edit-btn');
+                if (targetButton) {
+                    const indexToEdit = parseInt(targetButton.dataset.index);
                     const song = playlist[indexToEdit];
 
                     editSongIndexInput.value = indexToEdit;
                     editSongTitleInput.value = song.title;
                     editSongArtistInput.value = song.artist;
-                    editSongSrcInput.value = song.src; // SRC is disabled but shown
+                    editSongSrcInput.value = song.src;
                     editSongAlbumArtInput.value = song.albumArt;
                     editSongLyricsInput.value = song.lyrics;
 
-                    editSongModal.style.display = 'flex'; // Show modal
+                    editSongModal.classList.add('visible'); // Use class for visibility
                 }
             });
 
             // Close Modal
             closeButton.addEventListener('click', () => {
-                editSongModal.style.display = 'none';
+                editSongModal.classList.remove('visible');
             });
             window.addEventListener('click', (event) => {
                 if (event.target == editSongModal) {
-                    editSongModal.style.display = 'none';
+                    editSongModal.classList.remove('visible');
                 }
             });
 
@@ -539,14 +729,31 @@
 
                 playlist[index].title = editSongTitleInput.value.trim();
                 playlist[index].artist = editSongArtistInput.value.trim();
-                // playlist[index].src is not editable
                 playlist[index].albumArt = editSongAlbumArtInput.value.trim();
                 playlist[index].lyrics = editSongLyricsInput.value.trim();
 
                 savePlaylist();
                 renderSongList();
-                editSongModal.style.display = 'none';
+                editSongModal.classList.remove('visible');
                 alert('Lagu berhasil diperbarui!');
+            });
+
+            // Clear All Data
+            clearDataBtn.addEventListener('click', () => {
+                if (confirm('Ini akan menghapus SEMUA lagu dari playlist Anda secara permanen. Lanjutkan?')) {
+                    localStorage.removeItem('musicPlaylist');
+                    playlist = [];
+                    renderSongList();
+                    alert('Semua data lagu telah dihapus!');
+                }
+            });
+
+            // Reload Client-Side App
+            reloadAppBtn.addEventListener('click', () => {
+                reloadMessage.textContent = 'Memuat ulang aplikasi...';
+                setTimeout(() => {
+                    window.location.href = 'index.html'; // Redirect to main page, forcing a full reload
+                }, 1000);
             });
 
             // Theme Toggling for Admin page
