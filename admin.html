@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - MelodyVerse</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="app_icon.png" type="image/png">
+    <style>
+        /* Gaya spesifik untuk halaman admin */
+        .admin-container {
+            padding: 40px;
+            text-align: center;
+            background: var(--player-bg-dark);
+            backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
+            -webkit-backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
+            border: 1px solid var(--player-border);
+            border-radius: var(--border-radius-main);
+            box-shadow: 0 15px 50px var(--shadow-deep);
+            max-width: 700px;
+            width: 90%;
+            margin: auto;
+            margin-top: 100px;
+            transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .admin-container h2 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--primary-text);
+            font-size: 2em;
+            margin-bottom: 25px;
+            transition: color 0.5s ease;
+        }
+
+        #login-section, #admin-panel {
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: var(--border-radius-sm);
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.5s ease, border-color 0.5s ease;
+        }
+        body.light-mode #login-section,
+        body.light-mode #admin-panel {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--secondary-text);
+            font-size: 0.95em;
+            transition: color 0.5s ease;
+        }
+
+        .input-group input[type="text"],
+        .input-group input[type="password"],
+        .input-group textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--border-radius-sm);
+            color: var(--input-text);
+            font-size: 1em;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        body.light-mode .input-group input,
+        body.light-mode .input-group textarea {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            color: var(--input-text);
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 8px rgba(138, 43, 226, 0.5);
+        }
+        body.light-mode .input-group input:focus,
+        body.light-mode .input-group textarea:focus {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 8px rgba(255, 69, 0, 0.5);
+        }
+
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .admin-btn {
+            background: var(--accent-purple);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .admin-btn:hover {
+            background-color: var(--accent-red);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        #admin-panel {
+            display: none; /* Sembunyikan panel admin secara default */
+            text-align: left;
+        }
+
+        .song-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .song-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: var(--border-radius-sm);
+            border-left: 5px solid var(--accent-purple);
+            transition: background 0.3s ease, border-left-color 0.3s ease;
+        }
+        body.light-mode .song-list li {
+            background: rgba(0, 0, 0, 0.03);
+            border-left-color: var(--accent-red);
+        }
+
+
+        .song-list li .song-info {
+            flex-grow: 1;
+        }
+        .song-list li .song-info h3 {
+            margin: 0;
+            font-size: 1.1em;
+            color: var(--primary-text);
+        }
+        .song-list li .song-info p {
+            margin: 3px 0 0;
+            font-size: 0.9em;
+            color: var(--secondary-text);
+        }
+
+        .song-list li .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .song-list li .actions .action-btn {
+            background: var(--button-bg);
+            border: 1px solid var(--button-border);
+            color: var(--primary-text);
+            padding: 8px 12px;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        body.light-mode .song-list li .actions .action-btn {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: var(--button-border);
+            color: var(--primary-text);
+        }
+
+
+        .song-list li .actions .action-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-red);
+        }
+        body.light-mode .song-list li .actions .action-btn:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-color: var(--accent-purple);
+        }
+
+        .action-btn.delete {
+            background-color: #dc3545; /* Merah untuk delete */
+            border-color: #dc3545;
+        }
+        .action-btn.delete:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+        .action-btn.edit {
+            background-color: #007bff; /* Biru untuk edit */
+            border-color: #007bff;
+        }
+        .action-btn.edit:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 101; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--player-bg-dark);
+            backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
+            -webkit-backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
+            border: 1px solid var(--player-border);
+            border-radius: var(--border-radius-main);
+            box-shadow: 0 15px 50px var(--shadow-deep);
+            padding: 30px;
+            width: 80%;
+            max-width: 500px;
+            text-align: left;
+            position: relative;
+        }
+
+        .modal-content h3 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--primary-text);
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .close-button {
+            color: var(--secondary-text);
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--accent-red);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal .input-group {
+            margin-bottom: 15px;
+        }
+        .modal .admin-btn {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .back-home-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background: var(--accent-purple);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-home-btn:hover {
+            background-color: var(--accent-red);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="video-background">
+        <video id="background-video" autoplay loop muted playsinline>
+            <source src="abstract_wave_bg.mp4" type="video/mp4">
+            Browser Anda tidak mendukung video HTML5.
+        </video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <header>
+        <div class="app-branding">
+            <h1 id="app-title-new" class="app-title-new">
+                <i class="fas fa-music"></i> MelodyVerse
+            </h1>
+        </div>
+        <div class="header-right-controls">
+            <button id="toggle-theme-btn" class="btn btn-icon" aria-label="Toggle Theme">
+                <i class="fas fa-sun"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="admin-container">
+            <h2>Panel Admin</h2>
+
+            <div id="login-section">
+                <h3>Login Admin</h3>
+                <div class="input-group">
+                    <label for="admin-password">Password:</label>
+                    <input type="password" id="admin-password" placeholder="Masukkan password admin">
+                </div>
+                <button id="login-btn" class="admin-btn">Login</button>
+                <p id="login-message" style="color: red; margin-top: 10px;"></p>
+            </div>
+
+            <div id="admin-panel">
+                <h3>Tambah Lagu Baru</h3>
+                <div class="input-group">
+                    <label for="song-title">Judul Lagu:</label>
+                    <input type="text" id="song-title">
+                </div>
+                <div class="input-group">
+                    <label for="song-artist">Artis:</label>
+                    <input type="text" id="song-artist">
+                </div>
+                <div class="input-group">
+                    <label for="song-src">Nama File MP3 (ex: my_song.mp3):</label>
+                    <input type="text" id="song-src">
+                </div>
+                <div class="input-group">
+                    <label for="song-album-art">Nama File Album Art (ex: album_art.jpg):</label>
+                    <input type="text" id="song-album-art">
+                </div>
+                <div class="input-group">
+                    <label for="song-lyrics">Lirik (Gunakan &lt;br&gt; untuk baris baru):</label>
+                    <textarea id="song-lyrics"></textarea>
+                </div>
+                <button id="add-song-btn" class="admin-btn">Tambah Lagu</button>
+                <p id="add-song-message" style="color: green; margin-top: 10px;"></p>
+
+                <h3 style="margin-top: 40px;">Kelola Lagu</h3>
+                <ul id="manage-song-list" class="song-list">
+                    </ul>
+            </div>
+
+            <a href="index.html" class="back-home-btn">Kembali ke Pemutar Musik</a>
+        </div>
+    </div>
+
+    <div id="editSongModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3>Edit Lagu</h3>
+            <input type="hidden" id="edit-song-index">
+            <div class="input-group">
+                <label for="edit-song-title">Judul Lagu:</label>
+                <input type="text" id="edit-song-title">
+            </div>
+            <div class="input-group">
+                <label for="edit-song-artist">Artis:</label>
+                <input type="text" id="edit-song-artist">
+            </div>
+            <div class="input-group">
+                <label for="edit-song-src">Nama File MP3:</label>
+                <input type="text" id="edit-song-src" disabled> </div>
+            <div class="input-group">
+                <label for="edit-song-album-art">Nama File Album Art:</label>
+                <input type="text" id="edit-song-album-art">
+            </div>
+            <div class="input-group">
+                <label for="edit-song-lyrics">Lirik (Gunakan &lt;br&gt; untuk baris baru):</label>
+                <textarea id="edit-song-lyrics"></textarea>
+            </div>
+            <button id="save-edit-btn" class="admin-btn">Simpan Perubahan</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const adminPasswordInput = document.getElementById('admin-password');
+            const loginBtn = document.getElementById('login-btn');
+            const loginMessage = document.getElementById('login-message');
+            const loginSection = document.getElementById('login-section');
+            const adminPanel = document.getElementById('admin-panel');
+
+            const songTitleInput = document.getElementById('song-title');
+            const songArtistInput = document.getElementById('song-artist');
+            const songSrcInput = document.getElementById('song-src');
+            const songAlbumArtInput = document.getElementById('song-album-art');
+            const songLyricsInput = document.getElementById('song-lyrics');
+            const addSongBtn = document.getElementById('add-song-btn');
+            const addSongMessage = document.getElementById('add-song-message');
+            const manageSongList = document.getElementById('manage-song-list');
+
+            const editSongModal = document.getElementById('editSongModal');
+            const closeButton = editSongModal.querySelector('.close-button');
+            const editSongIndexInput = document.getElementById('edit-song-index');
+            const editSongTitleInput = document.getElementById('edit-song-title');
+            const editSongArtistInput = document.getElementById('edit-song-artist');
+            const editSongSrcInput = document.getElementById('edit-song-src');
+            const editSongAlbumArtInput = document.getElementById('edit-song-album-art');
+            const editSongLyricsInput = document.getElementById('edit-song-lyrics');
+            const saveEditBtn = document.getElementById('save-edit-btn');
+
+            const toggleThemeBtn = document.getElementById('toggle-theme-btn');
+            const backgroundVideo = document.getElementById('background-video');
+
+            // Admin password (client-side, not secure for production)
+            const ADMIN_PASSWORD = "157299pro";
+
+            let playlist = JSON.parse(localStorage.getItem('musicPlaylist')) || [];
+
+            function renderSongList() {
+                manageSongList.innerHTML = '';
+                playlist.forEach((song, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div class="song-info">
+                            <h3>${song.title}</h3>
+                            <p>${song.artist}</p>
+                            <small>${song.src}</small>
+                        </div>
+                        <div class="actions">
+                            <button class="action-btn edit-btn" data-index="${index}"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="action-btn delete-btn" data-index="${index}"><i class="fas fa-trash-alt"></i> Hapus</button>
+                        </div>
+                    `;
+                    manageSongList.appendChild(li);
+                });
+            }
+
+            function savePlaylist() {
+                localStorage.setItem('musicPlaylist', JSON.stringify(playlist));
+                // Optional: Notify main page to refresh playlist if it's open
+                // In a real app, you'd use a shared worker or broadcast channel for this.
+                // For simplicity, we'll assume the user will navigate back to index.html to see changes.
+            }
+
+            // Login Logic
+            loginBtn.addEventListener('click', () => {
+                if (adminPasswordInput.value === ADMIN_PASSWORD) {
+                    loginSection.style.display = 'none';
+                    adminPanel.style.display = 'block';
+                    loginMessage.textContent = '';
+                    renderSongList(); // Render songs after successful login
+                } else {
+                    loginMessage.textContent = 'Password salah!';
+                }
+                adminPasswordInput.value = ''; // Clear password field
+            });
+
+            // Add Song Logic
+            addSongBtn.addEventListener('click', () => {
+                const title = songTitleInput.value.trim();
+                const artist = songArtistInput.value.trim();
+                const src = songSrcInput.value.trim();
+                const albumArt = songAlbumArtInput.value.trim();
+                const lyrics = songLyricsInput.value.trim();
+
+                if (!title || !artist || !src || !albumArt || !lyrics) {
+                    addSongMessage.style.color = 'red';
+                    addSongMessage.textContent = 'Semua field harus diisi!';
+                    return;
+                }
+
+                const newSong = { title, artist, src, albumArt, lyrics };
+                playlist.push(newSong);
+                savePlaylist();
+                renderSongList();
+                addSongMessage.style.color = 'green';
+                addSongMessage.textContent = 'Lagu berhasil ditambahkan!';
+                // Clear form
+                songTitleInput.value = '';
+                songArtistInput.value = '';
+                songSrcInput.value = '';
+                songAlbumArtInput.value = '';
+                songLyricsInput.value = '';
+            });
+
+            // Delete Song Logic
+            manageSongList.addEventListener('click', (event) => {
+                if (event.target.classList.contains('delete-btn') || event.target.closest('.delete-btn')) {
+                    const button = event.target.closest('.delete-btn');
+                    const indexToDelete = parseInt(button.dataset.index);
+                    if (confirm(`Anda yakin ingin menghapus lagu "${playlist[indexToDelete].title}"?`)) {
+                        playlist.splice(indexToDelete, 1);
+                        savePlaylist();
+                        renderSongList();
+                    }
+                }
+            });
+
+            // Edit Song Logic (Open Modal)
+            manageSongList.addEventListener('click', (event) => {
+                if (event.target.classList.contains('edit-btn') || event.target.closest('.edit-btn')) {
+                    const button = event.target.closest('.edit-btn');
+                    const indexToEdit = parseInt(button.dataset.index);
+                    const song = playlist[indexToEdit];
+
+                    editSongIndexInput.value = indexToEdit;
+                    editSongTitleInput.value = song.title;
+                    editSongArtistInput.value = song.artist;
+                    editSongSrcInput.value = song.src; // SRC is disabled but shown
+                    editSongAlbumArtInput.value = song.albumArt;
+                    editSongLyricsInput.value = song.lyrics;
+
+                    editSongModal.style.display = 'flex'; // Show modal
+                }
+            });
+
+            // Close Modal
+            closeButton.addEventListener('click', () => {
+                editSongModal.style.display = 'none';
+            });
+            window.addEventListener('click', (event) => {
+                if (event.target == editSongModal) {
+                    editSongModal.style.display = 'none';
+                }
+            });
+
+            // Save Edited Song
+            saveEditBtn.addEventListener('click', () => {
+                const index = parseInt(editSongIndexInput.value);
+                if (index < 0 || index >= playlist.length) {
+                    alert('Indeks lagu tidak valid.');
+                    return;
+                }
+
+                playlist[index].title = editSongTitleInput.value.trim();
+                playlist[index].artist = editSongArtistInput.value.trim();
+                // playlist[index].src is not editable
+                playlist[index].albumArt = editSongAlbumArtInput.value.trim();
+                playlist[index].lyrics = editSongLyricsInput.value.trim();
+
+                savePlaylist();
+                renderSongList();
+                editSongModal.style.display = 'none';
+                alert('Lagu berhasil diperbarui!');
+            });
+
+            // Theme Toggling for Admin page
+            function toggleTheme() {
+                document.body.classList.toggle('light-mode');
+                const isLightMode = document.body.classList.contains('light-mode');
+                localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
+                toggleThemeBtn.innerHTML = isLightMode ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+                toggleThemeBtn.setAttribute('aria-label', isLightMode ? 'Switch to Dark Mode' : 'Switch to Light Mode');
+            }
+
+            toggleThemeBtn.addEventListener('click', toggleTheme);
+
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                toggleThemeBtn.innerHTML = '<i class="fas fa-moon"></i>';
+                toggleThemeBtn.setAttribute('aria-label', 'Switch to Dark Mode');
+            } else {
+                document.body.classList.remove('light-mode');
+                toggleThemeBtn.innerHTML = '<i class="fas fa-sun"></i>';
+                toggleThemeBtn.setAttribute('aria-label', 'Switch to Light Mode');
+            }
+
+            // Ensure video plays and loops on admin page too
+            if (backgroundVideo) {
+                backgroundVideo.play().catch(error => {
+                    console.log('Autoplay was prevented on admin page. User interaction might be needed.', error);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
