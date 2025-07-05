@@ -3,8 +3,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebas
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Konfigurasi Firebase Anda (SUDAH SAYA TEMPELKAN DI SINI) ---
-    // Ini adalah konfigurasi yang Anda berikan:
+    // --- KONFIGURASI FIREBASE ANDA (SUDAH SAYA TEMPELKAN PERSIS DARI YANG ANDA BERIKAN) ---
     const firebaseConfig = {
         apiKey: "AIzaSyBlG2wzbUshZAUxLaP8-WGpYSkdm1FhMh4",
         authDomain: "melodyverse-app.firebaseapp.com",
@@ -19,16 +18,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let auth; // Variabel untuk instance Auth Firebase
 
     try {
-        // Inisialisasi Firebase
+        // Inisialisasi Firebase App
         const app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        console.log("Firebase App dan Auth berhasil diinisialisasi.");
+        auth = getAuth(app); // Dapatkan instance Authentication
+        console.log("1. Firebase App dan Auth berhasil diinisialisasi.");
 
-        // Listener untuk perubahan status autentikasi
-        // Ini akan berjalan setiap kali status login berubah (termasuk saat sign in anonim)
+        // Listener untuk perubahan status autentikasi. Ini akan terpicu secara otomatis.
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 // Jika pengguna sudah terautentikasi (anonim atau lainnya)
+                console.log("2. Pengguna terautentikasi.");
                 console.log("------------------------------------------");
                 console.log("SELAMAT! UID ANDA BERHASIL DIDAPATKAN:");
                 console.log("UID Admin Anda (SALIN KODE INI PERSIS!):", user.uid);
@@ -36,19 +35,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } else {
                 // Jika pengguna belum terautentikasi, coba sign in anonim
-                console.log("Mencoba sign in anonim...");
+                console.log("3. Pengguna belum terautentikasi. Mencoba sign in anonim...");
                 try {
-                    await signInAnonymously(auth);
-                    console.log("Sign in anonim berhasil.");
+                    await signInAnonymously(auth); // Picu sign in anonim
+                    console.log("4. Sign in anonim berhasil.");
                 } catch (error) {
-                    console.error("Gagal sign in anonim:", error);
-                    console.log("Pastikan Authentication 'Anonymous' sudah diaktifkan di Firebase Console > Build > Authentication.");
+                    console.error("5. Gagal sign in anonim:", error);
+                    console.log("6. Pesan Error Detail:", error.code, error.message);
+                    console.log("7. Pastikan Authentication 'Anonymous' sudah diaktifkan di Firebase Console > Build > Authentication.");
                 }
             }
         });
 
     } catch (error) {
-        console.error("Gagal menginisialisasi Firebase secara keseluruhan:", error);
-        console.log("Pastikan objek firebaseConfig Anda di script.js benar dan tidak ada typo atau karakter yang salah.");
+        console.error("8. Gagal menginisialisasi Firebase secara keseluruhan (error awal):", error);
+        console.log("9. Pesan Error Detail:", error.code, error.message);
+        console.log("10. Pastikan objek firebaseConfig Anda di script.js benar dan tidak ada typo atau karakter yang salah.");
     }
 });
