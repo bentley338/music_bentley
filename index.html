@@ -12,7 +12,7 @@
     <div class="video-background">
         <video id="background-video" autoplay loop muted playsinline>
             <source src="abstract_wave_bg.mp4" type="video/mp4">
-            Browser Anda tidak mendukung video HTML5.\n
+            Browser Anda tidak mendukung video HTML5.
         </video>
         <div class="video-overlay"></div>
         <!-- Canvas untuk Visualizer Audio -->
@@ -32,7 +32,7 @@
                     </button>
                     <!-- Tombol Pengaturan Audio/Volume -->
                     <button id="audio-settings-btn" class="btn btn-volume header-volume-btn">
-                        <i class="fas fa-volume-up"></i> Volume
+                        <i class="fas fa-sliders-h"></i> Audio
                     </button>
                 </div>
             </div>
@@ -103,8 +103,6 @@
                 </button>
             </div>
 
-            <!-- Kontrol Volume lama dihapus dari sini -->
-
             <audio id="audio-player"></audio>
         </main>
 
@@ -153,22 +151,43 @@
             <div class="modal-content glass-effect">
                 <span class="close-button" id="close-audio-settings-modal">&times;</span>
                 <h2>Pengaturan Audio</h2>
+
                 <div class="audio-control-group">
                     <label for="master-volume-slider">Volume Utama:</label>
                     <input type="range" id="master-volume-slider" value="100" min="0" max="100" class="volume-slider">
                     <span id="master-volume-value">100%</span>
                 </div>
+
+                <!-- Equalizer Controls -->
+                <h3>Equalizer</h3>
+                <div class="eq-presets">
+                    <button class="eq-preset-btn" data-preset="flat">Flat</button>
+                    <button class="eq-preset-btn" data-preset="pop">Pop</button>
+                    <button class="eq-preset-btn" data-preset="rock">Rock</button>
+                    <button class="eq-preset-btn" data-preset="jazz">Jazz</button>
+                </div>
+
                 <div class="audio-control-group">
-                    <label for="bass-level-slider">Bass Level:</label>
-                    <input type="range" id="bass-level-slider" value="0" min="-20" max="20" class="volume-slider">
+                    <label for="bass-level-slider">Bass:</label>
+                    <input type="range" id="bass-level-slider" value="0" min="-20" max="20" class="volume-slider eq-slider">
                     <span id="bass-level-value">0 dB</span>
                 </div>
+                <div class="audio-control-group">
+                    <label for="mid-level-slider">Mid:</label>
+                    <input type="range" id="mid-level-slider" value="0" min="-20" max="20" class="volume-slider eq-slider">
+                    <span id="mid-level-value">0 dB</span>
+                </div>
+                <div class="audio-control-group">
+                    <label for="treble-level-slider">Treble:</label>
+                    <input type="range" id="treble-level-slider" value="0" min="-20" max="20" class="volume-slider eq-slider">
+                    <span id="treble-level-value">0 dB</span>
+                </div>
+
                 <div class="audio-control-group">
                     <label for="effect-level-slider">Level Efek:</label>
                     <input type="range" id="effect-level-slider" value="0" min="0" max="100" class="volume-slider">
                     <span id="effect-level-value">0%</span>
                 </div>
-                <!-- Mic Level tidak diimplementasikan karena kompleksitas dan relevansi -->
                 <p class="audio-note">Catatan: Fitur 'Mic Level' tidak tersedia dalam pemutar musik ini.</p>
             </div>
         </div>
