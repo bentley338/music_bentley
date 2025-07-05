@@ -718,77 +718,45 @@
             const ADMIN_PASSWORD = "157299pro";
 
             // Ini akan menjadi playlist yang dimanipulasi di admin panel
-            // Awalnya akan berisi gabungan DEFAULT_PLAYLIST dan apa pun yang ada di localStorage
+            // Ini akan selalu berisi gabungan DEFAULT_PLAYLIST dari script.js utama
+            // dan apa pun yang disimpan di localStorage oleh admin itu sendiri.
             let adminManagedPlaylist = [];
 
+            // Fungsi untuk memuat playlist ke admin panel dari localStorage atau default
             function loadAdminManagedPlaylist() {
                 const savedSongs = JSON.parse(localStorage.getItem('musicPlaylist'));
-                // Filter DEFAULT_PLAYLIST untuk menghapus lagu yang sudah ada di savedSongs (jika diedit atau dihapus via admin)
-                // Ini untuk menghindari duplikasi jika pengguna mengedit lagu default.
-                const filteredDefault = DEFAULT_PLAYLIST.filter(defaultSong =>
-                    !savedSongs || !savedSongs.some(savedSong => savedSong.src === defaultSong.src)
-                );
 
+                // Logika: Jika ada lagu tersimpan, gunakan itu. Jika tidak, pakai DEFAULT_PLAYLIST_ADMIN.
+                // Penting: pastikan ini tidak menduplikasi lagu jika lagu default sudah ada di savedSongs
                 if (savedSongs && savedSongs.length > 0) {
-                    // Gabungkan lagu default yang belum ada di savedSongs dengan savedSongs
-                    adminManagedPlaylist = [...filteredDefault, ...savedSongs];
+                    adminManagedPlaylist = savedSongs;
                 } else {
-                    // Jika belum ada apa-apa di localStorage, mulai dengan semua lagu default
-                    adminManagedPlaylist = [...DEFAULT_PLAYLIST];
+                    adminManagedPlaylist = [...DEFAULT_PLAYLIST_ADMIN]; // Ambil salinan default
                 }
-                // Simpan versi gabungan ini kembali ke localStorage agar konsisten
-                savePlaylist();
+                renderSongList();
             }
 
-            function renderSongList() {
-                manageSongList.innerHTML = '';
-                if (adminManagedPlaylist.length === 0) {
-                    const noSongsLi = document.createElement('li');
-                    noSongsLi.style.justifyContent = 'center';
-                    noSongsLi.style.backgroundColor = 'transparent';
-                    noSongsLi.style.borderLeft = 'none';
-                    noSongsLi.style.padding = '10px 0';
-                    noSongsLi.style.color = 'var(--secondary-text)';
-                    noSongsLi.textContent = "Tidak ada lagu dalam playlist.";
-                    manageSongList.appendChild(noSongsLi);
-                    return;
-                }
-
-                adminManagedPlaylist.forEach((song, index) => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <div class="song-info">
-                            <h3>${song.title}</h3>
-                            <p>${song.artist}</p>
-                            <small>MP3: ${song.src}<br>Album Art: ${song.albumArt}</small>
-                        </div>
-                        <div class="actions">
-                            <button class="action-btn edit-btn" data-index="${index}"><i class="fas fa-edit"></i> Edit</button>
-                            <button class="action-btn delete-btn" data-index="${index}"><i class="fas fa-trash-alt"></i> Hapus</button>
-                        </div>
-                    `;
-                    manageSongList.appendChild(li);
-                });
-            }
-
+            // Fungsi untuk menyimpan playlist dari admin panel ke localStorage
             function savePlaylist() {
                 localStorage.setItem('musicPlaylist', JSON.stringify(adminManagedPlaylist));
-                window.dispatchEvent(new Event('storage')); // Memicu event untuk halaman utama
+                // Memicu event 'storage' untuk halaman utama agar playlist diperbarui
+                window.dispatchEvent(new Event('storage'));
             }
 
+            // Logika Login Admin
             loginBtn.addEventListener('click', () => {
                 if (adminPasswordInput.value === ADMIN_PASSWORD) {
                     loginSection.style.display = 'none';
                     adminPanel.style.display = 'block';
                     loginMessage.textContent = '';
-                    loadAdminManagedPlaylist(); // Muat playlist saat login
-                    renderSongList();
+                    loadAdminManagedPlaylist(); // Muat playlist saat login berhasil
                 } else {
                     loginMessage.textContent = 'Password salah!';
                 }
                 adminPasswordInput.value = '';
             });
 
+            // Logika Tambah Lagu
             addSongBtn.addEventListener('click', () => {
                 const title = songTitleInput.value.trim();
                 const artist = songArtistInput.value.trim();
@@ -819,7 +787,7 @@
                 const newSong = { title, artist, src, albumArt, info };
                 adminManagedPlaylist.push(newSong); // Tambah ke playlist yang dikelola admin
                 savePlaylist();
-                renderSongList();
+                renderSongList(); // Render ulang daftar di admin panel
                 addSongMessage.style.color = 'green';
                 addSongMessage.textContent = 'Lagu berhasil ditambahkan dan tersedia untuk semua orang (pastikan file ada di GitHub Pages)!';
                 
@@ -830,6 +798,7 @@
                 songInfoInput.value = '';
             });
 
+            // Logika Hapus Lagu
             manageSongList.addEventListener('click', (event) => {
                 const targetButton = event.target.closest('.delete-btn');
                 if (targetButton) {
@@ -842,6 +811,7 @@
                 }
             });
 
+            // Logika Edit Lagu (Buka Modal)
             manageSongList.addEventListener('click', (event) => {
                 const targetButton = event.target.closest('.edit-btn');
                 if (targetButton) {
@@ -859,6 +829,7 @@
                 }
             });
 
+            // Tutup Modal Edit Lagu
             closeButton.addEventListener('click', () => {
                 editSongModal.classList.remove('visible');
             });
@@ -868,6 +839,7 @@
                 }
             });
 
+            // Simpan Lagu yang Diedit
             saveEditBtn.addEventListener('click', () => {
                 const index = parseInt(editSongIndexInput.value);
                 if (index < 0 || index >= adminManagedPlaylist.length) {
@@ -886,23 +858,26 @@
                 alert('Lagu berhasil diperbarui!');
             });
 
+            // Bersihkan Semua Data (Reset ke DEFAULT_PLAYLIST)
             clearDataBtn.addEventListener('click', () => {
-                if (confirm('Ini akan menghapus SEMUA lagu (termasuk default) dari playlist Anda secara permanen. Lanjutkan?')) {
+                if (confirm('Ini akan menghapus SEMUA lagu yang tersimpan di browser Anda dan MERESET ke daftar lagu default bawaan aplikasi. Lanjutkan?')) {
                     localStorage.removeItem('musicPlaylist');
-                    adminManagedPlaylist = [...DEFAULT_PLAYLIST_ADMIN]; // Reset ke default playlist Admin
+                    adminManagedPlaylist = [...DEFAULT_PLAYLIST_ADMIN]; // Reset ke default playlist admin
                     savePlaylist(); // Simpan default playlist ke localStorage
                     renderSongList();
                     alert('Semua data lagu telah direset ke default!');
                 }
             });
 
+            // Muat Ulang Aplikasi (Client Side)
             reloadAppBtn.addEventListener('click', () => {
                 reloadMessage.textContent = 'Memuat ulang aplikasi...';
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = 'index.html'; // Redirect ke halaman utama, memaksa pemuatan ulang penuh
                 }, 1000);
             });
 
+            // Toggle Tema untuk halaman Admin
             function toggleTheme() {
                 document.body.classList.toggle('light-mode');
                 const isLightMode = document.body.classList.contains('light-mode');
