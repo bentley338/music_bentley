@@ -559,6 +559,7 @@
 
     <script>
         // Copy-paste DEFAULT_PLAYLIST dari script.js utama
+        // Pastikan DEFAULT_PLAYLIST_ADMIN ini sama persis dengan DEFAULT_PLAYLIST di script.js
         const DEFAULT_PLAYLIST_ADMIN = [
              {
             title: "Back to Friends",
@@ -724,15 +725,29 @@
 
             // Fungsi untuk memuat playlist ke admin panel dari localStorage atau default
             function loadAdminManagedPlaylist() {
-                const savedSongs = JSON.parse(localStorage.getItem('musicPlaylist'));
+                try {
+                    const savedSongs = JSON.parse(localStorage.getItem('musicPlaylist'));
+                    
+                    // Filter lagu default dari savedSongs untuk menghindari duplikasi
+                    // yang sudah diedit atau dihapus di admin panel.
+                    // Ini penting agar `adminManagedPlaylist` mencerminkan state yang benar.
+                    const filteredDefault = DEFAULT_PLAYLIST_ADMIN.filter(defaultSong => 
+                        !savedSongs || !savedSongs.some(savedSong => savedSong.src === defaultSong.src)
+                    );
 
-                // Logika: Jika ada lagu tersimpan, gunakan itu. Jika tidak, pakai DEFAULT_PLAYLIST_ADMIN.
-                // Penting: pastikan ini tidak menduplikasi lagu jika lagu default sudah ada di savedSongs
-                if (savedSongs && savedSongs.length > 0) {
-                    adminManagedPlaylist = savedSongs;
-                } else {
-                    adminManagedPlaylist = [...DEFAULT_PLAYLIST_ADMIN]; // Ambil salinan default
+                    if (savedSongs && savedSongs.length > 0) {
+                        // Gabungkan lagu default yang belum ada di savedSongs dengan savedSongs.
+                        adminManagedPlaylist = [...filteredDefault, ...savedSongs];
+                    } else {
+                        // Jika belum ada apa-apa di localStorage, mulai dengan semua lagu default.
+                        adminManagedPlaylist = [...DEFAULT_PLAYLIST_ADMIN];
+                    }
+                } catch (e) {
+                    console.error("Error saat memuat playlist admin dari localStorage:", e);
+                    // Fallback ke default playlist jika ada error parsing localStorage
+                    adminManagedPlaylist = [...DEFAULT_PLAYLIST_ADMIN];
                 }
+                savePlaylist(); // Simpan versi yang sudah dikonsolidasi ke localStorage
                 renderSongList();
             }
 
@@ -903,6 +918,22 @@
                 backgroundVideo.play().catch(error => {
                     console.log('Autoplay dicegah di halaman admin. Mungkin diperlukan interaksi pengguna.', error);
                 });
+            }
+
+            // Inisialisasi awal saat halaman admin dimuat (jika tidak login)
+            // Ini agar adminManagedPlaylist tidak kosong saat login pertama kali.
+            if (loginSection.style.display !== 'none') { // Hanya jalankan jika belum login
+                 try {
+                    const savedSongs = JSON.parse(localStorage.getItem('musicPlaylist'));
+                    if (savedSongs && savedSongs.length > 0) {
+                        adminManagedPlaylist = savedSongs;
+                    } else {
+                        adminManagedPlaylist = [...DEFAULT_PLAYLIST_ADMIN]; // Ambil salinan default
+                    }
+                } catch (e) {
+                    console.error("Error saat inisialisasi playlist admin di luar login:", e);
+                    adminManagedPlaylist = [...DEFAULT_PLAYLIST_ADMIN];
+                }
             }
         });
     </script>
