@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Elemen DOM (Pastikan ID di HTML cocok dengan ini) ---
+    // --- Elemen DOM ---
     const audioPlayer = document.getElementById('audio-player');
     const playPauseBtn = document.getElementById('play-pause-btn');
     const prevBtn = document.getElementById('prev-btn');
@@ -18,17 +18,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarOverlay = document.getElementById('sidebar-overlay');
     const backgroundVideo = document.getElementById('background-video');
 
-    // New elements
-    const sleepTimerSelect = document.getElementById('sleep-timer-select');
-    const sleepTimerCountdown = document.getElementById('sleep-timer-countdown');
+    // New elements for enhanced UI
+    const sleepTimerDisplay = document.getElementById('sleep-timer-display');
+    const openSleepTimerModalBtn = document.getElementById('open-sleep-timer-modal');
+    const sleepTimerModal = document.getElementById('sleepTimerModal');
+    const closeSleepTimerModalBtn = document.getElementById('close-sleep-timer-modal');
+    const timerOptionBtns = document.querySelectorAll('.timer-option-btn');
+    const customTimerInput = document.getElementById('custom-timer-input');
+    const setCustomTimerBtn = document.getElementById('set-custom-timer-btn');
+    const sleepTimerCountdown = document.getElementById('sleep-timer-countdown'); // Main display
+    const modalTimerCountdown = document.getElementById('modal-timer-countdown'); // Modal display
+
+    const openAudioModalBtn = document.getElementById('open-audio-modal-btn');
+    const audioControlsModal = document.getElementById('audioControlsModal');
+    const closeAudioModalBtn = document.getElementById('close-audio-modal');
     const masterVolumeControl = document.getElementById('master-volume');
     const volumeValueSpan = document.getElementById('volume-value');
     const trebleControl = document.getElementById('treble-control');
     const trebleValueSpan = document.getElementById('treble-value');
     const bassControl = document.getElementById('bass-control');
     const bassValueSpan = document.getElementById('bass-value');
-    const audioControlsSidebar = document.getElementById('audio-controls-sidebar');
-    const closeAudioControlsBtn = document.getElementById('close-audio-controls-btn');
+
     const toggleThemeBtn = document.getElementById('toggle-theme-btn');
     const shuffleBtn = document.getElementById('shuffle-btn');
     const repeatBtn = document.getElementById('repeat-btn');
@@ -36,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Web Audio API for EQ ---
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const source = audioContext.createMediaElementSource(audioPlayer);
+    let source; // Will be created once audio is playing
     const gainNode = audioContext.createGain(); // Master Volume
     const bassFilter = audioContext.createBiquadFilter();
     const trebleFilter = audioContext.createBiquadFilter();
@@ -47,12 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
     trebleFilter.type = 'highshelf';
     trebleFilter.frequency.setValueAtTime(2500, audioContext.currentTime); // Freq for treble
 
-    // Connect nodes: source -> bass -> treble -> gain -> destination
-    source.connect(bassFilter);
-    bassFilter.connect(trebleFilter);
-    trebleFilter.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
     // --- Variabel State ---
     let currentSongIndex = 0;
     let isPlaying = false;
@@ -62,12 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let repeatMode = 'off'; // 'off', 'one', 'all'
     let originalPlaylistOrder = []; // To store original order for shuffle
 
-    // --- DATA LAGU (INI BAGIAN KRUSIAL YANG HARUS COCOK DENGAN FILE FISIK ANDA) ---
-    // Pastikan NAMA FILE di properti 'src' (untuk MP3) dan 'albumArt' (untuk JPG/PNG)
-    // sama PERSIS (termasuk huruf besar/kecil dan ekstensinya) dengan nama file di folder proyek Anda.
-    // Semua file MP3, JPG/PNG, dan MP4 video background harus berada di folder yang sama dengan index.html, style.css, dan script.js.
-    // NOTE: Data ini akan di-override jika ada data dari localStorage (dari admin panel)
+    // --- DATA LAGU (LOAD DARI LOCALSTORAGE) ---
     let playlist = JSON.parse(localStorage.getItem('musicPlaylist')) || [
+        // Default songs if localStorage is empty
         {
             title: "Back to Friends",
             artist: "Sombr",
@@ -83,36 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 How can we go back to being friends<br>
                 When we just shared a bed?<br>
                 How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br><br>
-                <b>Verse 2</b><br>
-                It was last December<br>
-                You were layin’ on my chest<br>
-                I still remember<br>
-                I was scared to take a breath<br>
-                Didn’t want you to move your head<br><br>
-                <b>Chorus</b><br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br><br>
-                <b>Bridge</b><br>
-                The devil in your eyes<br>
-                Won’t deny the lies you’ve sold<br>
-                I’m holding on too tight<br>
-                While you let go<br>
-                This is casual<br><br>
-                <b>Final Chorus</b><br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br>
-                I’m someone you’ve never met<br>
-                When we just shared a bed?
-            `
+                I’m someone you’ve never met?`
         },
         {
             title: "Bergema Sampai Selamanya",
@@ -125,35 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 Di setiap desah napasmu<br>
                 Ada cerita yang takkan pudar<br>
                 Di setiap langkah kakimu<br><br>
-                <b>Chorus</b><br>
-                Bergema sampai selamanya<br>
+                <b>Chorus</b><                Bergema sampai selamanya<br>
                 Cinta kita takkan sirna<br>
                 Di setiap nada yang tercipta<br>
-                Hanyalah namamu yang ada<br><br>
-                <b>Verse 2</b><br>
-                Waktu terus berjalan<br>
-                Namun rasa ini takkan lekang<br>
-                Seperti bintang yang takkan padam<br>
-                Bersinarlah di setiap malam<br><br>
-                <b>Chorus</b><br>
-                Bergema sampai selamanya<br>
-                Cinta kita takkan sirna<br>
-                Di setiap nada yang tercipta<br>
-                Hanyalah namamu yang ada<br><br>
-                <b>Bridge</b><br>
-                Tiada akhir bagi kisah kita<br>
-                Terukir abadi di jiwa<br>
-                Kan selalu ada, kan selalu nyata<br>
-                Janji yang takkan pernah pudar<br><br>
-                <b>Chorus</b><br>
-                Bergema sampai selamanya<<br>
-                Cinta kita takkan sirna<br>
-                Di setiap nada yang tercipta<br>
-                Hanyalah namamu yang ada<br><br>
-                <b>Outro</b><br>
-                Bergema... sampai selamanya...<br>
-                Oh-oh-oh...
-            `
+                Hanyalah namamu yang ada`
         },
         {
             title: "Ride",
@@ -165,37 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 I'm riding high, I'm riding low<br>
                 I'm going where the wind don't blow<br>
                 Just cruising, feeling good tonight<br>
-                Everything is working out just right<br><br>
-                <b>Chorus</b><br>
-                So baby, let's just ride<br>
-                Leave the worries far behind<br>
-                Every moment, every single stride<br>
-                Yeah, we're living in the moment, you and I<br><br>
-                <b>Verse 2</b><br>
-                Sunrise creeping, morning light<br>
-                Another day, another sight<br>
-                No rush, no hurry, take it slow<br>
-                Just enjoying the ride, you know<br><br>
-                <b>Chorus</b><br>
-                So baby, let's just ride<br>
-                Leave the worries far behind<br>
-                Every moment, every single stride<br>
-                Yeah, we're living in the moment, you and I<br><br>
-                <b>Bridge</b><br>
-                Don't look back, no regrets<br>
-                Just open roads and sunsets<br>
-                This feeling's more than I can say<br>
-                Let's keep on riding, come what may<br><br>
-                <b>Chorus</b><br>
-                So baby, let's just ride<br>
-                Leave the worries far behind<br>
-                Every moment, every single stride<br>
-                Yeah, we're living in the moment, you and I<br><br>
-                <b>Outro</b><br>
-                Just ride, ride, ride<br>
-                With you by my side<br>
-                Yeah, we ride...
-            `
+                Everything is working out just right`
         },
         {
             title: "Rumah Kita",
@@ -207,39 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Hanya bilik bambu<br>
                 Tempat tinggal kita<br>
                 Tanpa hiasan, tanpa lukisan<br>
-                Hanya jendela, tanpa tiang<br><br>
-                <b>Chorus</b><br>
-                Rumah kita, rumah kita<br>
-                Lebih baik, lebih baik<br>
-                Lebih dari istana<br>
-                Rumah kita, rumah kita<br>
-                Tempat kita berbagi cerita<br><br>
-                <b>Verse 2</b><br>
-                Ada tawa, ada tangis<br>
-                Ada suka, ada duka<br>
-                Semua bersatu di sini<br>
-                Dalam hangatnya keluarga<br><br>
-                <b>Chorus</b><br>
-                Rumah kita, rumah kita<br>
-                Lebih baik, lebih baik<br>
-                Lebih dari istana<br>
-                Rumah kita, rumah kita<br>
-                Tempat kita berbagi cerita<br><br>
-                <b>Bridge</b><br>
-                Takkan ada yang bisa mengganti<br>
-                Hangatnya pelukmu, ibu<br>
-                Tawa riang adik kakakku<br>
-                Di rumah kita, tempat berlindung<br><br>
-                <b>Chorus</b><br>
-                Rumah kita, rumah kita<br>
-                Lebih baik, lebih baik<br>
-                Lebih dari istana<br>
-                Rumah kita, rumah kita<br>
-                Tempat kita berbagi cerita<br><br>
-                <b>Outro</b><br>
-                Rumah kita...<br>
-                Rumah kita...
-            `
+                Hanya jendela, tanpa tiang`
         },
         {
             title: "Style",
@@ -250,45 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Verse 1</b><br>
                 Midnight, you come and pick me up, no headlights<br>
                 Long drive, could end in burning flames or paradise<br>
-                Fade into view, oh, it's been a while since I have even heard from you<br>
-                (Heard from you)<br><br>
-                <b>Chorus</b><br>
-                I say, "I've heard that you've been out and about with some other girl"<br>
-                (Oh-oh-oh) I say, "What you've heard is true but I<br>
-                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
-                (Oh-oh-oh) saying, "It's gonna be alright"<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Verse 2</b><br>
-                You got that long hair, slick back, white T-shirt<br>
-                And I got that good girl faith and a tight little skirt<br>
-                And when we go crashing down, we come back every time<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Chorus</b><br>
-                I say, "I've heard that you've been out and about with some other girl"<br>
-                (Oh-oh-oh) I say, "What you've heard is true but I<br>
-                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
-                (Oh-oh-oh) saying, "It's gonna be alright"<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Bridge</b><br>
-                Take me home, just take me home<br>
-                Where there's fire, where there's chaos, and there's love<br>
-                I got a blank space, baby, and I'll write your name<br>
-                But baby, we never go out of style<br><br>
-                <b>Chorus</b><br>
-                I say, "I've heard that you've been out and about with some other girl"<br>
-                (Oh-oh-oh) I say, "What you've heard is true but I<br>
-                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
-                (Oh-oh-oh) saying, "It's gonna be alright"<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Outro</b><br>
-                Never go out of style<br>
-                We never go out of style<br>
-                Yeah, we never go out of style
-            `
+                Fade into view, oh, it's been a while since I have even heard from you`
         },
         {
             title: "Message In A Bottle",
@@ -300,36 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 I was ridin' in a getaway car<br>
                 I was crying in a getaway car<br>
                 I was dying in a getaway car<br>
-                Said goodbye to the girl you used to be<br><br>
-                <b>Chorus</b><br>
-                Message in a bottle is all I can give<br>
-                To remind you of what we had, what we've lived<br>
-                Across the ocean, my love will still flow<br>
-                Hoping that someday you'll know<br><br>
-                <b>Verse 2</b><br>
-                Sunrise on the water, a new day starts<br>
-                Still missing you, still breaking my heart<br>
-                Every wave whispers your name to me<br>
-                A silent prayer across the sea<br><br>
-                <b>Chorus</b><br>
-                Message in a bottle is all I can give<br>
-                To remind you of what we had, what we've lived<br>
-                Across the ocean, my love will still flow<br>
-                Hoping that someday you'll know<br><br>
-                <b>Bridge</b><br>
-                And the years go by, still I send my plea<br>
-                Hoping this message finds you, eventually<br>
-                A single teardrop, lost in the blue<br>
-                A simple promise, my love, to you<br><br>
-                <b>Chorus</b><br>
-                Message in a bottle is all I can give<br>
-                To remind you of what we had, what we've lived<br>
-                Across the ocean, my love will still flow<br>
-                Hoping that someday you'll know<br><br>
-                <b>Outro</b><br>
-                Message in a bottle...<br>
-                My love, my love...
-            `
+                Said goodbye to the girl you used to be`
         },
         {
             title: "Supernatural",
@@ -341,36 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 You're my supernatural, my magic<br>
                 Every touch, a dream, a sweet habit<br>
                 In your eyes, a universe I find<br>
-                Leaving all my worries far behind<br><br>
-                <b>Chorus</b><br>
-                Oh, this love is supernatural<br>
-                Something beautiful, something so true<br>
-                Like a melody, forever new<br>
-                Supernatural, just me and you<br><br>
-                <b>Verse 2</b><br>
-                Whispers in the dark, a gentle breeze<br>
-                Floating through the stars, with such ease<br>
-                Every moment with you feels divine<br>
-                Lost in this love, forever mine<br><br>
-                <b>Chorus</b><br>
-                Oh, this love is supernatural<br>
-                Something beautiful, something so true<br>
-                Like a melody, forever new<br>
-                Supernatural, just me and you<br><br>
-                <b>Bridge</b><br>
-                No explanation, no words can define<br>
-                This connection, truly one of a kind<br>
-                Beyond the logic, beyond the known<<br>
-                In this love, we're never alone<br><br>
-                <b>Chorus</b><br>
-                Oh, this love is supernatural<br>
-                Something beautiful, something so true<br>
-                Like a melody, forever new<br>
-                Supernatural, just me and you<br><br>
-                <b>Outro</b><br>
-                Supernatural...<br>
-                Oh, so natural with you...
-            `
+                Leaving all my worries far behind`
         },
         {
             title: "Favorite Lesson",
@@ -381,49 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Verse 1</b><br>
                 Always telling me that I should find the time for me<br>
                 Working tirelessly until I lose my energy<br>
-                You’re the only one who really knows the things I need<br>
-                And darling, I’m the same with you<br><br>
-                <b>Chorus</b><br>
-                ‘Cause every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br>
-                Every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br><br>
-                <b>Verse 2</b><br>
-                Building something from the ground up, you always help me see<br>
-                That even when it’s tough, it’s worth the struggle, endlessly<br>
-                You’re the guiding light that always keeps me on my feet<br>
-                And darling, I’m the same with you<br><br>
-                <b>Chorus</b><br>
-                ‘Cause every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br>
-                Every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br><br>
-                <b>Bridge</b><br>
-                Through highs and lows, you’re always there<br>
-                A bond like ours is truly rare<br>
-                No matter what, we’ll always share<br>
-                This journey, with no fear<br><br>
-                <b>Chorus</b><br>
-                ‘Cause every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br>
-                Every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br><br>
-                <b>Outro</b><br>
-                Favorite lesson... favorite lesson...<br>
-                You’re the best... you’re the best...
-            `
+                You’re the only one who really knows the things I need`
         },
         {
             title: "So High School",
@@ -434,37 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Verse 1</b><br>
                 I feel like I'm back in high school again<br>
                 Butterflies every time you walk in<br>
-                Like a freshman, crushin' hard, don't pretend<br>
-                This feeling's got me spinnin' 'round the bend<br><br>
-                <b>Chorus</b><br>
-                Oh, you got me feeling so high school<br>
-                Got me skipping through the halls with you<br>
-                Every moment's golden, shiny, and new<br>
-                Yeah, this love is so high school<br><br>
-                <b>Verse 2</b><br>
-                Passing notes and whispering in class<br>
-                Hoping this feeling will forever last<br>
-                Every glance, a secret, a sweet little blast<br>
-                This story's moving way too fast<br><br>
-                <b>Chorus</b><br>
-                Oh, you got me feeling so high school<br>
-                Got me skipping through the halls with you<br>
-                Every moment's golden, shiny, and new<br>
-                Yeah, this love is so high school<br><br>
-                <b>Bridge</b><br>
-                No homework, no drama, just you and me<br>
-                Living out a teenage dream, wild and free<br>
-                Like the first dance, under the gym lights<br>
-                Holding onto these magical nights<br><br>
-                <b>Chorus</b><br>
-                Oh, you got me feeling so high school<br>
-                Got me skipping through the halls with you<br>
-                Every moment's golden, shiny, and new<br>
-                Yeah, this love is so high school<br><br>
-                <b>Outro</b><br>
-                So high school...<br>
-                Yeah, with you, it's so high school...
-            `
+                Like a freshman, crushin' hard, don't pretend`
         },
         {
             title: "Photograph",
@@ -475,45 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <b>Verse 1</b><br>
                 Loving can hurt, loving can hurt sometimes<br>
                 But it's the only thing that I know<br>
-                When it's good, when it's good, it's so good, it's so good<br>
-                'Til it goes bad, 'til it goes bad, 'Til it goes bad<br>
-                But still, I know, that I know, that I know<br>
-                Good things come to those who wait, no, never give up on you<br><br>
-                <b>Chorus</b><br>
-                And if you hurt me, that's okay, baby, only words bleed<br>
-                Inside these pages you just hold me<br>
-                And I won't ever let you go<br>
-                Wait for me to come home<br><br>
-                <b>Verse 2</b><br>
-                Loving can heal, loving can mend your soul<br>
-                And it's the only thing that I know<br>
-                I swear it will get easier,<br>
-                Remember that with every piece of you<br>
-                And it's the only thing we take with us when we die<br><br>
-                <b>Chorus</b><br>
-                And if you hurt me, that's okay, baby, only words bleed<br>
-                Inside these pages you just hold me<br>
-                And I won't ever let you go<br>
-                Wait for me to come home<br><br>
-                <b>Bridge</b><br>
-                You could fit me inside the necklace you got when you were sixteen<br>
-                Next to your heartbeat where I should be<br>
-                Keep it deep within your soul<br>
-                And if you want to, take a look at me now<br>
-                Oh, oh, oh, yeah, I'll be there, I'll be there<br>
-                Always when you need me, every moment I'll be waiting<br>
-                Forever with you, every single day<br><br>
-                <b>Chorus</b><br>
-                And if you hurt me, that's okay, baby, only words bleed<br>
-                Inside these pages you just hold me<br>
-                And I won't ever let you go<br>
-                Wait for me to come home<br><br>
-                <b>Outro</b><br>
-                You can fit me inside the necklace you got when you were sixteen<br>
-                Next to your heartbeat where I should be<br>
-                Keep it deep within your soul<br>
-                And if you want to, take a look at me now
-            `
+                When it's good, when it's good, it's so good, it's so good`
         },
         {
             title: "You'll Be In My Heart",
@@ -525,59 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Come stop your crying<br>
                 It'll be alright<br>
                 Just take my hand<br>
-                Hold it tight<br>
-                I will protect you<br>
-                From all around you<br>
-                I will be here<br>
-                Don't you cry<br><br>
-                <b>Chorus</b><br>
-                For one so small<br>
-                You seem so strong<br>
-                My arms will hold you<br>
-                Keep you safe and warm<br>
-                This bond between us<br>
-                Can't be broken<br>
-                I will be here, don't you cry<br>
-                'Cause you'll be in my heart<br>
-                Yes, you'll be in my heart<br>
-                From this day on<br>
-                Now and forever more<br><br>
-                <b>Verse 2</b><br>
-                Why can't they understand the way we feel?<br>
-                They just don't trust what they can't explain<br>
-                I know we're different but deep inside us<br>
-                We're not that different at all<br><br>
-                <b>Chorus</b><br>
-                For one so small<br>
-                You seem so strong<br>
-                My arms will hold you<br>
-                Keep you safe and warm<br>
-                This bond between us<br>
-                Can't be broken<br>
-                I will be here, don't you cry<br>
-                'Cause you'll be in my heart<br>
-                Yes, you'll be in my heart<br>
-                From this day on<br>
-                Now and forever more<br><br>
-                <b>Bridge</b><br>
-                You'll be in my heart<br>
-                No matter what they say<br>
-                You'll be in my heart<br>
-                Always<br>
-                I'll be there, always there<br>
-                For one so small, you seem so strong<br>
-                My arms will hold you, keep you safe and warm<br>
-                This bond between us can't be broken<br>
-                I will be here, don't you cry<br><br>
-                <b>Outro</b><br>
-                'Cause you'll be in my heart<br>
-                Yes, you'll be in my heart<br>
-                From this day on<br>
-                Now and forever more<br>
-                Oh, you'll be in my heart<br>
-                You'll be in my heart<br>
-                Now and forever more
-            `
+                Hold it tight`
         },
         {
             title: "Tarot",
@@ -589,36 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Di antara kartu-kartu tua<br>
                 Terbentang kisah yang tak terduga<br>
                 Masa lalu, kini, dan nanti<br>
-                Terungkap dalam setiap sisi<br><br>
-                <b>Chorus</b><br>
-                Tarot, oh Tarot<br>
-                Buka mataku, tunjukkan jalan<br>
-                Tarot, oh Tarot<br>
-                Bisikkan rahasia kehidupan<br><br>
-                <b>Verse 2</b><br>
-                Pedang dan cawan, koin dan tongkat<br>
-                Setiap simbol punya makna kuat<br>
-                Cahaya dan bayangan menari<br>
-                Di panggung takdir yang abadi<br><br>
-                <b>Chorus</b><br>
-                Tarot, oh Tarot<br>
-                Buka mataku, tunjukkan jalan<br>
-                Tarot, oh Tarot<br>
-                Bisikkan rahasia kehidupan<br><br>
-                <b>Bridge</b><br>
-                Takdir bukan hanya garis tangan<br>
-                Tapi pilihan di persimpangan<br>
-                Berani melangkah, hadapi badai<br>
-                Dengan petunjuk yang kau berikan<br><br>
-                <b>Chorus</b><br>
-                Tarot, oh Tarot<br>
-                Buka mataku, tunjukkan jalan<br>
-                Tarot, oh Tarot<br>
-                Bisikkan rahasia kehidupan<br><br>
-                <b>Outro</b><br>
-                Tarot... Tarot...<br>
-                Kisahku terukir di sana...
-            `
+                Terungkap dalam setiap sisi`
         },
         {
             title: "O, Tuan",
@@ -630,36 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 O, Tuan, dengarkanlah<br>
                 Rintihan hati yang resah<br>
                 Di tengah bisingnya dunia<br>
-                Mencari makna, mencari arah<br><br>
-                <b>Chorus</b><br>
-                O, Tuan, bimbinglah langkahku<br>
-                Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<br>
-                Hanya pada-Mu aku bertumpu<br><br>
-                <b>Verse 2</b><br>
-                Janji-janji yang terucap<br>
-                Seringkali hanya fatamorgana<br>
-                Kebenaran yang disembunyikan<br>
-                Di balik topeng kemunafikan<br><br>
-                <b>Chorus</b><br>
-                O, Tuan, bimbinglah langkahku<br>
-                Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<br>
-                Hanya pada-Mu aku bertumpu<br><br>
-                <b>Bridge</b><br>
-                Kekuasaan membutakan mata<br>
-                Harta melalaikan jiwa<br>
-                Tapi keadilan takkan mati<br>
-                Sampai akhir nanti<br><br>
-                <b>Chorus</b><br>
-                O, Tuan, bimbinglah langkahku<br>
-                Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<br>
-                Hanya pada-Mu aku bertumpu<br><br>
-                <b>Outro</b><br>
-                O, Tuan... O, Tuan...<br>
-                Dengarkanlah...
-            `
+                Mencari makna, mencari arah`
         },
         {
             title: "Ramai Sepi Bersama",
@@ -671,36 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Di tengah ramai, aku sendiri<br>
                 Mencari arti, di antara bising<br>
                 Dunia berputar, tak henti-henti<br>
-                Namun hatiku, masih terasing<br><br>
-                <b>Chorus</b><br>
-                Ramai sepi bersama, dalam riuh kota<br>
-                Kita mencari makna, di antara fatamorgana<br>
-                Ramai sepi bersama, dalam hening jiwa<br>
-                Berharap menemukan, damai yang nyata<br><br>
-                <b>Verse 2</b><br>
-                Wajah-wajah asing, silih berganti<br>
-                Senyum dan tawa, hanya ilusi<br>
-                Ingin ku bicara, namun tak berani<br>
-                Terjebak dalam, sunyi yang abadi<br><br>
-                <b>Chorus</b><br>
-                Ramai sepi bersama, dalam riuh kota<br>
-                Kita mencari makna, di antara fatamorgana<br>
-                Ramai sepi bersama, dalam hening jiwa<br>
-                Berharap menemukan, damai yang nyata<br><br>
-                <b>Bridge</b><br>
-                Mungkin ini jalan, yang harus kutempuh<br>
-                Menyelami diri, di antara keruh<br>
-                Mencari cahaya, di ujung keluh<br>
-                Agar tak lagi, merasa rapuh<br><br>
-                <b>Chorus</b><br>
-                Ramai sepi bersama, dalam riuh kota<br>
-                Kita mencari makna, di antara fatamorgana<br>
-                Ramai sepi bersama, dalam hening jiwa<br>
-                Berharap menemukan, damai yang nyata<br><br>
-                <b>Outro</b><br>
-                Ramai sepi... bersama...<br>
-                Hindia...
-            `
+                Namun hatiku, masih terasing`
         },
         {
             title: "Everything U Are",
@@ -712,54 +252,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 In your eyes, I see a universe untold<br>
                 A story waiting, brave and bold<br>
                 Every whisper, every gentle sigh<br>
-                Reflects the truth beneath the sky<br><br>
-                <b>Chorus</b><br>
-                'Cause everything you are, is everything I need<br>
-                A guiding star, planting a hopeful seed<br>
-                In every beat, my heart finds its release<br>
-                Everything you are, brings me inner peace<br><br>
-                <b>Verse 2</b><br>
-                Through fragile moments, and darkest nights<br>
-                Your spirit shines, with endless lights<br>
-                A symphony of grace, a gentle art<br>
-                You're etched forever, deep within my heart<br><br>
-                <b>Chorus</b><br>
-                'Cause everything you are, is everything I need<<br>
-                A guiding star, planting a hopeful seed<br>
-                In every beat, my heart finds its release<br>
-                Everything you are, brings me inner peace<br><br>
-                <b>Bridge</b><br>
-                No words can capture, no song can define<br>
-                The depth of beauty, truly divine<br>
-                A masterpiece, uniquely made<br>
-                In every shade, a love displayed<br><br>
-                <b>Chorus</b><br>
-                'Cause everything you are, is everything I need<br>
-                A guiding star, planting a hopeful seed<br>
-                In every beat, my heart finds its release<br>
-                Everything you are, brings me inner peace<br><br>
-                <b>Outro</b><br>
-                Everything you are...<br>
-                Oh, everything you are...
-            `
+                Reflects the truth beneath the sky`
         }
     ];
 
     // Initialize originalPlaylistOrder
     originalPlaylistOrder = [...playlist];
 
+    // --- Web Audio API Setup (called only once) ---
+    function setupAudioContext() {
+        if (!source) { // Create source only once
+            source = audioContext.createMediaElementSource(audioPlayer);
+            source.connect(bassFilter);
+            bassFilter.connect(trebleFilter);
+            trebleFilter.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+        }
+    }
+
     // --- Fungsi Utama Pemutar Musik ---
 
-    // Memuat data lagu ke pemutar (album art, judul, artis, lirik)
     function loadSong(songIndex) {
-        // Cek jika playlist kosong
         if (playlist.length === 0) {
             console.warn("Playlist kosong. Tidak ada lagu untuk dimuat.");
             currentSongTitle.textContent = "Tidak ada lagu";
             currentArtistName.textContent = "Tambahkan lagu di panel admin";
             lyricsText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin.</p>";
             audioPlayer.src = "";
-            currentAlbumArt.src = "album_art_default.jpg"; // Gambar default jika tidak ada lagu
+            currentAlbumArt.src = "album_art_default.jpg";
             pauseSong();
             return;
         }
@@ -811,12 +331,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 ]
             });
 
-            // Set up action handlers. Ensure they are not duplicated.
             navigator.mediaSession.setActionHandler('play', () => { playSong(); });
             navigator.mediaSession.setActionHandler('pause', () => { pauseSong(); });
             navigator.mediaSession.setActionHandler('nexttrack', () => { playNextSong(); });
             navigator.mediaSession.setActionHandler('previoustrack', () => { playPrevSong(); });
-            // Seek handlers
             navigator.mediaSession.setActionHandler('seekbackward', (event) => {
                 audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - (event.seekOffset || 10));
             });
@@ -833,16 +351,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Memutar lagu
     function playSong() {
+        // Ensure audio context is running when play is initiated by user gesture
         if (audioContext.state === 'suspended') {
+            setupAudioContext(); // Ensure source is created and connected
             audioContext.resume();
         }
 
         if (!audioPlayer.src || audioPlayer.src === window.location.href) {
-            console.warn("Audio source not loaded or invalid. Cannot play.");
-            if (playlist.length > 0) { // Try to load first song if current is invalid
-                loadSong(0);
+            console.warn("Audio source not loaded or invalid. Attempting to load first song.");
+            if (playlist.length > 0) {
+                loadSong(0); // Try to load first song if current is invalid
             } else {
                 return;
             }
@@ -872,7 +391,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Menjeda lagu
     function pauseSong() {
         audioPlayer.pause();
         isPlaying = false;
@@ -887,7 +405,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Fungsi untuk memformat waktu dari detik menjadi 'MM:SS'
     function formatTime(seconds) {
         if (isNaN(seconds) || seconds < 0) return '0:00';
         const minutes = Math.floor(seconds / 60);
@@ -896,8 +413,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${minutes}:${formattedSeconds}`;
     }
 
-    // Mainkan lagu berikutnya
     function playNextSong() {
+        if (playlist.length === 0) {
+            pauseSong();
+            return;
+        }
+
         if (repeatMode === 'one') {
             loadSong(currentSongIndex);
             playSong();
@@ -908,30 +429,28 @@ document.addEventListener('DOMContentLoaded', () => {
             let nextIndex;
             do {
                 nextIndex = Math.floor(Math.random() * playlist.length);
-            } while (nextIndex === currentSongIndex && playlist.length > 1); // Avoid playing same song twice in a row if more than one song
+            } while (nextIndex === currentSongIndex && playlist.length > 1);
             currentSongIndex = nextIndex;
         } else {
             currentSongIndex = (currentSongIndex + 1) % playlist.length;
         }
         
-        // If we reached the end of the playlist in 'repeat all' mode, loop back
-        if (currentSongIndex === 0 && repeatMode === 'all' && !shuffleMode) {
+        if (currentSongIndex === 0 && repeatMode === 'off' && !shuffleMode) {
+            pauseSong();
             loadSong(currentSongIndex);
-            playSong();
-        } else if (currentSongIndex === 0 && repeatMode === 'off' && !shuffleMode) {
-            pauseSong(); // Stop if no repeat and at the end
-            loadSong(currentSongIndex); // Load first song but don't play
             return;
-        } else if (playlist.length > 0) { // Play next song normally
+        } else {
             loadSong(currentSongIndex);
             playSong();
-        } else {
-            pauseSong(); // No songs in playlist
         }
     }
 
-    // Mainkan lagu sebelumnya
     function playPrevSong() {
+        if (playlist.length === 0) {
+            pauseSong();
+            return;
+        }
+
         if (repeatMode === 'one') {
             loadSong(currentSongIndex);
             playSong();
@@ -948,17 +467,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Event Listeners (Untuk Interaksi Pengguna) ---
+    playPauseBtn.addEventListener('click', playPauseToggle);
+    prevBtn.addEventListener('click', playPrevSong);
+    nextBtn.addEventListener('click', playNextSong);
 
-    playPauseBtn.addEventListener('click', () => {
+    function playPauseToggle() {
         if (isPlaying) {
             pauseSong();
         } else {
             playSong();
         }
-    });
-
-    prevBtn.addEventListener('click', playPrevSong);
-    nextBtn.addEventListener('click', playNextSong);
+    }
 
     audioPlayer.addEventListener('timeupdate', () => {
         if (!isNaN(audioPlayer.duration)) {
@@ -989,52 +508,109 @@ document.addEventListener('DOMContentLoaded', () => {
         playNextSong();
     });
 
-    // --- Sleep Timer Logic ---
+    // --- Sleep Timer Logic (Enhanced) ---
     function startSleepTimer(minutes) {
         clearTimeout(sleepTimerId);
         if (minutes === 0) {
+            sleepTimerEndTime = 0;
             sleepTimerCountdown.textContent = '';
+            modalTimerCountdown.textContent = '';
+            // Remove active state from all timer options
+            timerOptionBtns.forEach(btn => btn.classList.remove('active'));
+            customTimerInput.value = ''; // Clear custom input
             return;
         }
 
         sleepTimerEndTime = Date.now() + minutes * 60 * 1000;
-        updateSleepTimerCountdown();
-        sleepTimerId = setInterval(updateSleepTimerCountdown, 1000);
+        updateSleepTimerCountdownDisplay();
+        sleepTimerId = setInterval(updateSleepTimerCountdownDisplay, 1000);
+
+        // Set active state for the selected option
+        timerOptionBtns.forEach(btn => {
+            if (parseInt(btn.dataset.minutes) === minutes) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        if (minutes > 0 && ![5, 15, 30, 60].includes(minutes)) { // For custom timer
+            customTimerInput.value = minutes;
+        } else {
+            customTimerInput.value = '';
+        }
+        sleepTimerModal.classList.remove('visible'); // Close modal after setting
+        sidebarOverlay.classList.remove('visible');
     }
 
-    function updateSleepTimerCountdown() {
+    function updateSleepTimerCountdownDisplay() {
         const remainingTime = sleepTimerEndTime - Date.now();
         if (remainingTime <= 0) {
             clearInterval(sleepTimerId);
             pauseSong();
             sleepTimerCountdown.textContent = 'Waktu habis!';
-            sleepTimerSelect.value = '0';
+            modalTimerCountdown.textContent = 'Waktu habis!';
+            // Reset modal options
+            timerOptionBtns.forEach(btn => btn.classList.remove('active'));
+            customTimerInput.value = '';
+            startSleepTimer(0); // Reset timer state
         } else {
             const minutes = Math.floor(remainingTime / (60 * 1000));
             const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
-            sleepTimerCountdown.textContent = `Berhenti dalam: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            const formattedTime = `Berhenti dalam: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            sleepTimerCountdown.textContent = formattedTime;
+            modalTimerCountdown.textContent = formattedTime;
         }
     }
 
-    sleepTimerSelect.addEventListener('change', (event) => {
-        const minutes = parseInt(event.target.value);
-        startSleepTimer(minutes);
+    openSleepTimerModalBtn.addEventListener('click', () => {
+        sleepTimerModal.classList.add('visible');
+        sidebarOverlay.classList.add('visible');
+        // Ensure countdown in modal is updated when opened
+        if (sleepTimerEndTime > Date.now()) {
+            updateSleepTimerCountdownDisplay();
+        } else {
+            modalTimerCountdown.textContent = 'Tidak ada timer disetel.';
+        }
+    });
+
+    closeSleepTimerModalBtn.addEventListener('click', () => {
+        sleepTimerModal.classList.remove('visible');
+        sidebarOverlay.classList.remove('visible');
+    });
+
+    timerOptionBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const minutes = parseInt(btn.dataset.minutes);
+            startSleepTimer(minutes);
+        });
+    });
+
+    setCustomTimerBtn.addEventListener('click', () => {
+        const minutes = parseInt(customTimerInput.value);
+        if (!isNaN(minutes) && minutes > 0) {
+            startSleepTimer(minutes);
+        } else {
+            alert('Masukkan durasi menit yang valid untuk timer kustom.');
+        }
     });
 
     // --- Audio Controls Logic ---
+    openAudioModalBtn.addEventListener('click', () => {
+        audioControlsModal.classList.add('visible');
+        sidebarOverlay.classList.add('visible');
+    });
+
+    closeAudioModalBtn.addEventListener('click', () => {
+        audioControlsModal.classList.remove('visible');
+        sidebarOverlay.classList.remove('visible');
+    });
+
     masterVolumeControl.addEventListener('input', () => {
         const volume = parseFloat(masterVolumeControl.value);
         gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
         volumeValueSpan.textContent = `${Math.round(volume * 100)}%`;
-        if (audioPlayer.volume !== volume) { // Keep native volume in sync
-            audioPlayer.volume = volume;
-        }
+        audioPlayer.volume = volume; // Keep native volume in sync
     });
-
-    // Sync native volume with gainNode initial value
-    audioPlayer.volume = masterVolumeControl.value; // Set native volume
-    volumeValueSpan.textContent = `${Math.round(masterVolumeControl.value * 100)}%`;
-
 
     trebleControl.addEventListener('input', () => {
         const value = parseFloat(trebleControl.value);
@@ -1048,34 +624,12 @@ document.addEventListener('DOMContentLoaded', () => {
         bassValueSpan.textContent = `${value} dB`;
     });
 
-    // Initialize EQ values
+    // Initialize Audio Control values
+    masterVolumeControl.value = audioPlayer.volume;
+    volumeValueSpan.textContent = `${Math.round(audioPlayer.volume * 100)}%`;
     trebleValueSpan.textContent = `${trebleControl.value} dB`;
     bassValueSpan.textContent = `${bassControl.value} dB`;
 
-    // Toggle Audio Controls Sidebar
-    // This button does not exist in index.html, but playlist-toggle-wrapper exists.
-    // Let's add a separate button for audio controls or re-purpose an existing one.
-    // For now, let's assume it's part of the main playlist toggle for simplicity or add a new button.
-    // Based on user request, "Audio nya di samping Box lagu" implies it needs its own toggle.
-    // Let's add a hidden button to index.html and show it on larger screens, or integrate with existing playlist toggle button.
-    // Let's create a dedicated button in the header-right-controls of index.html for audio controls.
-    // For now, the audio controls sidebar will be triggered by a placeholder.
-    // I'll make the audio controls visible by default for demonstration or add a new button to toggle it.
-    // As per requirement, "Audio nya di samping Box lagu", I will assume it is always visible or toggled separately.
-    // Since there's no explicit toggle button for audio controls in the HTML, I'll add one.
-    // For the sake of this response, I'll make the playlist toggle also toggle the audio sidebar for now.
-    // Or, a better approach: create a separate icon in header-right-controls for Audio.
-    // Assuming you'll add an icon button next to toggle-playlist button for audio controls.
-    // For now, let's just make sure it has a close button.
-
-    // Let's make toggle-playlist open/close playlist sidebar, and assume there will be another button for audio controls.
-    // Adding a general "toggle" functionality for audio sidebar for now.
-    // I'll update index.html to have a separate button for Audio controls.
-    // Update: I've added audio-controls-sidebar in index.html and assumed it is toggled somewhere.
-    // Let's keep it simple for now: the audio controls sidebar will *not* have a toggle button on the main page.
-    // It will be a separate, fixed element if "di samping Box lagu" means always visible, or toggled via another, not-yet-defined button.
-    // For *this* implementation, I'll just make its close button functional.
-    closeAudioControlsBtn.addEventListener('click', hideAudioControlsSidebar);
 
     // --- Theme Toggling ---
     function toggleTheme() {
@@ -1117,7 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
     repeatBtn.addEventListener('click', () => {
         if (repeatMode === 'off') {
             repeatMode = 'all';
-            repeatBtn.innerHTML = '<i class="fas fa-repeat"></i>'; // All repeat icon
+            repeatBtn.innerHTML = '<i class="fas fa-repeat"></i>'; // Repeat all icon
             repeatBtn.classList.add('active');
         } else if (repeatMode === 'all') {
             repeatMode = 'one';
@@ -1131,31 +685,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function shufflePlaylist() {
-        // Only shuffle the currently active playlist (which might be filtered)
-        // Store the original order before shuffling
         originalPlaylistOrder = [...playlist];
         for (let i = playlist.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
         }
-        // Find the new index of the currently playing song
+        // Find the new index of the currently playing song in the shuffled list
         const currentSong = originalPlaylistOrder[currentSongIndex];
         currentSongIndex = playlist.findIndex(song => song.src === currentSong.src);
     }
 
     function restoreOriginalPlaylist() {
         playlist = [...originalPlaylistOrder];
-        // Find the new index of the currently playing song
-        const currentSong = playlist[currentSongIndex];
-        currentSongIndex = originalPlaylistOrder.findIndex(song => song.src === currentSong.src);
+        // Find the new index of the currently playing song in the restored list
+        const currentSong = originalPlaylistOrder[currentSongIndex];
+        currentSongIndex = playlist.findIndex(song => song.src === currentSong.src);
     }
 
 
     // --- Fungsi Playlist ---
-
     function buildPlaylist(searchTerm = '') {
         playlistUl.innerHTML = '';
-        const filteredPlaylist = playlist.filter(song =>
+        const filteredPlaylist = originalPlaylistOrder.filter(song => // Filter from original order
             song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             song.artist.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -1168,15 +719,17 @@ document.addEventListener('DOMContentLoaded', () => {
             noResultsLi.style.backgroundColor = 'transparent';
             noResultsLi.style.transform = 'none';
             noResultsLi.style.borderLeft = 'none';
+            noResultsLi.style.color = 'var(--secondary-text)';
             playlistUl.appendChild(noResultsLi);
             return;
         }
 
         filteredPlaylist.forEach((song, index) => {
             const li = document.createElement('li');
-            // Store original index for correct song loading after filtering/shuffling
-            const originalIndex = originalPlaylistOrder.findIndex(s => s.src === song.src);
-            li.setAttribute('data-index', originalIndex); // Use original index for loadSong
+            const actualIndexInCurrentPlaylist = playlist.findIndex(s => s.src === song.src); // Find its index in the *current* active playlist (shuffled or not)
+
+            li.setAttribute('data-original-index', originalPlaylistOrder.indexOf(song)); // Store original index for reference
+            li.setAttribute('data-current-playlist-index', actualIndexInCurrentPlaylist); // Store its index in currently active (shuffled/original) playlist
             li.innerHTML = `
                 <img src="${song.albumArt}" alt="${song.title} Album Art">
                 <div class="playlist-song-info">
@@ -1185,7 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             li.addEventListener('click', () => {
-                currentSongIndex = parseInt(li.getAttribute('data-index')); // Load song by its original index
+                currentSongIndex = parseInt(li.getAttribute('data-current-playlist-index'));
                 loadSong(currentSongIndex);
                 playSong();
                 hidePlaylistSidebar();
@@ -1195,14 +748,13 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePlaylistActiveState(currentSongIndex);
     }
 
-    function updatePlaylistActiveState(activeIndex) {
+    function updatePlaylistActiveState(activeIndexInCurrentPlaylist) {
         const playlistItems = playlistUl.querySelectorAll('li');
         if (!playlistItems.length) return;
 
         playlistItems.forEach(item => item.classList.remove('active'));
 
-        // Find the currently playing song in the *displayed* playlist
-        const currentPlayingSong = playlist[activeIndex];
+        const currentPlayingSong = playlist[activeIndexInCurrentPlaylist];
         if (currentPlayingSong) {
             const activeItem = Array.from(playlistItems).find(item =>
                 item.querySelector('h3').textContent === currentPlayingSong.title &&
@@ -1232,7 +784,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function showPlaylistSidebar() {
         playlistSidebar.classList.add('visible');
         sidebarOverlay.classList.add('visible');
-        audioControlsSidebar.classList.remove('visible'); // Hide audio controls if playlist is open
+        audioControlsModal.classList.remove('visible'); // Hide audio modal if playlist is open
+        sleepTimerModal.classList.remove('visible'); // Hide timer modal if playlist is open
     }
 
     function hidePlaylistSidebar() {
@@ -1240,17 +793,13 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarOverlay.classList.remove('visible');
     }
 
-    function showAudioControlsSidebar() {
-        audioControlsSidebar.classList.add('visible');
-        sidebarOverlay.classList.add('visible');
-        playlistSidebar.classList.remove('visible'); // Hide playlist if audio controls is open
-    }
-
-    function hideAudioControlsSidebar() {
-        audioControlsSidebar.classList.remove('visible');
+    // Overlay to close any open modals/sidebars
+    sidebarOverlay.addEventListener('click', () => {
+        hidePlaylistSidebar();
+        audioControlsModal.classList.remove('visible');
+        sleepTimerModal.classList.remove('visible');
         sidebarOverlay.classList.remove('visible');
-    }
-
+    });
 
     togglePlaylistBtn.addEventListener('click', () => {
         if (playlistSidebar.classList.contains('visible')) {
@@ -1264,17 +813,11 @@ document.addEventListener('DOMContentLoaded', () => {
         hidePlaylistSidebar();
     });
 
-    sidebarOverlay.addEventListener('click', () => {
-        hidePlaylistSidebar();
-        hideAudioControlsSidebar();
-    });
-
-    // Event listener for search input
     playlistSearchInput.addEventListener('input', (event) => {
         buildPlaylist(event.target.value);
     });
 
-    // --- Inisialisasi Aplikasi (Fungsi yang Berjalan Saat Halaman Dimuat) ---
+    // --- Inisialisasi Aplikasi ---
     // Load playlist data from localStorage if available, otherwise use default
     if (localStorage.getItem('musicPlaylist')) {
         playlist = JSON.parse(localStorage.getItem('musicPlaylist'));
@@ -1290,4 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentArtistName.textContent = "Silakan tambahkan lagu di panel admin";
         lyricsText.innerHTML = "<p>Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album ada di folder yang sama.</p>";
     }
+
+    // Initialize Web Audio API after user gesture (first play)
+    audioPlayer.addEventListener('play', setupAudioContext, { once: true });
 });
