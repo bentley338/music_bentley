@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="app_icon.png" type="image/png">
     <style>
-        /* Gaya spesifik untuk halaman kontak */
+        /* Gaya spesifik untuk halaman kontak (gunakan CSS dari style.css utama untuk konsistensi) */
         .contact-container {
             padding: 40px;
             text-align: center;
@@ -21,7 +21,7 @@
             max-width: 500px;
             width: 90%;
             margin: auto;
-            margin-top: 100px; /* Space from header */
+            margin-top: 100px; /* Ruang dari header */
             margin-bottom: 20px;
             transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
         }
@@ -29,7 +29,7 @@
         .contact-container h2 {
             font-family: 'Montserrat', sans-serif;
             color: var(--primary-text);
-            font-size: 2.5em; /* Larger title */
+            font-size: 2.5em; /* Judul lebih besar */
             margin-bottom: 30px;
             transition: color 0.5s ease;
             text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
@@ -42,19 +42,19 @@
         }
 
         .contact-info li {
-            margin-bottom: 20px; /* Increased spacing */
-            font-size: 1.2em; /* Larger font */
+            margin-bottom: 20px; /* Jarak antar item lebih besar */
+            font-size: 1.2em; /* Ukuran font lebih besar */
             color: var(--secondary-text);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px; /* Increased gap */
+            gap: 15px; /* Jarak antar ikon dan teks lebih besar */
             transition: color 0.5s ease;
         }
 
         .contact-info li i {
             color: var(--accent-purple);
-            font-size: 1.8em; /* Larger icons */
+            font-size: 1.8em; /* Ikon lebih besar */
             transition: color 0.5s ease;
         }
 
@@ -69,7 +69,7 @@
             text-shadow: 0 0 5px rgba(255, 69, 0, 0.5);
         }
 
-        /* Override for light mode */
+        /* Override untuk mode terang */
         body.light-mode .contact-info li i {
             color: var(--accent-red);
         }
@@ -82,13 +82,13 @@
 
         .back-home-btn {
             display: inline-block;
-            margin-top: 40px; /* More space from contact info */
-            padding: 15px 30px; /* Larger button */
+            margin-top: 40px; /* Jarak lebih besar dari info kontak */
+            padding: 15px 30px; /* Tombol lebih besar */
             background: var(--accent-purple);
             color: white;
             text-decoration: none;
             border-radius: var(--border-radius-sm);
-            font-weight: 700; /* Bolder text */
+            font-weight: 700; /* Teks lebih tebal */
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
@@ -101,7 +101,7 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.7);
         }
 
-        /* Responsive adjustments for contact page */
+        /* Penyesuaian responsif untuk halaman kontak */
         @media (max-width: 768px) {
             .contact-container {
                 padding: 30px;
@@ -133,7 +133,7 @@
                 margin-bottom: 20px;
             }
             .contact-info li {
-                flex-direction: column; /* Stack icon and text */
+                flex-direction: column; /* Ikon dan teks menumpuk */
                 align-items: center;
                 gap: 5px;
                 font-size: 1em;
@@ -165,7 +165,7 @@
             </h1>
         </div>
         <div class="header-right-controls">
-            <button id="toggle-theme-btn" class="btn btn-icon" aria-label="Toggle Theme">
+            <button id="toggle-theme-btn" class="btn btn-icon" aria-label="Toggle Tema">
                 <i class="fas fa-sun"></i>
             </button>
         </div>
@@ -194,7 +194,7 @@
                 const isLightMode = document.body.classList.contains('light-mode');
                 localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
                 toggleThemeBtn.innerHTML = isLightMode ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
-                toggleThemeBtn.setAttribute('aria-label', isLightMode ? 'Switch to Dark Mode' : 'Switch to Light Mode');
+                toggleThemeBtn.setAttribute('aria-label', isLightMode ? 'Beralih ke Mode Gelap' : 'Beralih ke Mode Terang');
             }
 
             toggleThemeBtn.addEventListener('click', toggleTheme);
@@ -203,16 +203,16 @@
             if (savedTheme === 'light') {
                 document.body.classList.add('light-mode');
                 toggleThemeBtn.innerHTML = '<i class="fas fa-moon"></i>';
-                toggleThemeBtn.setAttribute('aria-label', 'Switch to Dark Mode');
+                toggleThemeBtn.setAttribute('aria-label', 'Beralih ke Mode Gelap');
             } else {
                 document.body.classList.remove('light-mode');
                 toggleThemeBtn.innerHTML = '<i class="fas fa-sun"></i>';
-                toggleThemeBtn.setAttribute('aria-label', 'Switch to Light Mode');
+                toggleThemeBtn.setAttribute('aria-label', 'Beralih ke Mode Terang');
             }
 
             if (backgroundVideo) {
                 backgroundVideo.play().catch(error => {
-                    console.log('Autoplay was prevented on contact page. User interaction might be needed.', error);
+                    console.log('Autoplay dicegah di halaman kontak. Mungkin diperlukan interaksi pengguna.', error);
                 });
             }
         });
