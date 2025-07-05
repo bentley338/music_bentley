@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentAlbumArt = document.getElementById('current-album-art');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentArtistName = document.getElementById('current-artist-name');
-    const lyricsText = document.getElementById('lyrics-text');
+    const infoText = document.getElementById('info-text'); // Changed from lyricsText
     const playlistUl = document.getElementById('playlist');
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarOverlay = document.getElementById('sidebar-overlay');
     const backgroundVideo = document.getElementById('background-video');
 
-    // New elements for enhanced UI
+    // Elemen baru untuk UI yang ditingkatkan
     const sleepTimerDisplay = document.getElementById('sleep-timer-display');
     const openSleepTimerModalBtn = document.getElementById('open-sleep-timer-modal');
     const sleepTimerModal = document.getElementById('sleepTimerModal');
@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const timerOptionBtns = document.querySelectorAll('.timer-option-btn');
     const customTimerInput = document.getElementById('custom-timer-input');
     const setCustomTimerBtn = document.getElementById('set-custom-timer-btn');
-    const sleepTimerCountdown = document.getElementById('sleep-timer-countdown'); // Main display
-    const modalTimerCountdown = document.getElementById('modal-timer-countdown'); // Modal display
+    const sleepTimerCountdown = document.getElementById('sleep-timer-countdown'); // Tampilan utama
+    const modalTimerCountdown = document.getElementById('modal-timer-countdown'); // Tampilan modal
 
     const openAudioModalBtn = document.getElementById('open-audio-modal-btn');
     const audioControlsModal = document.getElementById('audioControlsModal');
@@ -38,24 +38,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const trebleValueSpan = document.getElementById('treble-value');
     const bassControl = document.getElementById('bass-control');
     const bassValueSpan = document.getElementById('bass-value');
+    const effectLevelControl = document.getElementById('effect-level-control'); // New: Effect Level
+    const effectLevelValueSpan = document.getElementById('effect-level-value'); // New: Effect Level Value
 
     const toggleThemeBtn = document.getElementById('toggle-theme-btn');
     const shuffleBtn = document.getElementById('shuffle-btn');
     const repeatBtn = document.getElementById('repeat-btn');
     const playlistSearchInput = document.getElementById('playlist-search');
 
-    // --- Web Audio API for EQ ---
+    // --- Web Audio API untuk EQ dan Effect Level ---
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    let source; // Will be created once audio is playing
-    const gainNode = audioContext.createGain(); // Master Volume
+    let source; // Akan dibuat setelah audio mulai diputar
+    const gainNode = audioContext.createGain(); // Volume Utama
     const bassFilter = audioContext.createBiquadFilter();
     const trebleFilter = audioContext.createBiquadFilter();
+    const effectLevelGainNode = audioContext.createGain(); // Node Gain untuk Effect Level
 
-    // Setup EQ filters
+    // Pengaturan Filter EQ
     bassFilter.type = 'lowshelf';
-    bassFilter.frequency.setValueAtTime(250, audioContext.currentTime); // Freq for bass
+    bassFilter.frequency.setValueAtTime(250, audioContext.currentTime); // Frekuensi untuk bass
     trebleFilter.type = 'highshelf';
-    trebleFilter.frequency.setValueAtTime(2500, audioContext.currentTime); // Freq for treble
+    trebleFilter.frequency.setValueAtTime(2500, audioContext.currentTime); // Frekuensi untuk treble
 
     // --- Variabel State ---
     let currentSongIndex = 0;
@@ -64,208 +67,148 @@ document.addEventListener('DOMContentLoaded', () => {
     let sleepTimerEndTime = 0;
     let shuffleMode = false;
     let repeatMode = 'off'; // 'off', 'one', 'all'
-    let originalPlaylistOrder = []; // To store original order for shuffle
+    let originalPlaylistOrder = []; // Untuk menyimpan urutan asli playlist
 
-    // --- DATA LAGU (LOAD DARI LOCALSTORAGE) ---
+    // --- DATA LAGU (LOAD DARI LOCALSTORAGE ATAU DEFAULT) ---
+    // Pastikan data ini di-override jika ada data dari localStorage (dari admin panel)
     let playlist = JSON.parse(localStorage.getItem('musicPlaylist')) || [
-        // Default songs if localStorage is empty
+        // Lagu-lagu default jika localStorage kosong
+        // PENTING: GANTI URL DI BAWAH INI DENGAN URL MENTAH DARI GITHUB PAGES ANDA!
+        // Contoh: https://<your-username>.github.io/<your-repo>/<path-to-file>/song.mp3
         {
             title: "Back to Friends",
             artist: "Sombr",
-            src: "back_to_friends.mp3",
-            albumArt: "album_art_back_to_friends.jpg",
-            lyrics: `<b>🎶 Back to Friends – Sombr</b><br><br>
-                <b>Verse 1</b><br>
-                Touch my body tender<br>
-                ’Cause the feeling makes me weak<br>
-                Kicking off the covers<br>
-                I see the ceiling while you’re looking down at me<br><br>
-                <b>Chorus</b><br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I’m someone you’ve never met?`
+            src: "https://bentley16.github.io/MelodyVerse/back_to_friends.mp3", // Contoh URL GitHub Pages
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_back_to_friends.jpg", // Contoh URL GitHub Pages
+            info: `<b>🎶 Back to Friends – Sombr</b><br><br>
+                Lagu ini menggambarkan kerumitan transisi dari hubungan romantis ke pertemanan. Liriknya, "How can we go back to being friends when we just shared a bed?", menyoroti kebingungan dan kesulitan emosional setelah melewati batas dalam sebuah hubungan. Dibuat dengan melodi yang melankolis namun memikat, lagu ini cocok untuk siapa saja yang pernah merasakan dilema serupa.`
         },
         {
             title: "Bergema Sampai Selamanya",
             artist: "Nadhif Basalamah",
-            src: "bergema_sampai_selamanya.mp3",
-            albumArt: "album_art_bergema_sampai_selamanya.jpg",
-            lyrics: `<b>🎶 Bergema Sampai Selamanya – Nadhif Basalamah</b><br><br>
-                <b>Verse 1</b><br>
-                Dengarkan hati bicara<br>
-                Di setiap desah napasmu<br>
-                Ada cerita yang takkan pudar<br>
-                Di setiap langkah kakimu<br><br>
-                <b>Chorus</b><                Bergema sampai selamanya<br>
-                Cinta kita takkan sirna<br>
-                Di setiap nada yang tercipta<br>
-                Hanyalah namamu yang ada`
+            src: "https://bentley16.github.io/MelodyVerse/bergema_sampai_selamanya.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_bergema_sampai_selamanya.jpg",
+            info: `<b>🎶 Bergema Sampai Selamanya – Nadhif Basalamah</b><br><br>
+                Lagu ini adalah ode untuk cinta abadi yang tidak akan pernah pudar oleh waktu. Melalui lirik puitis, Nadhif Basalamah menangkap esensi dari ikatan yang mendalam, di mana setiap napas dan langkah diisi dengan kenangan tak terlupakan. Makna dari lagu ini adalah tentang janji yang terukir abadi di jiwa, sebuah pengingat bahwa cinta sejati akan selalu bergema, melewati batas ruang dan waktu.`
         },
         {
             title: "Ride",
             artist: "SoMo",
-            src: "ride.mp3",
-            albumArt: "album_art_ride.jpg",
-            lyrics: `<b>🎶 Ride – SoMo</b><br><br>
-                <b>Verse 1</b><br>
-                I'm riding high, I'm riding low<br>
-                I'm going where the wind don't blow<br>
-                Just cruising, feeling good tonight<br>
-                Everything is working out just right`
+            src: "https://bentley16.github.io/MelodyVerse/ride.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_ride.jpg",
+            info: `<b>🎶 Ride – SoMo</b><br><br>
+                "Ride" adalah lagu yang merayakan kebebasan dan kegembiraan dalam menikmati hidup tanpa beban. SoMo mengajak pendengar untuk melepaskan kekhawatiran dan menikmati setiap momen perjalanan. Inspirasi di balik lagu ini adalah tentang menjalani hidup dengan santai, seperti mengendarai mobil di bawah langit cerah tanpa tujuan pasti, hanya menikmati kebersamaan dan keindahan yang ada.`
         },
         {
             title: "Rumah Kita",
             artist: "God Bless",
-            src: "rumah_kita.mp3",
-            albumArt: "album_art_rumah_kita.jpg",
-            lyrics: `<b>🎶 Rumah Kita – God Bless</b><br><br>
-                <b>Verse 1</b><br>
-                Hanya bilik bambu<br>
-                Tempat tinggal kita<br>
-                Tanpa hiasan, tanpa lukisan<br>
-                Hanya jendela, tanpa tiang`
+            src: "https://bentley16.github.io/MelodyVerse/rumah_kita.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_rumah_kita.jpg",
+            info: `<b>🎶 Rumah Kita – God Bless</b><br><br>
+                Lagu legendaris dari God Bless ini adalah metafora tentang kesederhanaan dan kehangatan sebuah rumah, bukan dari kemewahannya, melainkan dari cinta dan kebersamaan di dalamnya. "Rumah Kita" diciptakan sebagai pengingat bahwa kebahagiaan sejati ditemukan dalam ikatan keluarga dan tempat di mana kita merasa aman dan dicintai, jauh lebih berharga dari istana mana pun.`
         },
         {
             title: "Style",
             artist: "Taylor Swift",
-            src: "style.mp3",
-            albumArt: "album_art_style.jpg",
-            lyrics: `<b>🎶 Style – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                Midnight, you come and pick me up, no headlights<br>
-                Long drive, could end in burning flames or paradise<br>
-                Fade into view, oh, it's been a while since I have even heard from you`
+            src: "https://bentley16.github.io/MelodyVerse/style.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_style.jpg",
+            info: `<b>🎶 Style – Taylor Swift</b><br><br>
+                "Style" adalah lagu yang menangkap dinamika hubungan yang rumit namun tak terhindarkan, di mana dua individu terus-menerus kembali satu sama lain, seperti "we never go out of style". Lagu ini menceritakan tentang daya tarik yang kuat dan tak lekang oleh waktu antara dua orang yang, meskipun menghadapi pasang surut, selalu menemukan jalan kembali. Dibuat dengan sentuhan pop yang kental dan nuansa 80-an.`
         },
         {
             title: "Message In A Bottle",
             artist: "Taylor Swift",
-            src: "message_in_a_bottle.mp3",
-            albumArt: "album_art_message_in_a_bottle.jpg",
-            lyrics: `<b>🎶 Message In A Bottle – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                I was ridin' in a getaway car<br>
-                I was crying in a getaway car<br>
-                I was dying in a getaway car<br>
-                Said goodbye to the girl you used to be`
+            src: "https://bentley16.github.io/MelodyVerse/message_in_a_bottle.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_message_in_a_bottle.jpg",
+            info: `<b>🎶 Message In A Bottle – Taylor Swift</b><br><br>
+                Terinspirasi dari perasaan kerinduan dan harapan, "Message In A Bottle" adalah lagu yang menggambarkan upaya untuk menjaga kenangan dan cinta tetap hidup, meskipun terpisah jarak. Seperti pesan dalam botol yang dilemparkan ke lautan, lagu ini adalah doa agar suatu hari pesan cinta dan kenangan akan menemukan jalannya kembali kepada orang yang dituju. Melodinya yang menyentuh hati mencerminkan emosi mendalam tentang kehilangan dan harapan.`
         },
         {
             title: "Supernatural",
             artist: "Ariana Grande",
-            src: "supernatural.mp3",
-            albumArt: "album_art_supernatural.jpg",
-            lyrics: `<b>🎶 Supernatural – Ariana Grande</b><br><br>
-                <b>Verse 1</b><br>
-                You're my supernatural, my magic<br>
-                Every touch, a dream, a sweet habit<br>
-                In your eyes, a universe I find<br>
-                Leaving all my worries far behind`
+            src: "https://bentley16.github.io/MelodyVerse/supernatural.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_supernatural.jpg",
+            info: `<b>🎶 Supernatural – Ariana Grande</b><br><br>
+                "Supernatural" adalah lagu yang merayakan cinta yang terasa di luar dunia ini, ajaib dan tak dapat dijelaskan. Ariana Grande menyanyikan tentang hubungan yang begitu mendalam sehingga terasa seperti takdir, di mana setiap sentuhan dan pandangan menciptakan alam semesta baru. Makna lagu ini adalah tentang menemukan koneksi spiritual yang unik dan ilahi dengan seseorang, yang melampaui logika dan membuat segalanya terasa alami dan sempurna.`
         },
         {
             title: "Favorite Lesson",
             artist: "Yaeow",
-            src: "favorite_lesson.mp3",
-            albumArt: "album_art_favorite_lesson.jpg",
-            lyrics: `<b>🎶 Favorite Lesson – Yaeow</b><br><br>
-                <b>Verse 1</b><br>
-                Always telling me that I should find the time for me<br>
-                Working tirelessly until I lose my energy<br>
-                You’re the only one who really knows the things I need`
+            src: "https://bentley16.github.io/MelodyVerse/favorite_lesson.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_favorite_lesson.jpg",
+            info: `<b>🎶 Favorite Lesson – Yaeow</b><br><br>
+                Lagu ini adalah penghormatan tulus kepada seseorang yang selalu memberikan pelajaran berharga dalam hidup. Yaeow mengungkapkan rasa syukur atas bimbingan dan dukungan tak henti, yang membantu melewati kesulitan dan tumbuh menjadi pribadi yang lebih baik. Lagu ini dibuat sebagai pengingat akan pentingnya memiliki seseorang yang selalu mendorong, menguji, dan menjadi sumber inspirasi sejati, menjadikan setiap pelajaran sebagai yang terbaik.`
         },
         {
             title: "So High School",
             artist: "Taylor Swift",
-            src: "so_high_school.mp3",
-            albumArt: "album_art_so_high_school.jpg",
-            lyrics: `<b>🎶 So High School – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                I feel like I'm back in high school again<br>
-                Butterflies every time you walk in<br>
-                Like a freshman, crushin' hard, don't pretend`
+            src: "https://bentley16.github.io/MelodyVerse/so_high_school.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_so_high_school.jpg",
+            info: `<b>🎶 So High School – Taylor Swift</b><br><br>
+                "So High School" menangkap perasaan gembira dan malu-malu dari romansa remaja pertama yang intens. Taylor Swift menggambarkan momen-momen klasik cinta masa SMA, dari kupu-kupu di perut hingga bisikan rahasia, yang membuat segalanya terasa baru dan istimewa. Lagu ini merayakan kemurnian dan kegembiraan dari jatuh cinta pertama, di mana setiap interaksi terasa seperti adegan dari film romantis, tanpa beban dan penuh impian.`
         },
         {
             title: "Photograph",
             artist: "Ed Sheeran",
-            src: "photograph.mp3",
-            albumArt: "album_art_photograph.jpg",
-            lyrics: `<b>🎶 Photograph – Ed Sheeran</b><br><br>
-                <b>Verse 1</b><br>
-                Loving can hurt, loving can hurt sometimes<br>
-                But it's the only thing that I know<br>
-                When it's good, when it's good, it's so good, it's so good`
+            src: "https://bentley16.github.io/MelodyVerse/photograph.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_photograph.jpg",
+            info: `<b>🎶 Photograph – Ed Sheeran</b><br><br>
+                "Photograph" adalah balada yang menyentuh tentang kenangan yang abadi dan janji untuk selalu ada, bahkan ketika jarak memisahkan. Ed Sheeran menggunakan metafora foto untuk menggambarkan bagaimana kenangan seseorang tetap hidup dalam hati, memberikan kekuatan dan kenyamanan. Lagu ini adalah pengingat bahwa meskipun "loving can hurt", cinta dan kenangan yang indah adalah satu-satunya hal yang kita bawa saat pergi, janji untuk selalu menunggu dan berada di sana.`
         },
         {
             title: "You'll Be In My Heart",
             artist: "Niki",
-            src: "youll_be_in_my_heart.mp3",
-            albumArt: "album_art_youll_be_in_my_heart.jpg",
-            lyrics: `<b>🎶 You'll Be In My Heart – Niki</b><br><br>
-                <b>Verse 1</b><br>
-                Come stop your crying<br>
-                It'll be alright<br>
-                Just take my hand<br>
-                Hold it tight`
+            src: "https://bentley16.github.io/MelodyVerse/youll_be_in_my_heart.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_youll_be_in_my_heart.jpg",
+            info: `<b>🎶 You'll Be In My Heart – Niki</b><br><br>
+                Lagu ini adalah sebuah lagu pengantar tidur dan janji perlindungan abadi, awalnya dari film Tarzan. Versi Niki membawa kehangatan dan ketenangan yang sama, menekankan ikatan tak terpisahkan antara dua jiwa. Makna lagu ini adalah tentang cinta tanpa syarat yang akan selalu ada, mengatasi keraguan dan perbedaan, memberikan rasa aman dan kenyamanan yang mendalam, karena "you'll be in my heart, from this day on, now and forever more."`
         },
         {
             title: "Tarot",
             artist: ".Feast",
-            src: "tarot.mp3",
-            albumArt: "album_art_tarot.jpg",
-            lyrics: `<b>🎶 Tarot – .Feast</b><br><br>
-                <b>Verse 1</b><br>
-                Di antara kartu-kartu tua<br>
-                Terbentang kisah yang tak terduga<br>
-                Masa lalu, kini, dan nanti<br>
-                Terungkap dalam setiap sisi`
+            src: "https://bentley16.github.io/MelodyVerse/tarot.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_tarot.jpg",
+            info: `<b>🎶 Tarot – .Feast</b><br><br>
+                "Tarot" oleh .Feast adalah eksplorasi tentang takdir, pilihan, dan rahasia kehidupan yang terungkap melalui kartu tarot. Lagu ini mengajak pendengar untuk membuka mata terhadap petunjuk yang tersembunyi, memahami bahwa takdir bukanlah garis tangan semata, melainkan hasil dari keberanian menghadapi persimpangan dan badai. Dengan melodi yang misterius, lagu ini merenungkan bagaimana setiap simbol dan pilihan membentuk kisah hidup kita yang abadi.`
         },
         {
             title: "O, Tuan",
             artist: ".Feast",
-            src: "o_tuan.mp3",
-            albumArt: "album_art_o_tuan.jpg",
-            lyrics: `<b>🎶 O, Tuan – .Feast</b><br><br>
-                <b>Verse 1</b><br>
-                O, Tuan, dengarkanlah<br>
-                Rintihan hati yang resah<br>
-                Di tengah bisingnya dunia<br>
-                Mencari makna, mencari arah`
+            src: "https://bentley16.github.io/MelodyVerse/o_tuan.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_o_tuan.jpg",
+            info: `<b>🎶 O, Tuan – .Feast</b><br><br>
+                "O, Tuan" adalah lagu dengan nuansa kritik sosial dan pencarian kebenaran di tengah hiruk pikuk dunia. .Feast menyuarakan rintihan hati yang resah, mencari makna di balik janji-janji kosong dan kemunafikan kekuasaan. Lagu ini adalah seruan untuk bimbingan, mengingatkan bahwa meskipun harta dan kekuasaan bisa membutakan, keadilan akan selalu hidup dan menjadi tumpuan sampai akhir.`
         },
         {
             title: "Ramai Sepi Bersama",
             artist: "Hindia",
-            src: "ramai_sepi_bersama.mp3",
-            albumArt: "album_art_ramai_sepi_bersama.jpg",
-            lyrics: `<b>🎶 Ramai Sepi Bersama – Hindia</b><br><br>
-                <b>Verse 1</b><br>
-                Di tengah ramai, aku sendiri<br>
-                Mencari arti, di antara bising<br>
-                Dunia berputar, tak henti-henti<br>
-                Namun hatiku, masih terasing`
+            src: "https://bentley16.github.io/MelodyVerse/ramai_sepi_bersama.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_ramai_sepi_bersama.jpg",
+            info: `<b>🎶 Ramai Sepi Bersama – Hindia</b><br><br>
+                Lagu ini menangkap paradoks kesendirian di tengah keramaian kota. Hindia merenungkan bagaimana seseorang bisa merasa terasing dan sunyi meskipun dikelilingi banyak orang. "Ramai Sepi Bersama" adalah sebuah perjalanan introspektif untuk mencari arti dan damai sejati di antara ilusi dan bising kehidupan modern, berharap menemukan cahaya di ujung keluh agar tak lagi merasa rapuh.`
         },
         {
             title: "Everything U Are",
             artist: "Hindia",
-            src: "everything_u_are.mp3",
-            albumArt: "album_art_everything_u_are.jpg",
-            lyrics: `<b>🎶 Everything U Are – Hindia</b><br><br>
-                <b>Verse 1</b><br>
-                In your eyes, I see a universe untold<br>
-                A story waiting, brave and bold<br>
-                Every whisper, every gentle sigh<br>
-                Reflects the truth beneath the sky`
+            src: "https://bentley16.github.io/MelodyVerse/everything_u_are.mp3",
+            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_everything_u_are.jpg",
+            info: `<b>🎶 Everything U Are – Hindia</b><br><br>
+                "Everything U Are" adalah lagu cinta yang mendalam, merayakan esensi sejati seseorang yang menjadi segalanya bagi pembicara. Hindia menggambarkan bagaimana kehadiran orang tersebut membawa kedamaian dan menjadi bintang penuntun yang menanamkan harapan. Setiap momen bersama terasa ilahi, dan lagu ini adalah pengakuan bahwa keindahan sejati ada dalam setiap sisi dan detail dari orang yang dicintai, sebuah mahakarya yang tak terlukiskan.`
         }
     ];
 
-    // Initialize originalPlaylistOrder
+    // Inisialisasi originalPlaylistOrder
     originalPlaylistOrder = [...playlist];
 
-    // --- Web Audio API Setup (called only once) ---
+    // --- Web Audio API Setup (dipanggil sekali saat interaksi pertama) ---
     function setupAudioContext() {
-        if (!source) { // Create source only once
+        if (!source) { // Buat sumber hanya sekali
             source = audioContext.createMediaElementSource(audioPlayer);
+            // Hubungkan node: source -> bass -> treble -> effectLevelGain -> gain (master volume) -> destination
             source.connect(bassFilter);
             bassFilter.connect(trebleFilter);
-            trebleFilter.connect(gainNode);
+            trebleFilter.connect(effectLevelGainNode); // Hubungkan ke effectLevelGainNode
+            effectLevelGainNode.connect(gainNode); // Kemudian ke master volume gainNode
             gainNode.connect(audioContext.destination);
         }
     }
@@ -277,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn("Playlist kosong. Tidak ada lagu untuk dimuat.");
             currentSongTitle.textContent = "Tidak ada lagu";
             currentArtistName.textContent = "Tambahkan lagu di panel admin";
-            lyricsText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin.</p>";
+            infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album dapat diakses melalui URL publik (misal: GitHub Pages).</p>";
             audioPlayer.src = "";
             currentAlbumArt.src = "album_art_default.jpg";
             pauseSong();
@@ -288,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error: songIndex di luar batas array playlist. Index:", songIndex, "Ukuran array:", playlist.length);
             currentSongTitle.textContent = "Lagu tidak ditemukan";
             currentArtistName.textContent = "Pilih lagu lain atau cek data";
-            lyricsText.innerHTML = "<p>Terjadi kesalahan saat memuat lirik.</p>";
+            infoText.innerHTML = "<p>Terjadi kesalahan saat memuat info lagu.</p>";
             audioPlayer.src = "";
             currentAlbumArt.src = "album_art_default.jpg";
             pauseSong();
@@ -301,7 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
         currentAlbumArt.src = song.albumArt;
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
-        lyricsText.innerHTML = song.lyrics;
+        infoText.innerHTML = song.info; // Menggunakan infoText
+        infoText.scrollTop = 0; // Gulirkan info ke atas saat lagu berganti
 
         progressBar.value = 0;
         currentTimeSpan.textContent = '0:00';
@@ -310,8 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const albumArtImg = document.querySelector('.album-art-img');
         if (albumArtImg) {
             albumArtImg.style.animation = 'none';
-            void albumArtImg.offsetWidth; // Trigger reflow
-            albumArtImg.style.animation = ''; // Reapply animation
+            void albumArtImg.offsetWidth; // Memicu reflow
+            albumArtImg.style.animation = ''; // Terapkan ulang animasi
         }
         updatePlaylistActiveState(songIndex);
 
@@ -352,25 +296,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function playSong() {
-        // Ensure audio context is running when play is initiated by user gesture
+        // Pastikan konteks audio berjalan saat putar dimulai oleh interaksi pengguna
         if (audioContext.state === 'suspended') {
-            setupAudioContext(); // Ensure source is created and connected
+            setupAudioContext(); // Pastikan sumber dibuat dan terhubung
             audioContext.resume();
         }
 
         if (!audioPlayer.src || audioPlayer.src === window.location.href) {
-            console.warn("Audio source not loaded or invalid. Attempting to load first song.");
+            console.warn("Sumber audio tidak dimuat atau tidak valid. Mencoba memuat lagu pertama.");
             if (playlist.length > 0) {
-                loadSong(0); // Try to load first song if current is invalid
+                loadSong(0); // Coba memuat lagu pertama jika lagu saat ini tidak valid
             } else {
-                return;
+                return; // Tidak ada lagu di playlist, tidak bisa diputar
             }
         }
 
         audioPlayer.play().then(() => {
             isPlaying = true;
             playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            playPauseBtn.setAttribute('aria-label', 'Pause');
+            playPauseBtn.setAttribute('aria-label', 'Jeda');
             const albumArtImg = document.querySelector('.album-art-img');
             if (albumArtImg) {
                 albumArtImg.style.animationPlayState = 'running';
@@ -379,14 +323,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 navigator.mediaSession.playbackState = 'playing';
             }
         }).catch(error => {
-            console.error("Error playing audio:", error);
+            console.error("Error memutar audio:", error);
             isPlaying = false;
             playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            playPauseBtn.setAttribute('aria-label', 'Putar');
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'paused';
             }
             if (error.name === "NotAllowedError" || error.name === "AbortError") {
-                console.log("Autoplay diblokir atau pemutaran dibatalkan. Sentuh tombol play untuk memulai.");
+                console.log("Autoplay diblokir atau pemutaran dibatalkan. Sentuh tombol putar untuk memulai.");
             }
         });
     }
@@ -395,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
         audioPlayer.pause();
         isPlaying = false;
         playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        playPauseBtn.setAttribute('aria-label', 'Play');
+        playPauseBtn.setAttribute('aria-label', 'Putar');
         const albumArtImg = document.querySelector('.album-art-img');
         if (albumArtImg) {
             albumArtImg.style.animationPlayState = 'paused';
@@ -435,9 +380,10 @@ document.addEventListener('DOMContentLoaded', () => {
             currentSongIndex = (currentSongIndex + 1) % playlist.length;
         }
         
+        // Logika pengulangan playlist penuh atau berhenti
         if (currentSongIndex === 0 && repeatMode === 'off' && !shuffleMode) {
             pauseSong();
-            loadSong(currentSongIndex);
+            loadSong(currentSongIndex); // Muat lagu pertama tapi jangan putar
             return;
         } else {
             loadSong(currentSongIndex);
@@ -490,8 +436,9 @@ document.addEventListener('DOMContentLoaded', () => {
     audioPlayer.addEventListener('loadedmetadata', () => {
         if (!isNaN(audioPlayer.duration)) {
             durationSpan.textContent = formatTime(audioPlayer.duration);
-            // Ensure master volume is applied when metadata loads
+            // Pastikan volume master dan effect level diterapkan saat metadata dimuat
             gainNode.gain.setValueAtTime(masterVolumeControl.value, audioContext.currentTime);
+            effectLevelGainNode.gain.setValueAtTime(effectLevelControl.value, audioContext.currentTime);
         } else {
             durationSpan.textContent = '0:00';
         }
@@ -508,16 +455,15 @@ document.addEventListener('DOMContentLoaded', () => {
         playNextSong();
     });
 
-    // --- Sleep Timer Logic (Enhanced) ---
+    // --- Logika Timer Tidur (Ditingkatkan) ---
     function startSleepTimer(minutes) {
         clearTimeout(sleepTimerId);
         if (minutes === 0) {
             sleepTimerEndTime = 0;
             sleepTimerCountdown.textContent = '';
             modalTimerCountdown.textContent = '';
-            // Remove active state from all timer options
             timerOptionBtns.forEach(btn => btn.classList.remove('active'));
-            customTimerInput.value = ''; // Clear custom input
+            customTimerInput.value = ''; // Hapus input kustom
             return;
         }
 
@@ -525,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSleepTimerCountdownDisplay();
         sleepTimerId = setInterval(updateSleepTimerCountdownDisplay, 1000);
 
-        // Set active state for the selected option
+        // Atur status aktif untuk opsi yang dipilih
         timerOptionBtns.forEach(btn => {
             if (parseInt(btn.dataset.minutes) === minutes) {
                 btn.classList.add('active');
@@ -533,12 +479,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.classList.remove('active');
             }
         });
-        if (minutes > 0 && ![5, 15, 30, 60].includes(minutes)) { // For custom timer
+        if (minutes > 0 && ![5, 15, 30, 60].includes(minutes)) { // Untuk timer kustom
             customTimerInput.value = minutes;
         } else {
             customTimerInput.value = '';
         }
-        sleepTimerModal.classList.remove('visible'); // Close modal after setting
+        sleepTimerModal.classList.remove('visible'); // Tutup modal setelah diatur
         sidebarOverlay.classList.remove('visible');
     }
 
@@ -549,10 +495,10 @@ document.addEventListener('DOMContentLoaded', () => {
             pauseSong();
             sleepTimerCountdown.textContent = 'Waktu habis!';
             modalTimerCountdown.textContent = 'Waktu habis!';
-            // Reset modal options
+            // Reset opsi modal
             timerOptionBtns.forEach(btn => btn.classList.remove('active'));
             customTimerInput.value = '';
-            startSleepTimer(0); // Reset timer state
+            startSleepTimer(0); // Reset status timer
         } else {
             const minutes = Math.floor(remainingTime / (60 * 1000));
             const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
@@ -565,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
     openSleepTimerModalBtn.addEventListener('click', () => {
         sleepTimerModal.classList.add('visible');
         sidebarOverlay.classList.add('visible');
-        // Ensure countdown in modal is updated when opened
+        // Pastikan hitung mundur di modal diperbarui saat dibuka
         if (sleepTimerEndTime > Date.now()) {
             updateSleepTimerCountdownDisplay();
         } else {
@@ -594,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Audio Controls Logic ---
+    // --- Logika Kontrol Audio ---
     openAudioModalBtn.addEventListener('click', () => {
         audioControlsModal.classList.add('visible');
         sidebarOverlay.classList.add('visible');
@@ -609,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const volume = parseFloat(masterVolumeControl.value);
         gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
         volumeValueSpan.textContent = `${Math.round(volume * 100)}%`;
-        audioPlayer.volume = volume; // Keep native volume in sync
+        audioPlayer.volume = volume; // Pertahankan volume native tetap sinkron
     });
 
     trebleControl.addEventListener('input', () => {
@@ -624,38 +570,46 @@ document.addEventListener('DOMContentLoaded', () => {
         bassValueSpan.textContent = `${value} dB`;
     });
 
-    // Initialize Audio Control values
+    effectLevelControl.addEventListener('input', () => {
+        const value = parseFloat(effectLevelControl.value);
+        effectLevelGainNode.gain.setValueAtTime(value, audioContext.currentTime);
+        effectLevelValueSpan.textContent = `${Math.round(value * 100)}%`;
+    });
+
+
+    // Inisialisasi nilai Kontrol Audio
     masterVolumeControl.value = audioPlayer.volume;
     volumeValueSpan.textContent = `${Math.round(audioPlayer.volume * 100)}%`;
     trebleValueSpan.textContent = `${trebleControl.value} dB`;
     bassValueSpan.textContent = `${bassControl.value} dB`;
+    effectLevelValueSpan.textContent = `${Math.round(effectLevelControl.value * 100)}%`;
 
 
-    // --- Theme Toggling ---
+    // --- Toggle Tema ---
     function toggleTheme() {
         document.body.classList.toggle('light-mode');
         const isLightMode = document.body.classList.contains('light-mode');
         localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
         toggleThemeBtn.innerHTML = isLightMode ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
-        toggleThemeBtn.setAttribute('aria-label', isLightMode ? 'Switch to Dark Mode' : 'Switch to Light Mode');
+        toggleThemeBtn.setAttribute('aria-label', isLightMode ? 'Beralih ke Mode Gelap' : 'Beralih ke Mode Terang');
     }
 
     toggleThemeBtn.addEventListener('click', toggleTheme);
 
-    // Load saved theme
+    // Muat tema yang disimpan
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
         toggleThemeBtn.innerHTML = '<i class="fas fa-moon"></i>';
-        toggleThemeBtn.setAttribute('aria-label', 'Switch to Dark Mode');
+        toggleThemeBtn.setAttribute('aria-label', 'Beralih ke Mode Gelap');
     } else {
         document.body.classList.remove('light-mode');
         toggleThemeBtn.innerHTML = '<i class="fas fa-sun"></i>';
-        toggleThemeBtn.setAttribute('aria-label', 'Switch to Light Mode');
+        toggleThemeBtn.setAttribute('aria-label', 'Beralih ke Mode Terang');
     }
 
 
-    // --- Shuffle and Repeat ---
+    // --- Acak dan Ulangi ---
     shuffleBtn.addEventListener('click', () => {
         shuffleMode = !shuffleMode;
         shuffleBtn.classList.toggle('active', shuffleMode);
@@ -664,40 +618,40 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             restoreOriginalPlaylist();
         }
-        buildPlaylist(playlistSearchInput.value); // Rebuild playlist to reflect order
+        buildPlaylist(playlistSearchInput.value); // Bangun ulang playlist untuk mencerminkan urutan
         updatePlaylistActiveState(currentSongIndex);
     });
 
     repeatBtn.addEventListener('click', () => {
         if (repeatMode === 'off') {
             repeatMode = 'all';
-            repeatBtn.innerHTML = '<i class="fas fa-repeat"></i>'; // Repeat all icon
+            repeatBtn.innerHTML = '<i class="fas fa-repeat"></i>'; // Ikon ulangi semua
             repeatBtn.classList.add('active');
         } else if (repeatMode === 'all') {
             repeatMode = 'one';
-            repeatBtn.innerHTML = '<i class="fas fa-repeat-one"></i>'; // Repeat one icon
+            repeatBtn.innerHTML = '<i class="fas fa-repeat-one"></i>'; // Ikon ulangi satu
         } else {
             repeatMode = 'off';
-            repeatBtn.innerHTML = '<i class="fas fa-repeat"></i>'; // Off icon
+            repeatBtn.innerHTML = '<i class="fas fa-repeat"></i>'; // Ikon mati
             repeatBtn.classList.remove('active');
         }
-        repeatBtn.setAttribute('aria-label', `Repeat: ${repeatMode}`);
+        repeatBtn.setAttribute('aria-label', `Ulangi: ${repeatMode}`);
     });
 
     function shufflePlaylist() {
-        originalPlaylistOrder = [...playlist];
+        originalPlaylistOrder = [...playlist]; // Salin playlist saat ini sebelum diacak
         for (let i = playlist.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
         }
-        // Find the new index of the currently playing song in the shuffled list
+        // Temukan indeks baru dari lagu yang sedang diputar di daftar yang diacak
         const currentSong = originalPlaylistOrder[currentSongIndex];
         currentSongIndex = playlist.findIndex(song => song.src === currentSong.src);
     }
 
     function restoreOriginalPlaylist() {
-        playlist = [...originalPlaylistOrder];
-        // Find the new index of the currently playing song in the restored list
+        playlist = [...originalPlaylistOrder]; // Kembalikan ke urutan asli
+        // Temukan indeks baru dari lagu yang sedang diputar di daftar yang dipulihkan
         const currentSong = originalPlaylistOrder[currentSongIndex];
         currentSongIndex = playlist.findIndex(song => song.src === currentSong.src);
     }
@@ -706,7 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Fungsi Playlist ---
     function buildPlaylist(searchTerm = '') {
         playlistUl.innerHTML = '';
-        const filteredPlaylist = originalPlaylistOrder.filter(song => // Filter from original order
+        const filteredPlaylist = originalPlaylistOrder.filter(song => // Filter dari urutan asli
             song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             song.artist.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -726,10 +680,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         filteredPlaylist.forEach((song, index) => {
             const li = document.createElement('li');
-            const actualIndexInCurrentPlaylist = playlist.findIndex(s => s.src === song.src); // Find its index in the *current* active playlist (shuffled or not)
+            // Temukan indeks sebenarnya dalam playlist saat ini (diacak atau tidak)
+            const actualIndexInCurrentPlaylist = playlist.findIndex(s => s.src === song.src);
 
-            li.setAttribute('data-original-index', originalPlaylistOrder.indexOf(song)); // Store original index for reference
-            li.setAttribute('data-current-playlist-index', actualIndexInCurrentPlaylist); // Store its index in currently active (shuffled/original) playlist
+            li.setAttribute('data-original-index', originalPlaylistOrder.indexOf(song)); // Simpan indeks asli untuk referensi
+            li.setAttribute('data-current-playlist-index', actualIndexInCurrentPlaylist); // Simpan indeks dalam playlist aktif saat ini
             li.innerHTML = `
                 <img src="${song.albumArt}" alt="${song.title} Album Art">
                 <div class="playlist-song-info">
@@ -784,8 +739,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function showPlaylistSidebar() {
         playlistSidebar.classList.add('visible');
         sidebarOverlay.classList.add('visible');
-        audioControlsModal.classList.remove('visible'); // Hide audio modal if playlist is open
-        sleepTimerModal.classList.remove('visible'); // Hide timer modal if playlist is open
+        audioControlsModal.classList.remove('visible'); // Sembunyikan modal audio jika playlist terbuka
+        sleepTimerModal.classList.remove('visible'); // Sembunyikan modal timer jika playlist terbuka
     }
 
     function hidePlaylistSidebar() {
@@ -793,7 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarOverlay.classList.remove('visible');
     }
 
-    // Overlay to close any open modals/sidebars
+    // Overlay untuk menutup modal/sidebar yang terbuka
     sidebarOverlay.addEventListener('click', () => {
         hidePlaylistSidebar();
         audioControlsModal.classList.remove('visible');
@@ -818,22 +773,50 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Inisialisasi Aplikasi ---
-    // Load playlist data from localStorage if available, otherwise use default
+    // Muat data playlist dari localStorage jika tersedia, jika tidak gunakan default
+    // Perhatikan bahwa di sini kita memuat ke `playlist` dan menyalinnya ke `originalPlaylistOrder`
+    // untuk memastikan bahwa shuffle/restore berfungsi dengan benar
     if (localStorage.getItem('musicPlaylist')) {
         playlist = JSON.parse(localStorage.getItem('musicPlaylist'));
-        originalPlaylistOrder = [...playlist]; // Ensure original order is also updated
+        originalPlaylistOrder = [...playlist]; // Salin ke originalPlaylistOrder
     }
 
     if (playlist.length > 0) {
         loadSong(currentSongIndex);
         buildPlaylist();
     } else {
-        console.error("Tidak ada lagu ditemukan di array 'playlist'.");
+        console.warn("Tidak ada lagu ditemukan di array 'playlist'.");
         currentSongTitle.textContent = "Tidak ada lagu";
         currentArtistName.textContent = "Silakan tambahkan lagu di panel admin";
-        lyricsText.innerHTML = "<p>Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album ada di folder yang sama.</p>";
+        infoText.innerHTML = "<p>Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album dapat diakses melalui URL publik (misal: GitHub Pages).</p>";
     }
 
-    // Initialize Web Audio API after user gesture (first play)
+    // Inisialisasi Web Audio API setelah gesture pengguna (putar pertama kali)
     audioPlayer.addEventListener('play', setupAudioContext, { once: true });
+
+    // Jika admin panel melakukan perubahan, kita perlu me-refresh playlist utama
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'musicPlaylist') {
+            console.log('Perubahan playlist terdeteksi dari localStorage, memuat ulang playlist.');
+            playlist = JSON.parse(localStorage.getItem('musicPlaylist')) || [];
+            originalPlaylistOrder = [...playlist];
+            if (playlist.length > 0 && currentSongIndex >= playlist.length) {
+                currentSongIndex = 0; // Reset index if current song no longer exists
+            }
+            if (playlist.length === 0) {
+                 // Handle empty playlist scenario
+                currentSongTitle.textContent = "Tidak ada lagu";
+                currentArtistName.textContent = "Tambahkan lagu di panel admin";
+                infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album dapat diakses melalui URL publik (misal: GitHub Pages).</p>";
+                audioPlayer.src = "";
+                currentAlbumArt.src = "album_art_default.jpg";
+                pauseSong();
+            }
+            loadSong(currentSongIndex);
+            buildPlaylist();
+            if (isPlaying) { // Continue playing if it was playing before
+                playSong();
+            }
+        }
+    });
 });
