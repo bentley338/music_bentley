@@ -1,1920 +1,1444 @@
-// Import Firebase SDKs
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
-import { getFirestore, collection, query, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM Content Loaded. Starting MelodyVerse initialization...");
+/* Variabel Warna Global */
+:root {
+    --bg-dark: #0A0A0A;
+    --player-bg-dark: rgba(20, 0, 30, 0.5);
+    --player-border: rgba(255, 255, 255, 0.08);
+    --primary-text: #EAEAEA;
+    --secondary-text: rgba(255, 255, 255, 0.7);
+    --accent-purple: #8A2BE2;
+    --accent-red: #FF4500;
+    --progress-fill: #FF4500;
+    --button-bg: rgba(255, 255, 255, 0.1);
+    --button-border: #7B0099;
+    --shadow-deep: rgba(0, 0, 0, 0.9);
+    --blur-intensity: 30px;
+    --border-radius-main: 20px;
+    --border-radius-sm: 8px;
+}
 
-    // --- Elemen DOM Utama ---
-    const audioPlayer = document.getElementById('audio-player');
-    const playPauseBtn = document.getElementById('play-pause-btn');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const progressBar = document.getElementById('progress-bar');
-    const currentTimeSpan = document.getElementById('current-time');
-    const durationSpan = document.getElementById('duration');
-    const currentAlbumArt = document.getElementById('current-album-art');
-    const currentSongTitle = document.getElementById('current-song-title');
-    const currentArtistName = document.getElementById('current-artist-name');
-    const lyricsText = document.getElementById('lyrics-text');
-    const playlistUl = document.getElementById('playlist');
-    const togglePlaylistBtn = document.getElementById('toggle-playlist');
-    const playlistSidebar = document.getElementById('playlist-sidebar');
-    const closePlaylistBtn = document.getElementById('close-playlist-btn');
-    const sidebarOverlay = document.getElementById('sidebar-overlay');
-    const backgroundVideo = document.getElementById('background-video');
+/* Reset dan Styling Dasar */
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    color: var(--primary-text);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bg-dark);
+    position: relative;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
 
-    // --- Elemen Timer ---
-    const setTimerBtn = document.getElementById('set-timer-btn');
-    const timerModal = document.getElementById('timer-modal');
-    const closeModalBtn = document.getElementById('close-timer-modal');
-    const timerOptionBtns = document.querySelectorAll('.timer-option-btn');
-    const customTimerInput = document.getElementById('custom-timer-minutes');
-    const setCustomTimerBtn = document.getElementById('set-custom-timer-btn');
-    const playerTimerDisplay = document.getElementById('player-timer-display');
-    const playerTimerCountdown = document.getElementById('player-timer-countdown');
-    const playerCancelTimerBtn = document.getElementById('player-cancel-timer-btn');
-    const modalActiveTimerDisplay = document.getElementById('modal-active-timer-display');
-    const modalTimerCountdown = document.getElementById('modal-timer-countdown');
-    const modalCancelTimerBtn = document.getElementById('modal-cancel-timer-btn');
+/* Glassmorphism Effect */
+.glass-effect {
+    background: var(--player-bg-dark);
+    backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
+    -webkit-backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
+    border: 1px solid var(--player-border);
+    border-radius: var(--border-radius-main);
+    box-shadow: 0 15px 50px var(--shadow-deep);
+}
 
-    // --- Elemen Pengaturan Audio (EQ) ---
-    const audioSettingsBtn = document.getElementById('audio-settings-btn');
-    const audioSettingsModal = document.getElementById('audio-settings-modal');
-    const closeAudioSettingsModalBtn = document.getElementById('close-audio-settings-modal');
-    const masterVolumeSlider = document.getElementById('master-volume-slider');
-    const masterVolumeValue = document.getElementById('master-volume-value');
-    const eqPresetBtns = document.querySelectorAll('.eq-preset-btn');
-    const bassLevelSlider = document.getElementById('bass-level-slider');
-    const bassLevelValue = document.getElementById('bass-level-value');
-    const midLevelSlider = document.getElementById('mid-level-slider');
-    const midLevelValue = document.getElementById('mid-level-value');
-    const trebleLevelSlider = document.getElementById('treble-level-slider');
-    const trebleLevelValue = document.getElementById('treble-level-value');
-    const effectLevelSlider = document.getElementById('effect-level-slider');
-    const effectLevelValue = document.getElementById('effect-level-value');
+/* Video Background */
+.video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -2;
+}
 
-    // --- Elemen Shuffle dan Repeat ---
-    const shuffleBtn = document.getElementById('shuffle-btn');
-    const repeatBtn = document.getElementById('repeat-btn');
+.video-background video {
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    filter: brightness(0.4) contrast(1.2) grayscale(0.1);
+}
 
-    // --- Elemen Pencarian Playlist ---
-    const playlistSearchInput = document.getElementById('playlist-search-input');
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 15% 30%, rgba(100, 0, 150, 0.4), transparent 50%),
+                radial-gradient(circle at 85% 70%, rgba(255, 50, 0, 0.3), transparent 50%);
+    z-index: -1;
+}
 
-    // --- Elemen Tema ---
-    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+/* Kontainer Utama */
+.container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    max-width: 600px;
+    padding: 20px;
+    box-sizing: border-box;
+}
 
-    // --- Elemen Visualizer Audio ---
-    const audioVisualizerCanvas = document.getElementById('audio-visualizer-canvas');
-    const visualizerCtx = audioVisualizerCanvas.getContext('2d');
-    let audioContext = null;
-    let analyser = null;
-    let source = null;
-    let masterGainNode = null;
-    let bassFilter = null;
-    let midFilter = null;
-    let trebleFilter = null;
-    let effectGainNode = null;
+/* HEADER APLIKASI (Judul dan Tombol Daftar Putar) */
+header {
+    position: absolute;
+    top: 20px;
+    width: 90%;
+    max-width: 600px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 5;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
 
-    // --- Elemen Admin Panel ---
-    const adminPanelBtn = document.getElementById('admin-panel-btn');
-    const adminPanelModal = document.getElementById('admin-panel-modal');
-    const closeAdminPanelModalBtn = document.getElementById('close-admin-panel-modal');
-    const addSongForm = document.getElementById('add-song-form');
-    const addTitleInput = document.getElementById('add-title');
-    const addArtistInput = document.getElementById('add-artist');
-    const addSrcInput = document.getElementById('add-src');
-    const addAlbumArtInput = document.getElementById('add-album-art');
-    const addLyricsInput = document.getElementById('add-lyrics');
-    const adminSongListUl = document.getElementById('admin-song-list');
+/* Styling untuk judul baru */
+.app-branding {
+    flex-grow: 1;
+    text-align: left;
+    margin-right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
 
-    // --- Elemen Autentikasi (Login/Register) ---
-    const authModal = document.getElementById('auth-modal');
-    const closeAuthModalBtn = document.getElementById('close-auth-modal');
-    const authTitle = document.getElementById('auth-title');
-    const authForm = document.getElementById('auth-form');
-    const authEmailInput = document.getElementById('auth-email');
-    const authPasswordInput = document.getElementById('auth-password');
-    const authSubmitBtn = document.getElementById('auth-submit-btn');
-    const showRegisterLink = document.getElementById('show-register');
-    const showLoginLink = document.getElementById('show-login');
-    const authErrorMessage = document.getElementById('auth-error-message');
+.app-title-new {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.2em;
+    font-weight: 800;
+    color: var(--primary-text);
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-    // --- Overlay Global untuk Semua Modal/Sidebar ---
-    const modalOverlay = document.getElementById('modal-overlay');
+.app-title-new .fas {
+    font-size: 0.8em;
+    color: var(--accent-purple);
+}
 
-    // --- Variabel State Aplikasi ---
-    let currentSongIndex = 0;
-    let isPlaying = false;
-    let sleepTimerTimeoutId = null;
-    let sleepTimerIntervalId = null;
-    let timeRemaining = 0;
-    let isShuffling = false;
-    let repeatMode = 'off';
-    let currentPlaylistData = []; // Ini akan menyimpan data playlist dari Firestore atau default
-    let originalPlaylistOrder = []; // Digunakan untuk shuffle (salinan dari currentPlaylistData)
-    let shuffledPlaylist = []; // Digunakan untuk shuffle
-    let isRegisterMode = false; // Status untuk modal autentikasi
+.header-buttons-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+}
 
-    // --- Firebase Variables (SUDAH DIISI DENGAN KONFIGURASI ANDA) ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyBlG2wzbUshZAUxLaP8-WGpYSkdm1FhMh4",
-      authDomain: "melodyverse-app.firebaseapp.com",
-      projectId: "melodyverse-app",
-      storageBucket: "melodyverse-app.firebasestorage.app",
-      messagingSenderId: "150568860733",
-      appId: "1:150568860733:web:3a0fcce02aa16e57663e54",
-      measurementId: "G-JB2RKBQP33"
-    };
+.btn {
+    background: var(--button-bg);
+    border: 1px solid var(--button-border);
+    color: var(--primary-text);
+    padding: 10px 15px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    text-decoration: none;
+}
 
-    const appId = firebaseConfig.projectId; // Menggunakan projectId sebagai appId untuk path Firestore
+.btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--accent-purple);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
 
-    let db;
-    let auth;
-    let currentUserUid = null;
-    // PENTING: INI ADALAH UID ADMIN ANDA YANG SUDAH ANDA DAPATKAN!
-    const ADMIN_UID = "GdyHqmNwu7Na0TyFX9MetbdGm7v2";
+.btn-primary {
+    background-color: var(--accent-purple);
+    border-color: var(--accent-purple);
+}
 
-    // --- DAFTAR LAGU AWAL (FALLBACK JIKA FIRESTORE KOSONG/GAGAL) ---
-    const defaultPlaylist = [
-        {
-            id: 'default-1', // Tambahkan ID unik untuk lagu default
-            title: "Back to Friends",
-            artist: "Sombr",
-            src: "back_to_friends.mp3",
-            albumArt: "album_art_back_to_friends.jpg",
-            lyrics: `<b>🎶 Back to Friends – Sombr</b><br><br>
-                <b>Verse 1</b><br>
-                Touch my body tender<br>
-                ’Cause the feeling makes me weak<br>
-                Kicking off the covers<br>
-                I see the ceiling while you’re looking down at me<br><br>
-                <b>Chorus</b><br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br><br>
-                <b>Verse 2</b><br>
-                It was last December<br>
-                You were layin’ on my chest<br>
-                I still remember<br>
-                I was scared to take a breath<br>
-                Didn’t want you to move your head<br><br>
-                <b>Chorus</b><br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br><br>
-                <b>Bridge</b><br>
-                The devil in your eyes<br>
-                Won’t deny the lies you’ve sold<br>
-                I’m holding on too tight<br>
-                While you let go<br>
-                This is casual<<br><br>
-                <b>Final Chorus</b><br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br>
-                I’m someone you’ve never met<br>
-                When we just shared a bed?
-            `
-        },
-        {
-            id: 'default-2',
-            title: "Bergema Sampai Selamanya",
-            artist: "Nadhif Basalamah",
-            src: "bergema_sampai_selamanya.mp3",
-            albumArt: "album_art_bergema_sampai_selamanya.jpg",
-            lyrics: `<b>🎶 Bergema Sampai Selamanya – Nadhif Basalamah</b><br><br>
-                <b>Verse 1</b><br>
-                Dengarkan hati bicara<br>
-                Di setiap desah napasmu<br>
-                Ada cerita yang takkan pudar<br>
-                Di setiap langkah kakimu<br><br>
-                <b>Chorus</b><br>
-                Bergema sampai selamanya<br>
-                Cinta kita takkan sirna<br>
-                Di setiap nada yang tercipta<br>
-                Hanyalah namamu yang ada<br><br>
-                <b>Verse 2</b><br>
-                Waktu terus berjalan<br>
-                Namun rasa ini takkan lekang<br>
-                Seperti bintang yang takkan padam<br>
-                Bersinarlah di setiap malam<br><br>
-                <b>Chorus</b><br>
-                Bergema sampai selamanya<br>
-                Cinta kita takkan sirna<br>
-                Di setiap nada yang tercipta<br>
-                Hanyalah namamu yang ada<br><br>
-                <b>Bridge</b><br>
-                Tiada akhir bagi kisah kita<br>
-                Terukir abadi di jiwa<br>
-                Kan selalu ada, kan selalu nyata<br>
-                Janji yang takkan pernah pudar<br><br>
-                <b>Chorus</b><br>
-                Bergema sampai selamanya<<br>
-                Cinta kita takkan sirna<br>
-                Di setiap nada yang tercipta<br>
-                Hanyalah namamu yang ada<br><br>
-                <b>Outro</b><br>
-                Bergema... sampai selamanya...<br>
-                Oh-oh-oh...
-            `
-        },
-        {
-            id: 'default-3',
-            title: "Ride",
-            artist: "SoMo",
-            src: "ride.mp3",
-            albumArt: "album_art_ride.jpg",
-            lyrics: `<b>🎶 Ride – SoMo</b><br><br>
-                <b>Verse 1</b><br>
-                I'm riding high, I'm riding low<br>
-                I'm going where the wind don't blow<br>
-                Just cruising, feeling good tonight<br>
-                Everything is working out just right<br><br>
-                <b>Chorus</b><br>
-                So baby, let's just ride<br>
-                Leave the worries far behind<br>
-                Every moment, every single stride<br>
-                Yeah, we're living in the moment, you and I<br><br>
-                <b>Verse 2</b><br>
-                Sunrise creeping, morning light<br>
-                Another day, another sight<br>
-                No rush, no hurry, take it slow<<br>
-                Just enjoying the ride, you know<br><br>
-                <b>Chorus</b><br>
-                So baby, let's just ride<br>
-                Leave the worries far behind<br>
-                Every moment, every single stride<br>
-                Yeah, we're living in the moment, you and I<br><br>
-                <b>Bridge</b><br>
-                Don't look back, no regrets<br>
-                Just open roads and sunsets<br>
-                This feeling's more than I can say<br>
-                Let's keep on riding, come what may<br><br>
-                <b>Chorus</b><br>
-                So baby, let's just ride<br>
-                Leave the worries far behind<br>
-                Every moment, every single stride<br>
-                Yeah, we're living in the moment, you and I<br><br>
-                <b>Outro</b><br>
-                Just ride, ride, ride<br>
-                With you by my side<br>
-                Yeah, we ride...
-            `
-        },
-        {
-            id: 'default-4',
-            title: "Rumah Kita",
-            artist: "God Bless",
-            src: "rumah_kita.mp3",
-            albumArt: "album_art_rumah_kita.jpg",
-            lyrics: `<b>🎶 Rumah Kita – God Bless</b><br><br>
-                <b>Verse 1</b><br>
-                Hanya bilik bambu<br>
-                Tempat tinggal kita<br>
-                Tanpa hiasan, tanpa lukisan<br>
-                Hanya jendela, tanpa tiang<br><br>
-                <b>Chorus</b><br>
-                Rumah kita, rumah kita<br>
-                Lebih baik, lebih baik<br>
-                Lebih dari istana<br>
-                Rumah kita, rumah kita<br>
-                Tempat kita berbagi cerita<br><br>
-                <b>Verse 2</b><br>
-                Ada tawa, ada tangis<br>
-                Ada suka, ada duka<br>
-                Semua bersatu di sini<br>
-                Dalam hangatnya keluarga<br><br>
-                <b>Chorus</b><br>
-                Rumah kita, rumah kita<br>
-                Lebih baik, lebih baik<br>
-                Lebih dari istana<br>
-                Rumah kita, rumah kita<br>
-                Tempat kita berbagi cerita<<br>
-                <b>Outro</b><br>
-                Rumah kita...<br>
-                Rumah kita...
-            `
-        },
-        {
-            id: 'default-5',
-            title: "Style",
-            artist: "Taylor Swift",
-            src: "style.mp3",
-            albumArt: "album_art_style.jpg",
-            lyrics: `<b>🎶 Style – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                Midnight, you come and pick me up, no headlights<br>
-                Long drive, could end in burning flames or paradise<br>
-                Fade into view, oh, it's been a while since I have even heard from you<br>
-                (Heard from you)<br><br>
-                <b>Chorus</b><br>
-                I say, "I've heard that you've been out and about with some other girl"<br>
-                (Oh-oh-oh) I say, "What you've heard is true but I<br>
-                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
-                (Oh-oh-oh) saying, "It's gonna be alright"<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Verse 2</b><br>
-                You got that long hair, slick back, white T-shirt<br>
-                And I got that good girl faith and a tight little skirt<br>
-                And when we go crashing down, we come back every time<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Chorus</b><br>
-                I say, "I've heard that you've been out and about with some other girl"<br>
-                (Oh-oh-oh) I say, "What you've heard is true but I<br>
-                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
-                (Oh-oh-oh) saying, "It's gonna be alright"<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Bridge</b><br>
-                Take me home, just take me home<br>
-                Where there's fire, where there's chaos, and there's love<br>
-                I got a blank space, baby, and I'll write your name<br>
-                But baby, we never go out of style<br><br>
-                <b>Chorus</b><br>
-                I say, "I've heard that you've been out and about with some other girl"<br>
-                (Oh-oh-oh) I say, "What you've heard is true but I<br>
-                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
-                (Oh-oh-oh) saying, "It's gonna be alright"<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Outro</b><br>
-                Never go out of style<br>
-                We never go out of style<br>
-                Yeah, we never go out of style
-            `
-        },
-        {
-            id: 'default-6',
-            title: "Message In A Bottle",
-            artist: "Taylor Swift",
-            src: "message_in_a_bottle.mp3",
-            albumArt: "album_art_message_in_a_bottle.jpg",
-            lyrics: `<b>🎶 Message In A Bottle – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                I was ridin' in a getaway car<br>
-                I was crying in a getaway car<br>
-                I was dying in a getaway car<br>
-                Said goodbye to the girl you used to be<br><br>
-                <b>Chorus</b><br>
-                Message in a bottle is all I can give<br>
-                To remind you of what we had, what we've lived<br>
-                Across the ocean, my love will still flow<br>
-                Hoping that someday you'll know<br><br>
-                <b>Verse 2</b><br>
-                Sunrise on the water, a new day starts<br>
-                Still missing you, still breaking my heart<br>
-                Every wave whispers your name to me<br>
-                A silent prayer across the sea<br><br>
-                <b>Chorus</b><br>
-                Message in a bottle is all I can give<br>
-                To remind you of what we had, what we've lived<br>
-                Across the ocean, my love will still flow<br>
-                Hoping that someday you'll know<br><br>
-                <b>Bridge</b><br>
-                And the years go by, still I send my plea<br>
-                Hoping this message finds you, eventually<br>
-                A single teardrop, lost in the blue<br>
-                A simple promise, my love, to you<br><br>
-                <b>Chorus</b><br>
-                Message in a bottle is all I can give<br>
-                To remind you of what we had, what we've lived<br>
-                Across the ocean, my love will still flow<br>
-                Hoping that someday you'll know<br><br>
-                <b>Outro</b><br>
-                Message in a bottle...<br>
-                My love, my love...
-            `
-        },
-        {
-            id: 'default-7',
-            title: "Supernatural",
-            artist: "Ariana Grande",
-            src: "supernatural.mp3",
-            albumArt: "album_art_supernatural.jpg",
-            lyrics: `<b>🎶 Supernatural – Ariana Grande</b><br><br>
-                <b>Verse 1</b><br>
-                You're my supernatural, my magic<br>
-                Every touch, a dream, a sweet habit<br>
-                In your eyes, a universe I find<br>
-                Leaving all my worries far behind<br><br>
-                <b>Chorus</b><br>
-                Oh, this love is supernatural<br>
-                Something beautiful, something so true<br>
-                Like a melody, forever new<br>
-                Supernatural, just me and you<br><br>
-                <b>Verse 2</b><br>
-                Whispers in the dark, a gentle breeze<br>
-                Floating through the stars, with such ease<br>
-                Every moment with you feels divine<br>
-                Lost in this love, forever mine<br><br>
-                <b>Chorus</b><br>
-                Oh, this love is supernatural<br>
-                Something beautiful, something so true<br>
-                Like a melody, forever new<br>
-                Supernatural, just me and you<br><br>
-                <b>Bridge</b><br>
-                No explanation, no words can define<br>
-                This connection, truly one of a kind<br>
-                Beyond the logic, beyond the known<<br>
-                In this love, we're never alone<br><br>
-                <b>Chorus</b><br>
-                Oh, this love is supernatural<br>
-                Something beautiful, something so true<br>
-                Like a melody, forever new<br>
-                Supernatural, just me and you<br><br>
-                <b>Outro</b><br>
-                Supernatural...<br>
-                Oh, so natural with you...
-            `
-        },
-        {
-            id: 'default-8',
-            title: "Favorite Lesson",
-            artist: "Yaeow",
-            src: "favorite_lesson.mp3",
-            albumArt: "album_art_favorite_lesson.jpg",
-            lyrics: `<b>🎶 Favorite Lesson – Yaeow</b><br><br>
-                <b>Verse 1</b><br>
-                Always telling me that I should find the time for me<br>
-                Working tirelessly until I lose my energy<br>
-                You’re the only one who really knows the things I need<br>
-                And darling, I’m the same with you<br><br>
-                <b>Chorus</b><br>
-                ‘Cause every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br>
-                Every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br><br>
-                <b>Verse 2</b><br>
-                Building something from the ground up, you always help me see<br>
-                That even when it’s tough, it’s worth the struggle, endlessly<br>
-                You’re the guiding light that always keeps me on my feet<br>
-                And darling, I’m the same with you<br><br>
-                <b>Chorus</b><br>
-                ‘Cause every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br>
-                Every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br><br>
-                <b>Outro</b><br>
-                Favorite lesson... favorite lesson...<br>
-                You’re the best... you’re the best...
-            `
-        },
-        {
-            id: 'default-9',
-            title: "So High School",
-            artist: "Taylor Swift",
-            src: "so_high_school.mp3",
-            albumArt: "album_art_so_high_school.jpg",
-            lyrics: `<b>🎶 So High School – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                I feel like I'm back in high school again<br>
-                Butterflies every time you walk in<br>
-                Like a freshman, crushin' hard, don't pretend<br>
-                This feeling's got me spinnin' 'round the bend<br><br>
-                <b>Chorus</b><br>
-                Oh, you got me feeling so high school<br>
-                Got me skipping through the halls with you<br>
-                Every moment's golden, shiny, and new<br>
-                Yeah, this love is so high school<br><br>
-                <b>Verse 2</b><br>
-                Passing notes and whispering in class<br>
-                Hoping this feeling will forever last<br>
-                Every glance, a secret, a sweet little blast<br>
-                This story's moving way too fast<br><br>
-                <b>Chorus</b><br>
-                Oh, you got me feeling so high school<br>
-                Got me skipping through the halls with you<br>
-                Every moment's golden, shiny, and new<br>
-                Yeah, this love is so high school<br><br>
-                <b>Bridge</b><br>
-                No homework, no drama, just you and me<br>
-                Living out a teenage dream, wild and free<br>
-                Like the first dance, under the gym lights<br>
-                Holding onto these magical nights<br><br>
-                <b>Chorus</b><br>
-                Oh, you got me feeling so high school<br>
-                Got me skipping through the halls with you<br>
-                Every moment's golden, shiny, and new<br>
-                Yeah, this love is so high school<br><br>
-                <b>Outro</b><br>
-                So high school...<br>
-                Yeah, with you, it's so high school...
-            `
-        },
-        {
-            id: 'default-10',
-            title: "Photograph",
-            artist: "Ed Sheeran",
-            src: "photograph.mp3",
-            albumArt: "album_art_photograph.jpg",
-            lyrics: `<b>🎶 Photograph – Ed Sheeran</b><br><br>
-                <b>Verse 1</b><br>
-                Loving can hurt, loving can hurt sometimes<br>
-                But it's the only thing that I know<br>
-                When it's good, when it's good, it's so good, it's so good<br>
-                'Til it goes bad, 'til it goes bad, 'Til it goes bad<br>
-                But still, I know, that I know, that I know<br>
-                Good things come to those who wait, no, never give up on you<br><br>
-                <b>Chorus</b><br>
-                And if you hurt me, that's okay, baby, only words bleed<br>
-                Inside these pages you just hold me<br>
-                And I won't ever let you go<<br>
-                Wait for me to come home<br><br>
-                <b>Verse 2</b><br>
-                Loving can heal, loving can mend your soul<br>
-                And it's the only thing that I know<br>
-                I swear it will get easier,<br>
-                Remember that with every piece of you<br>
-                And it's the only thing we take with us when we die<br><br>
-                <b>Chorus</b><br>
-                And if you hurt me, that's okay, baby, only words bleed<br>
-                Inside these pages you just hold me<br>
-                And I won't ever let you go<<br>
-                Wait for me to come home<br><br>
-                <b>Bridge</b><br>
-                You could fit me inside the necklace you got when you were sixteen<br>
-                Next to your heartbeat where I should be<br>
-                Keep it deep within your soul<br>
-                And if you want to, take a look at me now<br>
-                Oh, oh, oh, yeah, I'll be there, I'll be there<br>
-                Always when you need me, every moment I'll be waiting<br>
-                Forever with you, every single day<br><br>
-                <b>Chorus</b><br>
-                And if you hurt me, that's okay, baby, only words bleed<br>
-                Inside these pages you just hold me<br>
-                And I won't ever let you go<<br>
-                Wait for me to come home<br><br>
-                <b>Outro</b><br>
-                You can fit me inside the necklace you got when you were sixteen<br>
-                Next to your heartbeat where I should be<br>
-                Keep it deep within your soul<br>
-                And if you want to, take a look at me now
-            `
-        },
-        {
-            id: 'default-11',
-            title: "You'll Be In My Heart",
-            artist: "Niki",
-            src: "youll_be_in_my_heart.mp3",
-            albumArt: "album_art_youll_be_in_my_heart.jpg",
-            lyrics: `<b>🎶 You'll Be In My Heart – Niki</b><br><br>
-                <b>Verse 1</b><br>
-                Come stop your crying<br>
-                It'll be alright<br>
-                Just take my hand<br>
-                Hold it tight<br>
-                I will protect you<br>
-                From all around you<br>
-                I will be here<br>
-                Don't you cry<br><br>
-                <b>Chorus</b><br>
-                For one so small<br>
-                You seem so strong<br>
-                My arms will hold you<br>
-                Keep you safe and warm<br>
-                This bond between us<br>
-                Can't be broken<br>
-                I will be here, don't you cry<br>
-                'Cause you'll be in my heart<br>
-                Yes, you'll be in my heart<br>
-                From this day on<br>
-                Now and forever more<<br><br>
-                <b>Verse 2</b><br>
-                Why can't they understand the way we feel?<br>
-                They just don't trust what they can't explain<br>
-                I know we're different but deep inside us<br>
-                We're not that different at all<br><br>
-                <b>Chorus</b><br>
-                For one so small<br>
-                You seem so strong<br>
-                My arms will hold you<br>
-                Keep you safe and warm<br>
-                This bond between us<br>
-                Can't be broken<br>
-                I will be here, don't you cry<br>
-                'Cause you'll be in my heart<br>
-                Yes, you'll be in my heart<br>
-                From this day on<br>
-                Now and forever more<br><br>
-                <b>Bridge</b><br>
-                You'll be in my heart<br>
-                No matter what they say<br>
-                You'll be in my heart<br>
-                Always<br>
-                I'll be there, always there<br>
-                For one so small, you seem so strong<br>
-                My arms will hold you, keep you safe and warm<br>
-                This bond between us can't be broken<br>
-                I will be here, don't you cry<br><br>
-                <b>Outro</b><br>
-                'Cause you'll be in my heart<br>
-                Yes, you'll be in my heart<br>
-                From this day on<br>
-                Now and forever more<br>
-                Oh, you'll be in my heart<br>
-                You'll be in my heart<br>
-                Now and forever more
-            `
-        },
-        {
-            id: 'default-12',
-            title: "Tarot",
-            artist: ".Feast",
-            src: "tarot.mp3",
-            albumArt: "album_art_tarot.jpg",
-            lyrics: `<b>🎶 Tarot – .Feast</b><br><br>
-                <b>Verse 1</b><br>
-                Di antara kartu-kartu tua<br>
-                Terbentang kisah yang tak terduga<br>
-                Masa lalu, kini, dan nanti<br>
-                Terungkap dalam setiap sisi<br><br>
-                <b>Chorus</b><br>
-                Tarot, oh Tarot<br>
-                Buka mataku, tunjukkan jalan<br>
-                Tarot, oh Tarot<br>
-                Bisikkan rahasia kehidupan<br><br>
-                <b>Verse 2</b><br>
-                Pedang dan cawan, koin dan tongkat<br>
-                Setiap simbol punya makna kuat<br>
-                Cahaya dan bayangan menari<<br>
-                Di panggung takdir yang abadi<br><br>
-                <b>Chorus</b><br>
-                Tarot, oh Tarot<br>
-                Buka mataku, tunjukkan jalan<br>
-                Tarot, oh Tarot<br>
-                Bisikkan rahasia kehidupan<br><br>
-                <b>Bridge</b><br>
-                Takdir bukan hanya garis tangan<br>
-                Tapi pilihan di persimpangan<br>
-                Berani melangkah, hadapi badai<br>
-                Dengan petunjuk yang kau berikan<br><br>
-                <b>Chorus</b><br>
-                Tarot, oh Tarot<br>
-                Buka mataku, tunjukkan jalan<br>
-                Tarot, oh Tarot<br>
-                Bisikkan rahasia kehidupan<br><br>
-                <b>Outro</b><br>
-                Tarot... Tarot...<br>
-                Kisahku terukir di sana...
-            `
-        },
-        {
-            id: 'default-13',
-            title: "O, Tuan",
-            artist: ".Feast",
-            src: "o_tuan.mp3",
-            albumArt: "album_art_o_tuan.jpg",
-            lyrics: `<b>🎶 O, Tuan – .Feast</b><br><br>
-                <b>Verse 1</b><br>
-                O, Tuan, dengarkanlah<br>
-                Rintihan hati yang resah<br>
-                Di tengah bisingnya dunia<br>
-                Mencari makna, mencari arah<br><br>
-                <b>Chorus</b><br>
-                O, Tuan, bimbinglah langkahku<br>
-                Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<br>
-                Hanya pada-Mu aku bertumpu<br><br>
-                <b>Verse 2</b><br>
-                Janji-janji yang terucap<br>
-                Seringkali hanya fatamorgana<br>
-                Kebenaran yang disembunyikan<br>
-                Di balik topeng kemunafikan<br><br>
-                <b>Chorus</b><br>
-                O, Tuan, bimbinglah langkahku<br>
-                Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<br>
-                Hanya pada-Mu aku bertumpu<br><br>
-                <b>Bridge</b><br>
-                Kekuasaan membutakan mata<br>
-                Harta melalaikan jiwa<br>
-                Tapi keadilan takkan mati<br>
-                Sampai akhir nanti<br><br>
-                <b>Chorus</b><br>
-                O, Tuan, bimbinglah langkahku<br>
-                Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<br>
-                Hanya pada-Mu aku bertumpu<br><br>
-                <b>Outro</b><br>
-                O, Tuan... O, Tuan...<br>
-                Dengarkanlah...
-            `
-        },
-        {
-            id: 'default-14',
-            title: "Ramai Sepi Bersama",
-            artist: "Hindia",
-            src: "ramai_sepi_bersama.mp3",
-            albumArt: "album_art_ramai_sepi_bersama.jpg",
-            lyrics: `<b>🎶 Ramai Sepi Bersama – Hindia</b><br><br>
-                <b>Verse 1</b><br>
-                Di tengah ramai, aku sendiri<br>
-                Mencari arti, di antara bising<br>
-                Dunia berputar, tak henti-henti<br>
-                Namun hatiku, masih terasing<br><br>
-                <b>Chorus</b><br>
-                Ramai sepi bersama, dalam riuh kota<br>
-                Kita mencari makna, di antara fatamorgana<<br>
-                Ramai sepi bersama, dalam hening jiwa<br>
-                Berharap menemukan, damai yang nyata<br><br>
-                <b>Verse 2</b><br>
-                Wajah-wajah asing, silih berganti<<br>
-                Senyum dan tawa, hanya ilusi<br>
-                Ingin ku bicara, namun tak berani<br>
-                Terjebak dalam, sunyi yang abadi<br><br>
-                <b>Chorus</b><br>
-                Ramai sepi bersama, dalam riuh kota<br>
-                Kita mencari makna, di antara fatamorgana<br>
-                Ramai sepi bersama, dalam hening jiwa<<br>
-                Berharap menemukan, damai yang nyata<br><br>
-                <b>Bridge</b><br>
-                Mungkin ini jalan, yang harus kutempuh<br>
-                Menyelami diri, di antara keruh<br>
-                Mencari cahaya, di ujung keluh<br>
-                Agar tak lagi, merasa rapuh<br><br>
-                <b>Chorus</b><br>
-                Ramai sepi bersama, dalam riuh kota<br>
-                Kita mencari makna, di antara fatamorgana<br>
-                Ramai sepi bersama, dalam hening jiwa<br>
-                Berharap menemukan, damai yang nyata<br><br>
-                <b>Outro</b><br>
-                Ramai sepi... bersama...<br>
-                Hindia...
-            `
-        },
-        {
-            id: 'default-15',
-            title: "Everything U Are",
-            artist: "Hindia",
-            src: "everything_u_are.mp3",
-            albumArt: "album_art_everything_u_are.jpg",
-            lyrics: `<b>🎶 Everything U Are – Hindia</b><br><br>
-                <b>Verse 1</b><br>
-                In your eyes, I see a universe untold<br>
-                A story waiting, brave and bold<br>
-                Every whisper, every gentle sigh<br>
-                Reflects the truth beneath the sky<br><br>
-                <b>Chorus</b><br>
-                'Cause everything you are, is everything I need<br>
-                A guiding star, planting a hopeful seed<br>
-                In every beat, my heart finds its release<br>
-                Everything you are, brings me inner peace<br><br>
-                <b>Verse 2</b><br>
-                Through fragile moments, and darkest nights<br>
-                Your spirit shines, with endless lights<br>
-                A symphony of grace, a gentle art<br>
-                You're etched forever, deep within my heart<br><br>
-                <b>Chorus</b><br>
-                'Cause everything you are, is everything I need<<br>
-                A guiding star, planting a hopeful seed<br>
-                In every beat, my heart finds its release<br>
-                Everything you are, brings me inner peace<br><br>
-                <b>Bridge</b><br>
-                No words can capture, no song can define<br>
-                The depth of beauty, truly divine<br>
-                A masterpiece, uniquely made<br>
-                In every shade, a love displayed<br><br>
-                <b>Chorus</b><br>
-                'Cause everything you are, is everything I need<br>
-                A guiding star, planting a hopeful seed<<br>
-                In every beat, my heart finds its release<br>
-                Everything you are, brings me inner peace<br><br>
-                <b>Outro</b><br>
-                Everything you are...<br>
-                Oh, everything you are...
-            `
-        },
-        {
-            id: 'default-16',
-            title: "Guilty As Sin",
-            artist: "Taylor Swift",
-            src: "guilty_as_sin.mp3",
-            albumArt: "album_art_guilty_as_sin.jpg",
-            lyrics: `<b>🎶 Guilty As Sin – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                What if I told you I'm in love with someone new?<br>
-                What if I told you that my heart broke for them too?<br>
-                Not your fault, not my fault, maybe it's the season<br>
-                But I can't shake this feeling, there's a reason<br><br>
-                <b>Chorus</b><br>
-                Guilty as sin, for the thoughts that I let creep in<br>
-                For the way my mind keeps wandering, where it shouldn't have been<br>
-                Oh, I'm guilty as sin, but the truth is I'm falling<br>
-                For a fantasy, a whisper, a silent calling<br><br>
-                <b>Verse 2</b><br>
-                I try to push it down, to lock it far away<br>
-                But every single night, it haunts me through the day<br>
-                A fragile dream, a secret, a forbidden delight<br>
-                Burning fiercely in the shadows of the night<br><br>
-                <b>Chorus</b><br>
-                Guilty as sin, for the thoughts that I let creep in<br>
-                For the way my mind keeps wandering, where it shouldn't have been<br>
-                Oh, I'm guilty as sin, but the truth is I'm falling<br>
-                For a fantasy, a whisper, a silent calling<br><br>
-                <b>Bridge</b><br>
-                They say temptation's a devil dressed in gold<br>
-                A story whispered, a story left untold<<br>
-                But how can something so wrong feel so right?<br>
-                Lost in the shadows, bathed in the moonlight<br><br>
-                <b>Outro</b><br>
-                Guilty as sin... but I can't escape this pull<br>
-                Guilty as sin... losing all control...
-            `
-        }
-    ];
+.btn-primary:hover {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+}
 
-    // --- Fungsi Utama Pemutar Musik ---
+.btn-secondary {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
 
-    // Memuat data lagu ke pemutar (album art, judul, artis, lirik)
-    function loadSong(songIndex) {
-        // PRIORITAS: Jika currentPlaylistData (dari Firestore) kosong/gagal, gunakan defaultPlaylist
-        const playlistToUse = (currentPlaylistData && currentPlaylistData.length > 0) ? currentPlaylistData : defaultPlaylist;
-        const actualIndex = songIndex < playlistToUse.length ? songIndex : 0; // Pastikan index tidak melebihi batas
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--accent-purple);
+}
 
-        if (actualIndex < 0 || actualIndex >= playlistToUse.length) {
-            console.error("DEBUG: Error in loadSong - songIndex out of bounds.", { songIndex, actualIndex, playlistLength: playlistToUse.length });
-            currentSongTitle.textContent = "Lagu tidak ditemukan";
-            currentArtistName.textContent = "Pilih lagu lain atau cek data";
-            lyricsText.innerHTML = "<p>Terjadi kesalahan saat memuat lirik.</p>";
-            audioPlayer.src = "";
-            currentAlbumArt.src = "album_art_default.jpg";
-            pauseSong();
-            return;
-        }
+/* Music Player */
+.music-player {
+    padding: 30px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    width: 100%;
+    animation: fadeIn 0.8s ease-out forwards;
+    position: relative;
+    margin-top: 100px;
+}
 
-        const song = playlistToUse[actualIndex];
-        currentSongIndex = actualIndex; // Update global currentSongIndex
-        audioPlayer.src = song.src;
-        audioPlayer.load(); // Picu pemuatan audio
-        currentAlbumArt.src = song.albumArt;
-        currentSongTitle.textContent = song.title;
-        currentArtistName.textContent = song.artist;
-        lyricsText.innerHTML = song.lyrics;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-        progressBar.value = 0;
-        currentTimeSpan.textContent = '0:00';
-        durationSpan.textContent = '0:00';
+/* Header di dalam player */
+.header-player {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 15px;
+}
 
-        const albumArtImg = document.querySelector('.album-art-img');
-        if (albumArtImg) {
-            albumArtImg.style.animation = 'none';
-            void albumArtImg.offsetWidth;
-            albumArtImg.style.animation = '';
-        }
-        updatePlaylistActiveState(actualIndex); // Gunakan actualIndex
-        audioPlayer.dataset.songId = song.id || song.title; // Simpan ID lagu atau judul sebagai identifikasi
+.player-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2em;
+    font-weight: 500;
+    color: var(--secondary-text);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+}
 
-        // Setup Media Session API
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: song.title,
-                artist: song.artist,
-                album: 'MelodyVerse Playlist',
-                artwork: [
-                    { src: song.albumArt, sizes: '96x96', type: 'image/jpeg' },
-                    { src: song.albumArt, sizes: '128x128', type: 'image/jpeg' },
-                    { src: song.albumArt, sizes: '192x192', type: 'image/jpeg' },
-                    { src: song.albumArt, sizes: '256x256', type: 'image/jpeg' },
-                    { src: song.albumArt, sizes: '384x384', type: 'image/jpeg' },
-                    { src: song.albumArt, sizes: '512x512', type: 'image/jpeg' },
-                ]
-            });
+.indicator-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-red);
+    border-radius: 50%;
+    position: absolute;
+    opacity: 0.8;
+}
 
-            navigator.mediaSession.setActionHandler('play', () => { playSong(); });
-            navigator.mediaSession.setActionHandler('pause', () => { pauseSong(); });
-            navigator.mediaSession.setActionHandler('nexttrack', () => { playNextSong(); });
-            navigator.mediaSession.setActionHandler('previoustrack', () => { playPrevSong(); });
-            navigator.mediaSession.setActionHandler('seekbackward', (event) => { audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - (event.seekOffset || 10)); });
-            navigator.mediaSession.setActionHandler('seekforward', (event) => { audioPlayer.currentTime = Math.min(audioPlayer.duration, audioPlayer.currentTime + (event.seekOffset || 10)); });
-            navigator.mediaSession.setActionHandler('seekto', (event) => { if (event.fastSeek && 'fastSeek' in audioPlayer) { audioPlayer.fastSeek(event.seekTime); } else { audioPlayer.currentTime = event.seekTime; }});
-        }
-        console.log(`DEBUG: Lagu dimuat: ${song.title} oleh ${song.artist}.`);
+.indicator-dot.top-left { top: 0; left: 0; }
+.indicator-dot.top-right { top: 0; right: 0; }
+.indicator-dot.bottom-left { bottom: 0; left: 0; }
+.indicator-dot.bottom-right { bottom: 0; right: 0; }
+
+.album-art-section {
+    width: 250px;
+    height: 250px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px var(--shadow-deep);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.album-art-section::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: calc(15px + 5px);
+    background: linear-gradient(45deg, var(--accent-purple), var(--accent-red));
+    z-index: -1;
+    filter: blur(10px) opacity(0.6);
+    transition: all 0.3s ease;
+}
+
+.album-art-section:hover::before {
+    filter: blur(15px) opacity(1);
+    inset: -8px;
+}
+
+.album-art-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.album-art-section:hover .album-art-img {
+    transform: scale(1.03);
+}
+
+.song-details {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.song-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.2em;
+    color: var(--primary-text);
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.artist-name {
+    margin: 8px 0 0;
+    font-size: 1.1em;
+    color: var(--secondary-text);
+    font-weight: 400;
+}
+
+/* Lirik */
+.lyrics-section {
+    width: 90%;
+    text-align: center;
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius-sm);
+    max-height: 120px;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    scroll-behavior: smooth;
+    position: relative;
+}
+
+.lyrics-text p {
+    font-size: 0.95em;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin: 0;
+    padding: 2px 0;
+}
+
+.lyrics-text p.active-lyric {
+    color: var(--accent-red);
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+
+/* Scrollbar untuk Lirik */
+.lyrics-section::-webkit-scrollbar {
+    width: 6px;
+}
+.lyrics-section::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+    border-radius: 3px;
+}
+.lyrics-section::-webkit-scrollbar-thumb {
+    background: var(--accent-purple);
+    border-radius: 3px;
+}
+
+/* Progress Bar */
+.progress-bar-section {
+    width: 100%;
+    text-align: center;
+    margin-top: 25px;
+}
+
+.progress-slider {
+    width: 95%;
+    height: 6px;
+    -webkit-appearance: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.progress-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--progress-fill);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.7);
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.progress-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(255, 69, 0, 1);
+}
+
+.progress-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--progress-fill);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.7);
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+.progress-slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(255, 69, 0, 1);
+}
+
+.time-info {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9em;
+    color: var(--secondary-text);
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    width: 95%;
+}
+
+/* Kontrol */
+.controls-section {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid var(--button-border);
+    color: var(--primary-text);
+    font-size: 1.5em;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, color 0.3s ease;
+    box-shadow: 0 4px 10px var(--shadow-deep);
+}
+
+.control-btn.large-btn {
+    font-size: 2.5em;
+    width: 75px;
+    height: 75px;
+    background-color: var(--accent-purple);
+    border-color: var(--accent-purple);
+    box-shadow: 0 6px 20px rgba(138, 43, 226, 0.7);
+}
+
+.control-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--accent-purple);
+    transform: scale(1.08);
+    box-shadow: 0 6px 15px var(--shadow-deep);
+}
+
+.control-btn.large-btn:hover {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(255, 69, 0, 0.8);
+}
+
+/* Playlist Sidebar */
+.playlist-sidebar {
+    padding: 25px;
+    width: 100%;
+    max-width: 400px;
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100%;
+    transform: translateX(100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    max-height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+    box-sizing: border-box;
+}
+
+.playlist-sidebar.visible {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.playlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-right: 10px;
+}
+
+.playlist-title {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    font-size: 1.8em;
+    color: var(--primary-text);
+    font-weight: 700;
+}
+
+#close-playlist-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--button-border);
+    color: var(--primary-text);
+    font-size: 1.2em;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+#close-playlist-btn:hover {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.7);
+}
+
+/* Playlist Search */
+.playlist-search-section {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.playlist-search-section .search-input {
+    width: calc(100% - 40px);
+    padding: 10px 15px 10px 40px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--primary-text);
+    font-size: 1em;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.playlist-search-section .search-input:focus {
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 8px rgba(138, 43, 226, 0.5);
+}
+
+.playlist-search-section .search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--secondary-text);
+    font-size: 0.9em;
+}
+
+
+.playlist-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.playlist-items li {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease, border-left-color 0.2s ease;
+    border-left: 5px solid transparent;
+}
+
+.playlist-items li:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.playlist-items li.active {
+    background-color: var(--player-bg-dark);
+    border-left-color: var(--accent-red);
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.4);
+}
+
+.playlist-items li img {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--border-radius-sm);
+    margin-right: 15px;
+    object-fit: cover;
+}
+
+.playlist-items li .playlist-song-info h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: var(--primary-text);
+}
+
+.playlist-items li .playlist-song-info p {
+    margin: 3px 0 0;
+    font-size: 0.9em;
+    color: var(--secondary-text);
+}
+
+/* Scrollbar untuk Playlist */
+.playlist-sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+.playlist-sidebar::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
+.playlist-sidebar::-webkit-scrollbar-thumb {
+    background: var(--accent-purple);
+    border-radius: 4px;
+}
+
+/* Overlay untuk sidebar dan modal */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 99;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+
+.sidebar-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Timer Modal Styling */
+.modal {
+    display: none !important; /* KRUSIAL: Pastikan modal tersembunyi secara default */
+    position: fixed;
+    z-index: 101;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.visible {
+    display: flex !important; /* KRUSIAL: Pastikan modal muncul saat kelas visible ditambahkan */
+}
+
+.modal-content {
+    background: var(--modal-bg);
+    margin: auto;
+    padding: 30px;
+    border-radius: var(--border-radius-main);
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+    animation: zoomIn 0.3s ease-out forwards;
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.close-button {
+    color: var(--secondary-text);
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: var(--accent-red);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-content h2 {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--primary-text);
+    margin-bottom: 25px;
+    font-size: 1.8em;
+}
+
+.timer-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.timer-option-btn {
+    background: var(--timer-option-btn-bg);
+    border: 1px solid var(--button-border);
+    color: var(--primary-text);
+    padding: 12px 20px;
+    border-radius: var(--border-radius-sm);
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.timer-option-btn:hover {
+    background-color: var(--timer-option-btn-hover-bg);
+    border-color: var(--accent-purple);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.timer-option-btn.selected {
+    background-color: var(--accent-purple);
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
+    color: white;
+}
+
+
+.custom-timer-input {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.custom-timer-input input[type="number"] {
+    width: 120px;
+    padding: 10px 15px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--primary-text);
+    font-size: 1em;
+    text-align: center;
+    -moz-appearance: textfield;
+}
+
+/* Hide arrows in Chrome, Safari, Edge */
+.custom-timer-input input::-webkit-outer-spin-button,
+.custom-timer-input input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.modal-active-timer-display {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary-text);
+}
+
+@media (min-width: 769px) {
+    .modal-active-timer-display {
+        flex-direction: row;
+        justify-content: center;
+        gap: 20px;
+    }
+}
+
+.modal-active-timer-display p {
+    font-size: 1.1em;
+    margin: 0;
+}
+
+.modal-active-timer-display span {
+    font-weight: bold;
+    color: var(--accent-red);
+}
+
+/* Audio Settings Modal Styling */
+#audio-settings-modal h3 {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--primary-text);
+    margin-top: 25px;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 20px;
+    width: 100%;
+}
+
+.audio-control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.audio-control-group label {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.1em;
+    color: var(--primary-text);
+    margin-bottom: 5px;
+}
+
+.audio-control-group .volume-slider {
+    width: 90%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.audio-control-group .volume-slider::-webkit-slider-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--accent-purple);
+    box-shadow: 0 0 10px rgba(138, 43, 226, 0.7);
+}
+.audio-control-group .volume-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--accent-purple);
+    box-shadow: 0 0 10px rgba(138, 43, 226, 0.7);
+}
+
+.audio-control-group span {
+    font-size: 0.9em;
+    color: var(--secondary-text);
+    margin-top: 5px;
+}
+
+/* EQ Presets */
+.eq-presets {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.eq-preset-btn {
+    background: var(--button-bg);
+    border: 1px solid var(--button-border);
+    color: var(--primary-text);
+    padding: 8px 15px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.eq-preset-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--accent-purple);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.eq-preset-btn.selected {
+    background-color: var(--accent-purple);
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
+    color: white;
+}
+
+.audio-note {
+    font-size: 0.85em;
+    color: var(--secondary-text);
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Admin Panel Styling */
+.admin-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.admin-section h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.4em;
+    color: var(--primary-text);
+    margin-bottom: 15px;
+}
+
+.admin-form input[type="text"],
+.admin-form textarea {
+    width: calc(100% - 30px);
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--primary-text);
+    font-size: 1em;
+    outline: none;
+    resize: vertical;
+}
+
+.admin-form textarea {
+    min-height: 80px;
+}
+
+.admin-form button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    margin-top: 10px;
+}
+
+.admin-song-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px; /* Batasi tinggi untuk scroll */
+    overflow-y: auto;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-song-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.admin-song-list li:last-child {
+    border-bottom: none;
+}
+
+.admin-song-info {
+    flex-grow: 1;
+    text-align: left;
+    margin-right: 10px;
+}
+
+.admin-song-info h4 {
+    margin: 0;
+    font-size: 1em;
+    color: var(--primary-text);
+}
+
+.admin-song-info p {
+    margin: 2px 0 0;
+    font-size: 0.8em;
+    color: var(--secondary-text);
+}
+
+.admin-song-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.admin-song-actions button {
+    padding: 6px 10px;
+    font-size: 0.8em;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.admin-song-actions .edit-btn {
+    background-color: rgba(0, 123, 255, 0.2);
+    border: 1px solid rgba(0, 123, 255, 0.5);
+    color: #007bff;
+}
+.admin-song-actions .edit-btn:hover {
+    background-color: rgba(0, 123, 255, 0.4);
+}
+
+.admin-song-actions .delete-btn {
+    background-color: rgba(220, 53, 69, 0.2);
+    border: 1px solid rgba(220, 53, 69, 0.5);
+    color: #dc3545;
+}
+.admin-song-actions .delete-btn:hover {
+    background-color: rgba(220, 53, 69, 0.4);
+}
+
+/* Auth Modal Styling (NEW) */
+.auth-toggle-text {
+    font-size: 0.9em;
+    color: var(--secondary-text);
+    margin-top: 15px;
+}
+
+.auth-toggle-text a {
+    color: var(--accent-purple);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-toggle-text a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design (umum) */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+        max-width: 95%;
     }
 
-    // Memutar lagu
-    function playSong() {
-        if (!audioPlayer.src || audioPlayer.src === window.location.href) {
-            console.warn("DEBUG: Audio source is not set or invalid. Cannot play.");
-            return;
-        }
-        
-        // Inisialisasi Web Audio API saat play pertama kali
-        if (!audioContext) {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                source = audioContext.createMediaElementSource(audioPlayer);
-
-                // Buat node-node efek
-                analyser = audioContext.createAnalyser();
-                masterGainNode = audioContext.createGain();
-                bassFilter = audioContext.createBiquadFilter();
-                midFilter = audioContext.createBiquadFilter();
-                trebleFilter = audioContext.createBiquadFilter();
-                effectGainNode = audioContext.createGain();
-
-                // Konfigurasi Filter Nodes
-                bassFilter.type = 'lowshelf';
-                bassFilter.frequency.value = 250;
-                bassFilter.gain.value = parseFloat(bassLevelSlider.value);
-
-                midFilter.type = 'peaking';
-                midFilter.frequency.value = 1000;
-                midFilter.Q.value = 1;
-                midFilter.gain.value = parseFloat(midLevelSlider.value);
-
-                trebleFilter.type = 'highshelf';
-                trebleFilter.frequency.value = 4000;
-                trebleFilter.gain.value = parseFloat(trebleLevelSlider.value);
-
-                // Hubungkan node-node dalam graph:
-                // source -> analyser -> bassFilter -> midFilter -> trebleFilter -> effectGainNode -> masterGainNode -> destination
-                source.connect(analyser);
-                analyser.connect(bassFilter);
-                bassFilter.connect(midFilter);
-                midFilter.connect(trebleFilter);
-                trebleFilter.connect(effectGainNode);
-                effectGainNode.connect(masterGainNode);
-                masterGainNode.connect(audioContext.destination);
-
-                analyser.fftSize = 256;
-                console.log("DEBUG: Web Audio API initialized successfully with effects chain.");
-                drawVisualizer(); // Mulai menggambar visualizer
-            } catch (e) {
-                console.error("DEBUG: Gagal menginisialisasi Web Audio API:", e);
-                audioVisualizerCanvas.style.display = 'none'; // Sembunyikan visualizer jika error
-                // Jika API gagal, audioPlayer akan memutar langsung ke speaker (tanpa efek/visualizer)
-                // Ini penting agar play tetap berfungsi.
-            }
-        }
-
-        // Pastikan AudioContext di-resume jika dalam keadaan suspended (misalnya setelah interaksi pengguna pertama)
-        if (audioContext && audioContext.state === 'suspended') {
-            audioContext.resume().then(() => {
-                console.log('DEBUG: AudioContext resumed successfully');
-            }).catch(e => console.error('DEBUG: Error resuming AudioContext:', e));
-        }
-
-        // Coba putar audio dan tangani Promise
-        audioPlayer.play().then(() => {
-            isPlaying = true;
-            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            playPauseBtn.setAttribute('aria-label', 'Pause');
-            const albumArtImg = document.querySelector('.album-art-img');
-            if (albumArtImg) {
-                albumArtImg.style.animationPlayState = 'running';
-            }
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.playbackState = 'playing';
-            }
-            // Pastikan visualizer menggambar jika audio diputar
-            if (analyser && audioVisualizerCanvas.style.display !== 'none') {
-                requestAnimationFrame(drawVisualizer);
-            }
-            console.log("DEBUG: AudioPlayer play() dipicu berhasil.");
-        }).catch(error => {
-            console.error("DEBUG: Gagal memutar audio:", error);
-            isPlaying = false;
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.playbackState = 'paused';
-            }
-            if (error.name === "NotAllowedError" || error.name === "AbortError") {
-                console.log("DEBUG: Autoplay diblokir atau pemutaran dibatalkan. Sentuh tombol play untuk memulai.");
-            }
-        });
+    header {
+        top: 15px;
+        padding: 0 15px;
     }
 
-    // Menjeda lagu
-    function pauseSong() {
-        audioPlayer.pause();
-        isPlaying = false;
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        playPauseBtn.setAttribute('aria-label', 'Play');
-        const albumArtImg = document.querySelector('.album-art-img');
-        if (albumArtImg) {
-            albumArtImg.style.animationPlayState = 'paused';
-        }
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.playbackState = 'paused';
-        }
-        console.log("DEBUG: AudioPlayer pause() dipicu.");
+    .app-title-new {
+        font-size: 1.8em;
     }
 
-    // Fungsi untuk memformat waktu dari detik menjadi 'MM:SS'
-    function formatTime(seconds) {
-        if (isNaN(seconds) || seconds < 0) return '0:00';
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = Math.floor(seconds % 60);
-        const formattedSeconds = remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
-        return `${minutes}:${formattedSeconds}`;
+    .app-branding {
+        gap: 5px;
+    }
+    .header-audio-controls {
+        gap: 8px;
+    }
+    .header-timer-btn, .header-volume-btn, .header-admin-btn {
+        padding: 6px 10px;
+        font-size: 0.75em;
     }
 
-    // Mainkan lagu berikutnya
-    function playNextSong() {
-        // Gunakan playlist yang sedang aktif (Firestore atau default)
-        const playlistToUse = (currentPlaylistData && currentPlaylistData.length > 0) ? currentPlaylistData : defaultPlaylist;
-
-        if (playlistToUse.length === 0) {
-            console.warn("DEBUG: Playlist kosong, tidak bisa memutar lagu berikutnya.");
-            return;
-        }
-
-        if (repeatMode === 'one') {
-            loadSong(currentSongIndex); // Muat ulang lagu yang sama
-        } else if (repeatMode === 'all' || isShuffling) {
-            currentSongIndex = (currentSongIndex + 1) % playlistToUse.length;
-            loadSong(currentSongIndex);
-        } else { // Repeat off
-            if (currentSongIndex < playlistToUse.length - 1) {
-                currentSongIndex++;
-                loadSong(currentSongIndex);
-            } else {
-                // Berhenti jika sudah lagu terakhir dan repeat off
-                pauseSong();
-                currentSongIndex = 0;
-                loadSong(currentSongIndex);
-                console.log("DEBUG: Akhir playlist, kembali ke awal dan jeda.");
-                return;
-            }
-        }
-        if (isPlaying) {
-            playSong();
-        } else {
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        }
-        console.log(`DEBUG: Memutar lagu berikutnya. Indeks: ${currentSongIndex}`);
+    .header-buttons-vertical {
+        gap: 8px;
     }
 
-    // Mainkan lagu sebelumnya
-    function playPrevSong() {
-        const playlistToUse = isShuffling ? shuffledPlaylist : currentPlaylistData;
-
-        if (playlistToUse.length === 0) {
-            console.warn("DEBUG: Playlist kosong, tidak bisa memutar lagu sebelumnya.");
-            return;
-        }
-
-        if (repeatMode === 'one') {
-            loadSong(currentSongIndex); // Muat ulang lagu yang sama
-        } else {
-            currentSongIndex = (currentSongIndex - 1 + playlistToUse.length) % playlistToUse.length;
-            loadSong(currentSongIndex);
-        }
-
-        if (isPlaying) {
-            playSong();
-        } else {
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        }
-        console.log(`DEBUG: Memutar lagu sebelumnya. Indeks: ${currentSongIndex}`);
+    .btn-playlist, .btn-contact, .btn-theme {
+        padding: 8px 12px;
+        font-size: 0.8em;
     }
 
-    // --- Event Listeners (Untuk Interaksi Pengguna) ---
-
-    playPauseBtn.addEventListener('click', () => {
-        console.log("DEBUG: Tombol Play/Pause diklik.");
-        if (isPlaying) {
-            pauseSong();
-        } else {
-            playSong();
-        }
-    });
-
-    prevBtn.addEventListener('click', playPrevSong);
-    nextBtn.addEventListener('click', playNextSong);
-
-    audioPlayer.addEventListener('timeupdate', () => {
-        if (!isNaN(audioPlayer.duration)) {
-            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-            progressBar.value = progress;
-            currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
-            updateLyricsScroll();
-        }
-    });
-
-    audioPlayer.addEventListener('loadeddata', () => { // Gunakan loadeddata, lebih andal daripada loadedmetadata untuk durasi awal
-        if (!isNaN(audioPlayer.duration)) {
-            durationSpan.textContent = formatTime(audioPlayer.duration);
-        } else {
-            durationSpan.textContent = '0:00';
-        }
-        console.log("DEBUG: Audio loadeddata event. Duration:", audioPlayer.duration);
-    });
-
-    progressBar.addEventListener('input', () => {
-        if (!isNaN(audioPlayer.duration)) {
-            const seekTime = (progressBar.value / 100) * audioPlayer.duration;
-            audioPlayer.currentTime = seekTime;
-        }
-    });
-
-    audioPlayer.addEventListener('ended', () => {
-        console.log("DEBUG: Audio ended event.");
-        playNextSong();
-    });
-
-    // --- Fungsi Playlist ---
-
-    function buildPlaylist(filterText = '') {
-        playlistUl.innerHTML = '';
-        const playlistToUse = isShuffling ? shuffledPlaylist : currentPlaylistData;
-        const filteredPlaylist = playlistToUse.filter(song =>
-            song.title.toLowerCase().includes(filterText.toLowerCase()) ||
-            song.artist.toLowerCase().includes(filterText.toLowerCase())
-        );
-
-        if (filteredPlaylist.length === 0 && filterText !== '') {
-            const noResultsLi = document.createElement('li');
-            noResultsLi.classList.add('no-results');
-            noResultsLi.innerHTML = `<div class="playlist-song-info"><h3>Tidak ada hasil ditemukan.</h3></div>`;
-            playlistUl.appendChild(noResultsLi);
-            return;
-        }
-
-        if (filteredPlaylist.length === 0 && playlistToUse.length === 0) { // Jika tidak ada lagu sama sekali
-            const noSongsMessage = document.createElement('li');
-            noSongsMessage.innerHTML = `<div class="playlist-song-info"><h3>Daftar putar kosong.</h3><p>Tambahkan lagu sebagai admin.</p></div>`;
-            playlistUl.appendChild(noSongsMessage);
-            return;
-        }
-
-
-        filteredPlaylist.forEach((song) => {
-            const li = document.createElement('li');
-            // actualIndexInCurrentData diperlukan untuk loadSong yang menggunakan indeks dari currentPlaylistData
-            // Ini akan merujuk ke indeks di playlist 'master' (Firestore atau default)
-            const actualIndexInMasterData = currentPlaylistData.findIndex(s => s.id === song.id);
-            li.setAttribute('data-original-index', actualIndexInMasterData);
-            li.innerHTML = `
-                <img src="${song.albumArt}" onerror="this.onerror=null;this.src='album_art_default.jpg';" alt="${song.title} Album Art">
-                <div class="playlist-song-info">
-                    <h3>${song.title}</h3>
-                    <p>${song.artist}</p>
-                </div>
-            `;
-            li.addEventListener('click', () => {
-                currentSongIndex = parseInt(li.getAttribute('data-original-index'));
-                loadSong(currentSongIndex);
-                playSong();
-                hidePlaylistSidebar();
-            });
-            playlistUl.appendChild(li);
-        });
-        updatePlaylistActiveState(currentSongIndex);
+    .music-player {
+        padding: 25px 30px;
+        gap: 20px;
+        margin-top: 80px;
     }
 
-    function updatePlaylistActiveState(activeIndex) {
-        const playlistItems = playlistUl.querySelectorAll('li');
-        if (!playlistItems.length) return;
-
-        playlistItems.forEach(item => item.classList.remove('active'));
-
-        const activeItem = playlistUl.querySelector(`li[data-original-index="${activeIndex}"]`);
-        if (activeItem) {
-            activeItem.classList.add('active');
-
-            const containerHeight = playlistUl.clientHeight;
-            const itemHeight = activeItem.offsetHeight;
-            const itemTop = activeItem.offsetTop;
-
-            const scrollTo = itemTop - (containerHeight / 2) + (itemHeight / 2);
-
-            if (playlistUl.scrollHeight > playlistUl.clientHeight) {
-                playlistUl.scrollTo({
-                    top: scrollTo,
-                    behavior: 'smooth'
-                });
-            }
-        }
+    .album-art-section {
+        width: 200px;
+        height: 200px;
     }
 
-    function showPlaylistSidebar() {
-        playlistSidebar.classList.add('visible');
-        sidebarOverlay.classList.add('visible');
+    .song-title {
+        font-size: 1.8em;
     }
 
-    function hidePlaylistSidebar() {
-        playlistSidebar.classList.remove('visible');
-        sidebarOverlay.classList.remove('visible');
+    .artist-name {
+        font-size: 1em;
     }
 
-    togglePlaylistBtn.addEventListener('click', () => {
-        console.log("DEBUG: Tombol Daftar Putar diklik.");
-        if (playlistSidebar.classList.contains('visible')) {
-            hidePlaylistSidebar();
-        } else {
-            buildPlaylist(playlistSearchInput.value); // Rebuild playlist saat dibuka
-            showPlaylistSidebar();
-        }
-    });
-
-    closePlaylistBtn.addEventListener('click', () => {
-        hidePlaylistSidebar();
-    });
-
-    sidebarOverlay.addEventListener('click', () => { // Overlay untuk menutup semua modal/sidebar
-        hidePlaylistSidebar();
-        hideTimerModal();
-        hideAudioSettingsModal();
-        hideAdminPanelModal();
-        hideAuthModal();
-    });
-
-    // --- Sleep Timer Functions ---
-
-    function showTimerModal() {
-        updateAllTimerDisplays();
-        timerModal.classList.add('visible');
-        modalOverlay.classList.add('visible');
+    .lyrics-section {
+        margin-top: 15px;
+        padding: 10px;
+        font-size: 0.9em;
     }
 
-    function hideTimerModal() {
-        timerModal.classList.remove('visible');
-        modalOverlay.classList.remove('visible');
-        timerOptionBtns.forEach(btn => btn.classList.remove('selected'));
-        customTimerInput.value = '';
+    .player-timer-display {
+        font-size: 0.9em;
+        gap: 8px;
+        padding: 6px 12px;
     }
 
-    function startSleepTimer(minutes) {
-        clearTimeout(sleepTimerTimeoutId);
-        clearInterval(sleepTimerIntervalId);
-
-        timeRemaining = minutes * 60;
-
-        if (timeRemaining <= 0) {
-            alert("Durasi timer harus lebih dari 0 menit.");
-            resetSleepTimer();
-            return;
-        }
-
-        sleepTimerTimeoutId = setTimeout(() => {
-            pauseSong();
-            alert("Sleep timer selesai! Musik dijeda.");
-            resetSleepTimer();
-            hideTimerModal();
-        }, timeRemaining * 1000);
-
-        sleepTimerIntervalId = setInterval(() => {
-            timeRemaining--;
-            if (timeRemaining <= 0) {
-                clearInterval(sleepTimerIntervalId);
-            }
-            updateAllTimerDisplays();
-        }, 1000);
-
-        updateAllTimerDisplays();
-        hideTimerModal();
+    .btn-icon-sm {
+        font-size: 0.9em;
+        padding: 3px;
     }
 
-    function updateAllTimerDisplays() {
-        const displayTime = formatTime(timeRemaining);
-
-        if (timeRemaining > 0) {
-            playerTimerDisplay.style.display = 'flex';
-            playerTimerCountdown.textContent = displayTime;
-
-            modalActiveTimerDisplay.style.display = 'flex';
-            modalTimerCountdown.textContent = displayTime;
-            modalCancelTimerBtn.style.display = 'inline-block';
-        } else {
-            playerTimerDisplay.style.display = 'none';
-            modalActiveTimerDisplay.style.display = 'none';
-            modalCancelTimerBtn.style.display = 'none';
-        }
+    .controls-section {
+        gap: 10px;
     }
 
-    function resetSleepTimer() {
-        clearTimeout(sleepTimerTimeoutId);
-        clearInterval(sleepTimerIntervalId);
-        sleepTimerTimeoutId = null;
-        sleepTimerIntervalId = null;
-        timeRemaining = 0;
-        updateAllTimerDisplays();
+    .control-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.3em;
     }
 
-    // Timer Event Listeners
-    setTimerBtn.addEventListener('click', showTimerModal);
-    closeModalBtn.addEventListener('click', hideTimerModal);
-
-
-    timerOptionBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            timerOptionBtns.forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            const minutes = parseInt(btn.dataset.minutes);
-            startSleepTimer(minutes);
-        });
-    });
-
-    setCustomTimerBtn.addEventListener('click', () => {
-        const minutes = parseInt(customTimerInput.value);
-        if (minutes > 0) {
-            timerOptionBtns.forEach(b => b.classList.remove('selected'));
-            startSleepTimer(minutes);
-        } else {
-            alert("Durasi timer yang valid (lebih dari 0 menit).");
-        }
-    });
-
-    playerCancelTimerBtn.addEventListener('click', () => {
-        resetSleepTimer();
-        alert("Sleep timer dibatalkan.");
-    });
-
-    modalCancelTimerBtn.addEventListener('click', () => {
-        resetSleepTimer();
-        alert("Sleep timer dibatalkan.");
-        hideTimerModal();
-    });
-
-    // --- Audio Settings Modal Functions ---
-    function showAudioSettingsModal() {
-        audioSettingsModal.classList.add('visible');
-        modalOverlay.classList.add('visible');
-        if (masterGainNode) {
-            masterVolumeSlider.value = masterGainNode.gain.value * 100;
-            masterVolumeValue.textContent = `${Math.round(masterGainNode.gain.value * 100)}%`;
-        }
-        if (bassFilter) {
-            bassLevelSlider.value = bassFilter.gain.value;
-            bassLevelValue.textContent = `${bassFilter.gain.value.toFixed(1)} dB`;
-        }
-        if (midFilter) {
-            midLevelSlider.value = midFilter.gain.value;
-            midLevelValue.textContent = `${midFilter.gain.value.toFixed(1)} dB`;
-        }
-        if (trebleFilter) {
-            trebleLevelSlider.value = trebleFilter.gain.value;
-            trebleLevelValue.textContent = `${trebleFilter.gain.value.toFixed(1)} dB`;
-        }
-        if (effectGainNode) {
-            effectLevelSlider.value = effectGainNode.gain.value * 100;
-            effectLevelValue.textContent = `${Math.round(effectGainNode.gain.value * 100)}%`;
-        }
-        eqPresetBtns.forEach(btn => btn.classList.remove('selected'));
+    .control-btn.large-btn {
+        width: 70px;
+        height: 70px;
+        font-size: 2em;
     }
 
-    function hideAudioSettingsModal() {
-        audioSettingsModal.classList.remove('visible');
-        modalOverlay.classList.remove('visible');
+    .progress-slider {
+        height: 5px;
     }
 
-    audioSettingsBtn.addEventListener('click', showAudioSettingsModal);
-    closeAudioSettingsModalBtn.addEventListener('click', hideAudioSettingsModal);
-
-    // --- Audio Control Sliders Event Listeners ---
-    masterVolumeSlider.addEventListener('input', () => {
-        if (masterGainNode) {
-            masterGainNode.gain.value = masterVolumeSlider.value / 100;
-            masterVolumeValue.textContent = `${masterVolumeSlider.value}%`;
-        }
-    });
-
-    bassLevelSlider.addEventListener('input', () => {
-        if (bassFilter) {
-            bassFilter.gain.value = parseFloat(bassLevelSlider.value);
-            bassLevelValue.textContent = `${bassLevelSlider.value} dB`;
-        }
-    });
-
-    midLevelSlider.addEventListener('input', () => {
-        if (midFilter) {
-            midFilter.gain.value = parseFloat(midLevelSlider.value);
-            midLevelValue.textContent = `${midLevelSlider.value} dB`;
-        }
-    });
-
-    trebleLevelSlider.addEventListener('input', () => {
-        if (trebleFilter) {
-            trebleFilter.gain.value = parseFloat(trebleLevelSlider.value);
-            trebleLevelValue.textContent = `${trebleLevelSlider.value} dB`;
-        }
-    });
-
-    effectLevelSlider.addEventListener('input', () => {
-        if (effectGainNode) {
-            effectGainNode.gain.value = effectLevelSlider.value / 100;
-            effectLevelValue.textContent = `${effectLevelSlider.value}%`;
-        }
-    });
-
-    // --- EQ Presets Logic ---
-    const eqPresets = {
-        'flat': { bass: 0, mid: 0, treble: 0 },
-        'pop': { bass: 6, mid: -3, treble: 8 },
-        'rock': { bass: 7, mid: -4, treble: 7 },
-        'jazz': { bass: 5, mid: 2, treble: 4 }
-    };
-
-    eqPresetBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const presetName = btn.dataset.preset;
-            const preset = eqPresets[presetName];
-
-            if (preset && bassFilter && midFilter && trebleFilter) {
-                bassFilter.gain.value = preset.bass;
-                midFilter.gain.value = preset.mid;
-                trebleFilter.gain.value = preset.treble;
-
-                bassLevelSlider.value = preset.bass;
-                midLevelSlider.value = preset.mid;
-                trebleLevelSlider.value = preset.treble;
-
-                bassLevelValue.textContent = `${preset.bass} dB`;
-                midLevelValue.textContent = `${preset.mid} dB`;
-                trebleLevelValue.textContent = `${preset.treble} dB`;
-
-                eqPresetBtns.forEach(pBtn => pBtn.classList.remove('selected'));
-                btn.classList.add('selected');
-            }
-        });
-    });
-
-
-    // --- Shuffle and Repeat Functions ---
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
+    .progress-slider::-webkit-slider-thumb,
+    .progress-slider::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
     }
 
-    shuffleBtn.addEventListener('click', () => {
-        isShuffling = !isShuffling;
-        // Tentukan playlist yang akan diacak/diurutkan kembali
-        const playlistToManage = (currentPlaylistData && currentPlaylistData.length > 0) ? currentPlaylistData : defaultPlaylist;
-
-        if (isShuffling) {
-            shuffleBtn.classList.add('active');
-            originalPlaylistOrder = [...playlistToManage]; // Simpan urutan asli (bisa default/Firestore)
-            shuffledPlaylist = shuffleArray([...playlistToManage]);
-            const currentSong = playlistToUse[currentSongIndex]; // Lagu yang sedang diputar (dari playlist yang sedang aktif)
-            currentSongIndex = shuffledPlaylist.findIndex(song => song.id === currentSong.id);
-        } else {
-            shuffleBtn.classList.remove('active');
-            const currentSong = shuffledPlaylist[currentSongIndex];
-            currentSongIndex = originalPlaylistOrder.findIndex(song => song.id === currentSong.id);
-        }
-        // Pastikan buildPlaylist menggunakan currentPlaylistData atau shuffledPlaylist yang sudah diupdate
-        buildPlaylist(playlistSearchInput.value);
-        updatePlaylistActiveState(currentSongIndex);
-    });
-
-    repeatBtn.addEventListener('click', () => {
-        if (repeatMode === 'off') {
-            repeatMode = 'all';
-            repeatBtn.classList.add('active');
-            repeatBtn.innerHTML = '<i class="fas fa-repeat-all"></i>';
-            repeatBtn.setAttribute('aria-label', 'Ulangi Semua Lagu');
-        } else if (repeatMode === 'all') {
-            repeatMode = 'one';
-            repeatBtn.innerHTML = '<i class="fas fa-repeat-1"></i>';
-            repeatBtn.setAttribute('aria-label', 'Ulangi Satu Lagu');
-        } else { // repeatMode === 'one'
-            repeatMode = 'off';
-            repeatBtn.classList.remove('active');
-            repeatBtn.innerHTML = '<i class="fas fa-repeat"></i>';
-            repeatBtn.setAttribute('aria-label', 'Ulangi Lagu');
-        }
-    });
-
-    // --- Playlist Search Function ---
-    playlistSearchInput.addEventListener('input', (event) => {
-        buildPlaylist(event.target.value);
-    });
-
-    // --- Interactive Lyrics (Auto-scroll) ---
-    function updateLyricsScroll() {
-        const lyricsLines = lyricsText.querySelectorAll('p, b');
-        if (lyricsLines.length === 0 || isNaN(audioPlayer.duration) || audioPlayer.duration === 0) {
-            return;
-        }
-
-        lyricsText.querySelectorAll('.active-lyric').forEach(line => line.classList.remove('active-lyric'));
-
-        const progressPercentage = (audioPlayer.currentTime / audioPlayer.duration);
-        const estimatedLineIndex = Math.floor(progressPercentage * lyricsLines.length);
-
-        if (estimatedLineIndex < lyricsLines.length) {
-            const activeLine = lyricsLines[estimatedLineIndex];
-            activeLine.classList.add('active-lyric');
-
-            const lyricsSectionHeight = lyricsText.clientHeight;
-            const lineHeight = activeLine.offsetHeight;
-            const lineOffsetTop = activeLine.offsetTop;
-
-            const scrollTo = lineOffsetTop - (lyricsSectionHeight / 2) + (lineHeight / 2);
-
-            lyricsText.scrollTo({
-                top: scrollTo,
-                behavior: 'smooth'
-            });
-        }
+    .time-info {
+        font-size: 0.8em;
     }
 
-    // --- Audio Visualizer ---
-    function drawVisualizer() {
-        if (!analyser || !isPlaying) {
-            return;
-        }
-
-        requestAnimationFrame(drawVisualizer);
-
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        analyser.getByteFrequencyData(dataArray);
-
-        visualizerCtx.clearRect(0, 0, audioVisualizerCanvas.width, audioVisualizerCanvas.height);
-
-        const barWidth = (audioVisualizerCanvas.width / bufferLength) * 2.5;
-        let x = 0;
-
-        for (let i = 0; i < bufferLength; i++) {
-            let barHeight = dataArray[i] * 2;
-
-            const gradient = visualizerCtx.createLinearGradient(0, audioVisualizerCanvas.height, 0, audioVisualizerCanvas.height - barHeight);
-            gradient.addColorStop(0, getComputedStyle(document.documentElement).getPropertyValue('--visualizer-fade-color'));
-            gradient.addColorStop(1, getComputedStyle(document.documentElement).getPropertyValue('--visualizer-bar-color'));
-
-            visualizerCtx.fillStyle = gradient;
-            visualizerCtx.fillRect(x, audioVisualizerCanvas.height - barHeight, barWidth, barHeight);
-
-            x += barWidth + 1;
-        }
+    .playlist-sidebar {
+        right: 0;
+        width: 80%;
+        max-width: none;
     }
 
-    // Atur ukuran canvas agar responsif
-    function resizeCanvas() {
-        audioVisualizerCanvas.width = window.innerWidth;
-        audioVisualizerCanvas.height = window.innerHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    // --- Theme Toggle Function ---
-    function applyTheme(theme) {
-        document.body.classList.remove('light-theme', 'dark-theme');
-        document.body.classList.add(theme);
-        localStorage.setItem('theme', theme);
-
-        if (theme === 'light-theme') {
-            themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i> Mode Gelap';
-            themeToggleBtn.setAttribute('aria-label', 'Ubah ke Mode Gelap');
-        } else {
-            themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i> Mode Terang';
-            themeToggleBtn.setAttribute('aria-label', 'Ubah ke Mode Terang');
-        }
+    #close-playlist-btn {
+        font-size: 1em;
+        width: 35px;
+        height: 35px;
     }
 
-    themeToggleBtn.addEventListener('click', () => {
-        const currentThemeClass = document.body.classList.contains('light-theme') ? 'light-theme' : 'dark-theme';
-        if (currentThemeClass === 'dark-theme') {
-            applyTheme('light-theme');
-        } else {
-            applyTheme('dark-theme');
-        }
-    });
-
-    // --- Admin Panel Functions ---
-    function showAdminPanelModal() {
-        adminPanelModal.classList.add('visible');
-        modalOverlay.classList.add('visible');
-        loadAdminSongList();
+    .modal-content {
+        padding: 20px;
     }
 
-    function hideAdminPanelModal() {
-        adminPanelModal.classList.remove('visible');
-        modalOverlay.classList.remove('visible');
-        addSongForm.reset();
-        const submitBtn = addSongForm.querySelector('button[type="submit"]');
-        submitBtn.textContent = "Tambah Lagu";
-        submitBtn.classList.remove('btn-secondary');
-        submitBtn.classList.add('btn-primary');
-        submitBtn.dataset.editId = '';
+    .modal-content h2 {
+        font-size: 1.5em;
     }
 
-    adminPanelBtn.addEventListener('click', showAdminPanelModal);
-    closeAdminPanelModalBtn.addEventListener('click', hideAdminPanelModal);
-
-    addSongForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const submitBtn = e.submitter;
-        const editId = submitBtn.dataset.editId;
-
-        const songData = {
-            title: addTitleInput.value,
-            artist: addArtistInput.value,
-            src: addSrcInput.value,
-            albumArt: addAlbumArtInput.value,
-            lyrics: addLyricsInput.value,
-        };
-
-        try {
-            if (editId) {
-                await updateDoc(doc(db, `artifacts/${appId}/public/songs`, editId), songData);
-                alert("Lagu berhasil diperbarui!");
-            } else {
-                await addDoc(collection(db, `artifacts/${appId}/public/songs`), {
-                    ...songData,
-                    createdAt: new Date().toISOString()
-                });
-                alert("Lagu berhasil ditambahkan!");
-            }
-            addSongForm.reset();
-            submitBtn.dataset.editId = '';
-            submitBtn.textContent = "Tambah Lagu";
-            submitBtn.classList.remove('btn-secondary');
-            submitBtn.classList.add('btn-primary');
-
-        } catch (error) {
-            console.error("Error saving document: ", error);
-            alert("Gagal menyimpan lagu. Pastikan Anda admin dan koneksi internet stabil. Error: " + error.message);
-        }
-    });
-
-    async function loadAdminSongList() {
-        adminSongListUl.innerHTML = '<p style="text-align:center; padding: 20px;">Memuat lagu...</p>';
-        try {
-            const q = collection(db, `artifacts/${appId}/public/songs`);
-            onSnapshot(q, (snapshot) => {
-                adminSongListUl.innerHTML = '';
-                if (snapshot.empty) {
-                    adminSongListUl.innerHTML = '<p style="text-align:center; padding: 20px;">Belum ada lagu di daftar putar.</p>';
-                    return;
-                }
-                snapshot.forEach((doc) => {
-                    const song = doc.data();
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <div class="admin-song-info">
-                            <h4>${song.title}</h4>
-                            <p>${song.artist}</p>
-                        </div>
-                        <div class="admin-song-actions">
-                            <button class="edit-btn" data-id="${doc.id}" data-title="${song.title}" data-artist="${song.artist}" data-src="${song.src}" data-album-art="${song.albumArt}" data-lyrics="${song.lyrics || ''}">Edit</button>
-                            <button class="delete-btn" data-id="${doc.id}">Hapus</button>
-                        </div>
-                    `;
-                    adminSongListUl.appendChild(li);
-                });
-            }, (error) => {
-                console.error("Error listening to Firestore for admin list: ", error);
-                adminSongListUl.innerHTML = '<p style="text-align:center; padding: 20px; color: red;">Gagal memuat daftar lagu admin. Periksa aturan keamanan Firestore Anda.</p>';
-            });
-        } catch (e) {
-            console.error("Error setting up loadAdminSongList listener: ", e);
-            adminSongListUl.innerHTML = '<p style="text-align:center; padding: 20px; color: red;">Terjadi kesalahan saat menyiapkan koneksi database.</p>';
-        }
+    .timer-option-btn {
+        padding: 10px 15px;
+        font-size: 0.9em;
+        min-width: 80px;
     }
 
-    adminSongListUl.addEventListener('click', async (e) => {
-        const target = e.target;
-        const songId = target.dataset.id;
-
-        if (target.classList.contains('delete-btn')) {
-            if (confirm("Apakah Anda yakin ingin menghapus lagu ini dari daftar putar?")) {
-                try {
-                    await deleteDoc(doc(db, `artifacts/${appId}/public/songs`, songId));
-                    alert("Lagu berhasil dihapus!");
-                } catch (error) {
-                    console.error("Error deleting document: ", error);
-                    alert("Gagal menghapus lagu. Pastikan Anda admin dan koneksi internet stabil. Error: " + error.message);
-                }
-            }
-        } else if (target.classList.contains('edit-btn')) {
-            addTitleInput.value = target.dataset.title;
-            addArtistInput.value = target.dataset.artist;
-            addSrcInput.value = target.dataset.src;
-            addAlbumArtInput.value = target.dataset.albumArt;
-            addLyricsInput.value = target.dataset.lyrics;
-
-            const submitBtn = addSongForm.querySelector('button[type="submit"]');
-            submitBtn.textContent = "Update Lagu";
-            submitBtn.classList.remove('btn-primary');
-            submitBtn.classList.add('btn-secondary');
-            submitBtn.dataset.editId = songId;
-
-            adminPanelModal.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    });
-
-    // --- Autentikasi Functions (Email/Password) ---
-    function showAuthModal(isRegister = false) {
-        authModal.classList.add('visible');
-        modalOverlay.classList.add('visible');
-        isRegisterMode = isRegister;
-        if (isRegister) {
-            authTitle.textContent = "Daftar";
-            authSubmitBtn.textContent = "Daftar";
-            showRegisterLink.style.display = 'none';
-            showLoginLink.style.display = 'inline';
-        } else {
-            authTitle.textContent = "Login";
-            authSubmitBtn.textContent = "Login";
-            showRegisterLink.style.display = 'inline';
-            showLoginLink.style.display = 'none';
-        }
-        authErrorMessage.textContent = ""; // Clear errors
-        authForm.reset();
+    .custom-timer-input input[type="number"] {
+        width: 100px;
+        padding: 8px 12px;
+        font-size: 0.9em;
     }
 
-    function hideAuthModal() {
-        authModal.classList.remove('visible');
-        modalOverlay.classList.remove('visible');
+    .modal-active-timer-display p {
+        font-size: 1em;
     }
 
-    // Event listener untuk tombol Admin Panel (Jika belum login)
-    adminPanelBtn.addEventListener('click', () => {
-        // Jika adminPanelBtn terlihat, berarti currentUserUid cocok dengan ADMIN_UID
-        // Tapi jika diklik dan belum login, ini bisa jadi user biasa yang mencoba inspect element
-        // Atau admin yang sesi loginnya expired. Lebih baik tampilkan modal login jika auth.currentUser null
-        if (!auth.currentUser) {
-            showAuthModal(false); // Tampilkan login jika belum ada user
-        } else {
-            showAdminPanelModal(); // Tampilkan admin panel jika sudah login sebagai admin
-        }
-    });
-
-    closeAuthModalBtn.addEventListener('click', hideAuthModal);
-    showRegisterLink.addEventListener('click', (e) => { e.preventDefault(); showAuthModal(true); });
-    showLoginLink.addEventListener('click', (e) => { e.preventDefault(); showAuthModal(false); });
-
-    authForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = authEmailInput.value;
-        const password = authPasswordInput.value;
-        authErrorMessage.textContent = "Memproses...";
-
-        try {
-            if (isRegisterMode) {
-                await createUserWithEmailAndPassword(auth, email, password);
-                authErrorMessage.textContent = "Pendaftaran berhasil! Silakan login.";
-                console.log("DEBUG: Pendaftaran berhasil untuk email:", email);
-                showAuthModal(false); // Otomatis pindah ke mode login
-            } else {
-                await signInWithEmailAndPassword(auth, email, password);
-                authErrorMessage.textContent = "Login berhasil!";
-                console.log("DEBUG: Login berhasil untuk email:", email);
-                hideAuthModal(); // Sembunyikan modal setelah login berhasil
-            }
-        } catch (error) {
-            console.error("DEBUG: Authentication error:", error);
-            let message = "Terjadi kesalahan autentikasi.";
-            if (error.code === 'auth/email-already-in-use') {
-                message = "Email ini sudah terdaftar.";
-            } else if (error.code === 'auth/invalid-email') {
-                message = "Format email tidak valid.";
-            } else if (error.code === 'auth/operation-not-allowed') {
-                message = "Login Email/Password tidak diaktifkan di Firebase Console.";
-            } else if (error.code === 'auth/weak-password') {
-                message = "Password terlalu lemah (minimal 6 karakter).";
-            } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                message = "Email atau password salah.";
-            } else {
-                 message += ` (${error.code})`; // Tambahkan kode error untuk debugging
-            }
-            authErrorMessage.textContent = message;
-        }
-    });
-
-    // --- Inisialisasi Aplikasi (Fungsi yang Berjalan Saat Halaman Dimuat) ---
-    console.log("DEBUG: Memulai inisialisasi Firebase dan aplikasi MelodyVerse...");
-    try {
-        const app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-        console.log("DEBUG: Firebase App, Auth, dan Firestore berhasil diinisialisasi.");
-
-        // Autentikasi. Jika belum login, tampilkan modal login.
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUserUid = user.uid;
-                console.log("DEBUG: Pengguna terautentikasi. UID:", currentUserUid);
-
-                // Logika admin
-                if (currentUserUid === ADMIN_UID) {
-                    adminPanelBtn.style.display = 'flex';
-                    console.log("DEBUG: Anda adalah Admin. Tombol Admin Panel terlihat.");
-                } else {
-                    adminPanelBtn.style.display = 'none';
-                    console.log("DEBUG: Anda adalah pengguna biasa. Tombol Admin Panel tersembunyi.");
-                }
-
-                // Muat playlist dari Firestore secara real-time
-                const playlistCollectionRef = collection(db, `artifacts/${appId}/public/songs`);
-                onSnapshot(playlistCollectionRef, (snapshot) => {
-                    console.log("DEBUG: Menerima pembaruan playlist dari Firestore.");
-                    const fetchedPlaylist = [];
-                    snapshot.forEach((doc) => {
-                        fetchedPlaylist.push({ id: doc.id, ...doc.data() });
-                    });
-                    fetchedPlaylist.sort((a, b) => {
-                        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
-                        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
-                        return dateA.getTime() - dateB.getTime();
-                    });
-
-                    // Update currentPlaylistData dengan data dari Firestore
-                    currentPlaylistData = fetchedPlaylist;
-                    originalPlaylistOrder = [...currentPlaylistData]; // Selalu update original playlist
-
-                    // Jika Firestore playlist kosong, gunakan default
-                    if (currentPlaylistData.length === 0) {
-                        console.log("DEBUG: Daftar putar dari Firestore kosong. Menggunakan daftar putar default.");
-                        currentPlaylistData = [...defaultPlaylist];
-                        originalPlaylistOrder = [...defaultPlaylist];
-                    }
-
-                    // Pastikan currentSongIndex valid untuk playlist yang sedang digunakan
-                    const playlistToLoadFrom = (currentPlaylistData && currentPlaylistData.length > 0) ? currentPlaylistData : defaultPlaylist;
-                    if (currentSongIndex >= playlistToLoadFrom.length || !playlistToLoadFrom[currentSongIndex]) {
-                        currentSongIndex = 0; // Reset ke lagu pertama jika index out of bounds
-                    }
-
-                    // Hanya muat ulang lagu jika ID lagu yang aktif berubah atau belum ada lagu dimuat
-                    const loadedSongId = audioPlayer.dataset.songId;
-                    if (!loadedSongId || (playlistToLoadFrom[currentSongIndex] && playlistToLoadFrom[currentSongIndex].id !== loadedSongId)) {
-                        console.log("DEBUG: Memuat lagu dari playlist. Index:", currentSongIndex);
-                        loadSong(currentSongIndex);
-                        audioPlayer.dataset.songId = playlistToLoadFrom[currentSongIndex]?.id; // Simpan ID lagu aktif
-                    } else {
-                        console.log("DEBUG: Lagu saat ini masih relevan. Tidak perlu memuat ulang.");
-                    }
-
-                    buildPlaylist(playlistSearchInput.value); // Rebuild UI playlist
-                }, (error) => {
-                    console.error("DEBUG: Error real-time playlist listener from Firestore:", error);
-                    alert("Gagal memuat daftar putar dari database. Menampilkan daftar putar default. Periksa aturan keamanan Firestore Anda.");
-                    // Fallback ke default playlist jika ada error Firestore
-                    currentPlaylistData = [...defaultPlaylist];
-                    originalPlaylistOrder = [...defaultPlaylist];
-                    currentSongIndex = 0;
-                    loadSong(currentSongIndex);
-                    buildPlaylist();
-                });
-
-            } else {
-                // Jika user belum login, tampilkan modal login
-                console.log("DEBUG: Pengguna belum login. Menampilkan modal autentikasi.");
-                showAuthModal(false); // Tampilkan modal login
-                // Set playlist ke default jika tidak ada user yang login
-                currentPlaylistData = [...defaultPlaylist];
-                originalPlaylistOrder = [...defaultPlaylist];
-                currentSongIndex = 0;
-                loadSong(currentSongIndex);
-                buildPlaylist();
-            }
-        });
-
-        // Inisialisasi slider volume modal dengan nilai default
-        masterVolumeSlider.value = 100;
-        masterVolumeValue.textContent = '100%';
-        bassLevelSlider.value = 0;
-        bassLevelValue.textContent = '0 dB';
-        midLevelSlider.value = 0;
-        midLevelValue.textContent = '0 dB';
-        trebleLevelSlider.value = 0;
-        trebleLevelValue.textContent = '0 dB';
-        effectLevelSlider.value = 0;
-        effectLevelValue.textContent = '0%';
-
-        // Muat preferensi tema
-        const savedTheme = localStorage.getItem('theme') || 'dark-theme';
-        applyTheme(savedTheme);
-
-        updateAllTimerDisplays(); // Inisialisasi tampilan timer
-
-    } catch (error) {
-        console.error("DEBUG: Gagal menginisialisasi Firebase secara keseluruhan (fatal):", error);
-        alert("Terjadi kesalahan fatal saat menginisialisasi Firebase. Pastikan konfigurasi Anda benar.");
-        currentSongTitle.textContent = "Error Aplikasi Fatal";
-        currentArtistName.textContent = "Cek konsol browser untuk detail.";
-        lyricsText.innerHTML = "<p>Aplikasi gagal dimuat. Periksa konfigurasi Firebase Anda di script.js dan konsol browser.</p>";
-        // Jika Firebase gagal total, set playlist ke default agar aplikasi tetap bisa jalan
-        currentPlaylistData = [...defaultPlaylist];
-        originalPlaylistOrder = [...defaultPlaylist];
-        currentSongIndex = 0;
-        loadSong(currentSongIndex);
-        buildPlaylist();
+    /* Audio Settings Modal Responsive */
+    #audio-settings-modal h3 {
+        font-size: 1.3em;
+        margin-top: 20px;
+        padding-top: 15px;
     }
-});
+    .audio-control-group label {
+        font-size: 1em;
+    }
+    .audio-control-group .volume-slider {
+        width: 95%;
+    }
+    .eq-preset-btn {
+        padding: 6px 12px;
+        font-size: 0.85em;
+    }
+
+    /* Admin Panel Responsive */
+    .admin-section h3 {
+        font-size: 1.2em;
+    }
+    .admin-form input[type="text"],
+    .admin-form textarea {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    .admin-form button[type="submit"] {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    .admin-song-list li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .admin-song-info {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
+    .admin-song-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .app-title-new {
+        font-size: 1.5em;
+    }
+
+    .music-player {
+        padding: 20px 25px;
+        gap: 15px;
+    }
+
+    .album-art-section {
+        width: 180px;
+        height: 180px;
+    }
+
+    .song-title {
+        font-size: 1.6em;
+    }
+
+    .artist-name {
+        font-size: 0.9em;
+    }
+
+    .lyrics-section {
+        font-size: 0.85em;
+    }
+
+    .controls-section {
+        gap: 10px;
+    }
+
+    .control-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2em;
+    }
+
+    .control-btn.large-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 1.8em;
+    }
+
+    .playlist-sidebar {
+        width: 90%;
+    }
+}
+
+/* Styling untuk Halaman Kontak */
+.contact-page {
+    background-color: var(--bg-dark);
+    color: var(--primary-text);
+    font-family: 'Roboto', sans-serif;
+    padding: 30px;
+    box-sizing: border-box;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Memastikan body pada halaman kontak memiliki layout yang benar */
+body.contact-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.contact-page .container {
+    width: 100%;
+    max-width: 800px;
+    padding: 40px;
+    background: var(--player-bg-dark);
+    backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
+    -webkit-backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
+    border: 1px solid var(--player-border);
+    border-radius: var(--border-radius-main);
+    box-shadow: 0 15px 50px var(--shadow-deep);
+}
+
+
+.contact-header {
+    margin-bottom: 40px;
+}
+
+.contact-header h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 3em;
+    color: var(--primary-text);
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    margin-bottom: 10px;
+}
+
+.contact-header p {
+    font-size: 1.1em;
+    color: var(--secondary-text);
+    max-width: 600px;
+    line-height: 1.6;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.contact-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    margin-bottom: 50px;
+}
+
+.contact-card {
+    padding: 25px;
+    text-align: center;
+    border-radius: var(--border-radius-main);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.contact-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 40px var(--shadow-deep);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.contact-card .icon {
+    font-size: 3.8em;
+    color: var(--accent-red);
+    margin-bottom: 15px;
+    filter: drop-shadow(0 0 12px rgba(255, 69, 0, 0.5));
+}
+
+.contact-card h3 {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--primary-text);
+    margin-bottom: 10px;
+    font-size: 1.6em;
+}
+
+.contact-card p {
+    font-size: 0.95em;
+    color: var(--secondary-text);
+    margin-bottom: 25px;
+    flex-grow: 1;
+}
+
+.contact-card a {
+    display: inline-block;
+    background-color: var(--accent-purple);
+    color: white;
+    padding: 12px 25px;
+    border-radius: var(--border-radius-sm);
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: fit-content;
+    margin-top: auto;
+}
+
+.contact-card a:hover {
+    background-color: var(--accent-red);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+/* Responsive design untuk halaman kontak */
+@media (max-width: 768px) {
+    .contact-page .container {
+        padding: 25px;
+        max-width: 95%;
+    }
+
+    .contact-header h1 {
+        font-size: 2.5em;
+    }
+
+    .contact-header p {
+        font-size: 1em;
+    }
+
+    .contact-info {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .contact-card {
+        padding: 20px;
+    }
+
+    .contact-card .icon {
+        font-size: 3.2em;
+    }
+
+    .contact-card h3 {
+        font-size: 1.4em;
+    }
+
+    .contact-card p {
+        font-size: 0.9em;
+    }
+
+    .contact-card a {
+        padding: 10px 20px;
+        font-size: 0.9em;
+    }
+
+    .contact-page .home-button {
+        padding: 12px 25px;
+        font-size: 1em;
+        bottom: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-page .container {
+        padding: 15px;
+    }
+
+    .contact-header h1 {
+        font-size: 2em;
+    }
+
+    .contact-header p {
+        font-size: 0.85em;
+    }
+
+    .contact-card .icon {
+        font-size: 2.8em;
+    }
+
+    .contact-card h3 {
+        font-size: 1.2em;
+    }
+
+    .contact-card p {
+        font-size: 0.8em;
+    }
+
+    .contact-card a {
+        padding: 8px 15px;
+        font-size: 0.8em;
+    }
+
+    .contact-page .home-button {
+        padding: 10px 20px;
+        font-size: 0.9em;
+        bottom: 15px;
+    }
+}
