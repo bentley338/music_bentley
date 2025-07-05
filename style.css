@@ -383,6 +383,17 @@ body.light-mode .header-player {
     transform: scale(1.03);
 }
 
+#audio-visualizer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2; /* Di atas gambar, di bawah overlay */
+    opacity: 0.6; /* Transparansi agar gambar tetap terlihat */
+    pointer-events: none; /* Agar tidak menghalangi klik pada gambar jika ada */
+}
+
 
 .song-details {
     text-align: center;
@@ -989,7 +1000,7 @@ body.light-mode .volume-slider::-webkit-slider-thumb:hover,
 body.light-mode .eq-slider::-webkit-slider-thumb:hover {
     box-shadow: 0 0 15px rgba(255, 69, 0, 1);
 }
-#volume-value, #treble-value, #bass-value, #effect-level-value {
+#volume-value, #treble-value, #bass-value, #effect-level-value, #playback-speed-value, #mid-value {
     display: block;
     text-align: right;
     font-size: 0.9em;
@@ -1072,6 +1083,10 @@ body.light-mode .eq-slider::-webkit-slider-thumb:hover {
     }
 
     .album-art-section {
+        width: 200px;
+        height: 200px;
+    }
+    #audio-visualizer {
         width: 200px;
         height: 200px;
     }
@@ -1199,6 +1214,10 @@ body.light-mode .eq-slider::-webkit-slider-thumb:hover {
         width: 160px;
         height: 160px;
     }
+    #audio-visualizer {
+        width: 160px;
+        height: 160px;
+    }
 
     .song-title {
         font-size: 1.6em;
@@ -1275,6 +1294,10 @@ body.light-mode .eq-slider::-webkit-slider-thumb:hover {
         padding: 15px 20px;
     }
     .album-art-section {
+        width: 140px;
+        height: 140px;
+    }
+    #audio-visualizer {
         width: 140px;
         height: 140px;
     }
