@@ -197,7 +197,7 @@ header {
     margin-top: 5px; /* Sedikit jarak dari judul */
 }
 
-.header-timer-btn, .header-volume-btn {
+.header-timer-btn, .header-volume-btn, .header-admin-btn { /* Tambahkan .header-admin-btn */
     padding: 8px 12px;
     font-size: 0.8em;
 }
@@ -1146,7 +1146,7 @@ header {
     .header-audio-controls {
         gap: 8px;
     }
-    .header-timer-btn, .header-volume-btn {
+    .header-timer-btn, .header-volume-btn, .header-admin-btn { /* Tambahkan .header-admin-btn */
         padding: 6px 10px;
         font-size: 0.75em;
     }
@@ -1155,7 +1155,7 @@ header {
         gap: 8px;
     }
 
-    .btn-playlist, .btn-contact, .btn-theme, .btn-admin {
+    .btn-playlist, .btn-contact, .btn-theme {
         padding: 8px 12px;
         font-size: 0.8em;
     }
