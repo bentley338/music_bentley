@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - MelodyVerse</title>
+    <title>Panel Admin - MelodyVerse</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="app_icon.png" type="image/png">
     <style>
-        /* Gaya spesifik untuk halaman admin */
+        /* Gaya spesifik untuk halaman admin (gunakan CSS dari style.css utama untuk konsistensi) */
         body {
             display: flex;
             flex-direction: column;
@@ -25,10 +25,10 @@
             border: 1px solid var(--player-border);
             border-radius: var(--border-radius-main);
             box-shadow: 0 15px 50px var(--shadow-deep);
-            max-width: 800px; /* Wider for more content */
+            max-width: 800px; /* Lebih lebar untuk konten lebih banyak */
             width: 90%;
             margin: auto;
-            margin-top: 100px; /* Space from header */
+            margin-top: 100px; /* Ruang dari header */
             margin-bottom: 20px;
             transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
         }
@@ -36,7 +36,7 @@
         .admin-container h2 {
             font-family: 'Montserrat', sans-serif;
             color: var(--primary-text);
-            font-size: 2.5em; /* Larger title */
+            font-size: 2.5em; /* Judul lebih besar */
             margin-bottom: 30px;
             transition: color 0.5s ease;
             text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
@@ -49,7 +49,7 @@
             background: rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.05);
             transition: background 0.5s ease, border-color 0.5s ease;
-            text-align: left; /* Align text left within panels */
+            text-align: left; /* Teks rata kiri di dalam panel */
         }
         body.light-mode #login-section,
         body.light-mode #admin-panel {
@@ -72,7 +72,7 @@
         .input-group input[type="text"],
         .input-group input[type="password"],
         .input-group textarea,
-        .admin-section-content input[type="text"] { /* For other inputs in admin panel */
+        .admin-section-content input[type="text"] { /* Untuk input lain di panel admin */
             width: calc(100% - 20px);
             padding: 10px;
             background: var(--input-bg);
@@ -130,12 +130,12 @@
 
         #admin-panel {
             display: none;
-            padding: 30px; /* More padding for a cleaner look */
+            padding: 30px; /* Padding lebih banyak untuk tampilan lebih bersih */
         }
 
         .admin-section {
-            margin-bottom: 40px; /* Space between sections */
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Separator */
+            margin-bottom: 40px; /* Jarak antar bagian */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Pemisah */
             padding-bottom: 20px;
         }
         .admin-section:last-child {
@@ -154,7 +154,7 @@
             color: var(--primary-text);
             margin-top: 0;
             margin-bottom: 20px;
-            text-align: center; /* Center section titles */
+            text-align: center; /* Pusatkan judul bagian */
         }
 
         .admin-section-content {
@@ -177,7 +177,7 @@
 
         .song-list li {
             display: flex;
-            flex-wrap: wrap; /* Allow wrapping on mobile */
+            flex-wrap: wrap; /* Izinkan pembungkus di mobile */
             justify-content: space-between;
             align-items: center;
             background: rgba(255, 255, 255, 0.05);
@@ -195,7 +195,7 @@
 
         .song-list li .song-info {
             flex-grow: 1;
-            margin-right: 10px; /* Space from actions */
+            margin-right: 10px; /* Jarak dari tindakan */
         }
         .song-list li .song-info h3 {
             margin: 0;
@@ -212,7 +212,7 @@
             font-size: 0.8em;
             color: rgba(255, 255, 255, 0.5);
             margin-top: 5px;
-            word-break: break-all; /* Break long filenames */
+            word-break: break-all; /* Memecah nama file yang panjang */
         }
         body.light-mode .song-list li .song-info small {
             color: rgba(0, 0, 0, 0.4);
@@ -221,9 +221,9 @@
         .song-list li .actions {
             display: flex;
             gap: 10px;
-            margin-top: 10px; /* Push actions to new line on wrap */
+            margin-top: 10px; /* Dorong tindakan ke baris baru saat melipat */
         }
-        @media (min-width: 481px) { /* Prevent wrapping on larger screens */
+        @media (min-width: 481px) { /* Mencegah pembungkus di layar yang lebih besar */
             .song-list li .actions {
                 margin-top: 0;
             }
@@ -274,7 +274,7 @@
             border-color: #004085;
         }
 
-        /* Modal styling (same as index.html for consistency) */
+        /* Gaya Modal (sama seperti index.html untuk konsistensi) */
         .modal {
             display: none;
             position: fixed;
@@ -368,7 +368,7 @@
             font-weight: 500;
         }
 
-        /* Responsive Admin Panel */
+        /* Panel Admin Responsif */
         @media (max-width: 768px) {
             .admin-container {
                 padding: 30px;
@@ -456,7 +456,7 @@
             </h1>
         </div>
         <div class="header-right-controls">
-            <button id="toggle-theme-btn" class="btn btn-icon" aria-label="Toggle Theme">
+            <button id="toggle-theme-btn" class="btn btn-icon" aria-label="Toggle Tema">
                 <i class="fas fa-sun"></i>
             </button>
         </div>
@@ -491,16 +491,16 @@
                             <input type="text" id="song-artist">
                         </div>
                         <div class="input-group">
-                            <label for="song-src">Nama File MP3 (ex: my_song.mp3):</label>
-                            <input type="text" id="song-src">
+                            <label for="song-src">URL File MP3 (dari GitHub Pages):</label>
+                            <input type="text" id="song-src" placeholder="https://yourusername.github.io/your-repo/song.mp3">
                         </div>
                         <div class="input-group">
-                            <label for="song-album-art">Nama File Album Art (ex: album_art.jpg):</label>
-                            <input type="text" id="song-album-art">
+                            <label for="song-album-art">URL Album Art (dari GitHub Pages):</label>
+                            <input type="text" id="song-album-art" placeholder="https://yourusername.github.io/your-repo/album_art.jpg">
                         </div>
                         <div class="input-group">
-                            <label for="song-lyrics">Lirik (Gunakan &lt;br&gt; untuk baris baru):</label>
-                            <textarea id="song-lyrics"></textarea>
+                            <label for="song-info">Info Lagu (Gunakan &lt;br&gt; untuk baris baru):</label>
+                            <textarea id="song-info"></textarea>
                         </div>
                         <button id="add-song-btn" class="admin-btn">Tambah Lagu</button>
                         <p id="add-song-message" style="color: green; margin-top: 10px;"></p>
@@ -544,16 +544,15 @@
                 <input type="text" id="edit-song-artist">
             </div>
             <div class="input-group">
-                <label for="edit-song-src">Nama File MP3:</label>
-                <input type="text" id="edit-song-src" disabled>
-            </div>
+                <label for="edit-song-src">URL File MP3:</label>
+                <input type="text" id="edit-song-src" disabled> </div>
             <div class="input-group">
-                <label for="edit-song-album-art">Nama File Album Art:</label>
+                <label for="edit-song-album-art">URL Album Art:</label>
                 <input type="text" id="edit-song-album-art">
             </div>
             <div class="input-group">
-                <label for="edit-song-lyrics">Lirik (Gunakan &lt;br&gt; untuk baris baru):</label>
-                <textarea id="edit-song-lyrics"></textarea>
+                <label for="edit-song-info">Info Lagu (Gunakan &lt;br&gt; untuk baris baru):</label>
+                <textarea id="edit-song-info"></textarea>
             </div>
             <button id="save-edit-btn" class="admin-btn">Simpan Perubahan</button>
         </div>
@@ -569,9 +568,9 @@
 
             const songTitleInput = document.getElementById('song-title');
             const songArtistInput = document.getElementById('song-artist');
-            const songSrcInput = document.getElementById('song-src');
-            const songAlbumArtInput = document.getElementById('song-album-art');
-            const songLyricsInput = document.getElementById('song-lyrics');
+            const songSrcInput = document.getElementById('song-src'); // Now URL
+            const songAlbumArtInput = document.getElementById('song-album-art'); // Now URL
+            const songInfoInput = document.getElementById('song-info'); // Changed from songLyricsInput
             const addSongBtn = document.getElementById('add-song-btn');
             const addSongMessage = document.getElementById('add-song-message');
             const manageSongList = document.getElementById('manage-song-list');
@@ -583,7 +582,7 @@
             const editSongArtistInput = document.getElementById('edit-song-artist');
             const editSongSrcInput = document.getElementById('edit-song-src');
             const editSongAlbumArtInput = document.getElementById('edit-song-album-art');
-            const editSongLyricsInput = document.getElementById('edit-song-lyrics');
+            const editSongInfoInput = document.getElementById('edit-song-info'); // Changed from editSongLyricsInput
             const saveEditBtn = document.getElementById('save-edit-btn');
 
             const clearDataBtn = document.getElementById('clear-data-btn');
@@ -593,9 +592,10 @@
             const toggleThemeBtn = document.getElementById('toggle-theme-btn');
             const backgroundVideo = document.getElementById('background-video');
 
-            // Admin password (client-side, not secure for production)
+            // Admin password (client-side, TIDAK AMAN UNTUK PRODUKSI)
             const ADMIN_PASSWORD = "157299pro";
 
+            // Pastikan playlist dimuat dari localStorage, bukan nilai default awal
             let playlist = JSON.parse(localStorage.getItem('musicPlaylist')) || [];
 
             function renderSongList() {
@@ -618,7 +618,7 @@
                         <div class="song-info">
                             <h3>${song.title}</h3>
                             <p>${song.artist}</p>
-                            <small>${song.src}</small>
+                            <small>MP3: ${song.src}<br>Album Art: ${song.albumArt}</small>
                         </div>
                         <div class="actions">
                             <button class="action-btn edit-btn" data-index="${index}"><i class="fas fa-edit"></i> Edit</button>
@@ -631,54 +631,63 @@
 
             function savePlaylist() {
                 localStorage.setItem('musicPlaylist', JSON.stringify(playlist));
-                // Optional: You might want to send a message to the main page here
-                // using BroadcastChannel API or similar if the main page is open
-                // and needs live updates without a full refresh.
-                // For this example, we rely on the main page reloading from localStorage on next visit.
+                // Mengirim event 'storage' secara manual untuk memberitahu halaman utama (jika terbuka)
+                // agar memperbarui playlist-nya. Ini adalah cara client-side.
+                window.dispatchEvent(new Event('storage'));
             }
 
-            // Login Logic
+            // Logika Login
             loginBtn.addEventListener('click', () => {
                 if (adminPasswordInput.value === ADMIN_PASSWORD) {
                     loginSection.style.display = 'none';
                     adminPanel.style.display = 'block';
                     loginMessage.textContent = '';
-                    renderSongList(); // Render songs after successful login
+                    renderSongList(); // Render lagu setelah login berhasil
                 } else {
                     loginMessage.textContent = 'Password salah!';
                 }
-                adminPasswordInput.value = ''; // Clear password field
+                adminPasswordInput.value = ''; // Bersihkan field password
             });
 
-            // Add Song Logic
+            // Logika Tambah Lagu
             addSongBtn.addEventListener('click', () => {
                 const title = songTitleInput.value.trim();
                 const artist = songArtistInput.value.trim();
-                const src = songSrcInput.value.trim();
-                const albumArt = songAlbumArtInput.value.trim();
-                const lyrics = songLyricsInput.value.trim();
+                const src = songSrcInput.value.trim(); // URL
+                const albumArt = songAlbumArtInput.value.trim(); // URL
+                const info = songInfoInput.value.trim(); // Info lagu
 
-                if (!title || !artist || !src || !albumArt || !lyrics) {
+                if (!title || !artist || !src || !albumArt || !info) {
                     addSongMessage.style.color = 'red';
                     addSongMessage.textContent = 'Semua field harus diisi!';
                     return;
                 }
+                
+                // Validasi URL sederhana
+                try {
+                    new URL(src);
+                    new URL(albumArt);
+                } catch (e) {
+                    addSongMessage.style.color = 'red';
+                    addSongMessage.textContent = 'URL MP3 atau Album Art tidak valid!';
+                    return;
+                }
 
-                const newSong = { title, artist, src, albumArt, lyrics };
+                const newSong = { title, artist, src, albumArt, info };
                 playlist.push(newSong);
                 savePlaylist();
                 renderSongList();
                 addSongMessage.style.color = 'green';
-                addSongMessage.textContent = 'Lagu berhasil ditambahkan!';
-                // Clear form
+                addSongMessage.textContent = 'Lagu berhasil ditambahkan dan tersedia untuk semua orang!';
+                // Bersihkan form
                 songTitleInput.value = '';
                 songArtistInput.value = '';
                 songSrcInput.value = '';
                 songAlbumArtInput.value = '';
-                songLyricsInput.value = '';
+                songInfoInput.value = '';
             });
 
-            // Delete Song Logic
+            // Logika Hapus Lagu
             manageSongList.addEventListener('click', (event) => {
                 const targetButton = event.target.closest('.delete-btn');
                 if (targetButton) {
@@ -691,7 +700,7 @@
                 }
             });
 
-            // Edit Song Logic (Open Modal)
+            // Logika Edit Lagu (Buka Modal)
             manageSongList.addEventListener('click', (event) => {
                 const targetButton = event.target.closest('.edit-btn');
                 if (targetButton) {
@@ -701,15 +710,15 @@
                     editSongIndexInput.value = indexToEdit;
                     editSongTitleInput.value = song.title;
                     editSongArtistInput.value = song.artist;
-                    editSongSrcInput.value = song.src;
+                    editSongSrcInput.value = song.src; // SRC dinonaktifkan tetapi ditampilkan
                     editSongAlbumArtInput.value = song.albumArt;
-                    editSongLyricsInput.value = song.lyrics;
+                    editSongInfoInput.value = song.info; // Info lagu
 
-                    editSongModal.classList.add('visible'); // Use class for visibility
+                    editSongModal.classList.add('visible'); // Tampilkan modal
                 }
             });
 
-            // Close Modal
+            // Tutup Modal
             closeButton.addEventListener('click', () => {
                 editSongModal.classList.remove('visible');
             });
@@ -719,7 +728,7 @@
                 }
             });
 
-            // Save Edited Song
+            // Simpan Lagu yang Diedit
             saveEditBtn.addEventListener('click', () => {
                 const index = parseInt(editSongIndexInput.value);
                 if (index < 0 || index >= playlist.length) {
@@ -729,8 +738,9 @@
 
                 playlist[index].title = editSongTitleInput.value.trim();
                 playlist[index].artist = editSongArtistInput.value.trim();
+                // playlist[index].src tidak dapat diedit
                 playlist[index].albumArt = editSongAlbumArtInput.value.trim();
-                playlist[index].lyrics = editSongLyricsInput.value.trim();
+                playlist[index].info = editSongInfoInput.value.trim(); // Info lagu
 
                 savePlaylist();
                 renderSongList();
@@ -738,31 +748,32 @@
                 alert('Lagu berhasil diperbarui!');
             });
 
-            // Clear All Data
+            // Bersihkan Semua Data
             clearDataBtn.addEventListener('click', () => {
                 if (confirm('Ini akan menghapus SEMUA lagu dari playlist Anda secara permanen. Lanjutkan?')) {
                     localStorage.removeItem('musicPlaylist');
                     playlist = [];
                     renderSongList();
                     alert('Semua data lagu telah dihapus!');
+                    savePlaylist(); // Kirim event storage agar halaman utama juga mereset
                 }
             });
 
-            // Reload Client-Side App
+            // Muat Ulang Aplikasi (Client Side)
             reloadAppBtn.addEventListener('click', () => {
                 reloadMessage.textContent = 'Memuat ulang aplikasi...';
                 setTimeout(() => {
-                    window.location.href = 'index.html'; // Redirect to main page, forcing a full reload
+                    window.location.href = 'index.html'; // Redirect ke halaman utama, memaksa pemuatan ulang penuh
                 }, 1000);
             });
 
-            // Theme Toggling for Admin page
+            // Toggle Tema untuk halaman Admin
             function toggleTheme() {
                 document.body.classList.toggle('light-mode');
                 const isLightMode = document.body.classList.contains('light-mode');
                 localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
                 toggleThemeBtn.innerHTML = isLightMode ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
-                toggleThemeBtn.setAttribute('aria-label', isLightMode ? 'Switch to Dark Mode' : 'Switch to Light Mode');
+                toggleThemeBtn.setAttribute('aria-label', isLightMode ? 'Beralih ke Mode Gelap' : 'Beralih ke Mode Terang');
             }
 
             toggleThemeBtn.addEventListener('click', toggleTheme);
@@ -771,17 +782,17 @@
             if (savedTheme === 'light') {
                 document.body.classList.add('light-mode');
                 toggleThemeBtn.innerHTML = '<i class="fas fa-moon"></i>';
-                toggleThemeBtn.setAttribute('aria-label', 'Switch to Dark Mode');
+                toggleThemeBtn.setAttribute('aria-label', 'Beralih ke Mode Gelap');
             } else {
                 document.body.classList.remove('light-mode');
                 toggleThemeBtn.innerHTML = '<i class="fas fa-sun"></i>';
-                toggleThemeBtn.setAttribute('aria-label', 'Switch to Light Mode');
+                toggleThemeBtn.setAttribute('aria-label', 'Beralih ke Mode Terang');
             }
 
-            // Ensure video plays and loops on admin page too
+            // Pastikan video diputar dan diulang di halaman admin juga
             if (backgroundVideo) {
                 backgroundVideo.play().catch(error => {
-                    console.log('Autoplay was prevented on admin page. User interaction might be needed.', error);
+                    console.log('Autoplay dicegah di halaman admin. Mungkin diperlukan interaksi pengguna.', error);
                 });
             }
         });
