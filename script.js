@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentAlbumArt = document.getElementById('current-album-art');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentArtistName = document.getElementById('current-artist-name');
-    const infoText = document.getElementById('info-text'); // Changed from lyricsText
+    const infoText = document.getElementById('info-text'); // Menggunakan infoText
     const playlistUl = document.getElementById('playlist');
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
@@ -69,129 +69,132 @@ document.addEventListener('DOMContentLoaded', () => {
     let repeatMode = 'off'; // 'off', 'one', 'all'
     let originalPlaylistOrder = []; // Untuk menyimpan urutan asli playlist
 
+    // --- BASE URL UNTUK FILE MEDIA (SANGAT PENTING!) ---
+    // GANTI INI DENGAN URL DASAR GITHUB PAGES ANDA!
+    // Contoh: 'https://yourusername.github.io/your-repository-name/'
+    const BASE_URL = 'https://bentley16.github.io/MelodyVerse/'; //
+
     // --- DATA LAGU (LOAD DARI LOCALSTORAGE ATAU DEFAULT) ---
-    // Pastikan data ini di-override jika ada data dari localStorage (dari admin panel)
+    // Lagu-lagu default akan menyimpan HANYA nama file.
+    // URL lengkap akan dibangun menggunakan BASE_URL.
     let playlist = JSON.parse(localStorage.getItem('musicPlaylist')) || [
-        // Lagu-lagu default jika localStorage kosong
-        // PENTING: GANTI URL DI BAWAH INI DENGAN URL MENTAH DARI GITHUB PAGES ANDA!
-        // Contoh: https://<your-username>.github.io/<your-repo>/<path-to-file>/song.mp3
         {
             title: "Back to Friends",
             artist: "Sombr",
-            src: "https://github.com/bentley338/music_bentley/blob/main/back_to_friends.mp3", // Contoh URL GitHub Pages
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_back_to_friends.jpg", // Contoh URL GitHub Pages
+            src: "back_to_friends.mp3", // Hanya nama file
+            albumArt: "album_art_back_to_friends.jpg", // Hanya nama file
             info: `<b>🎶 Back to Friends – Sombr</b><br><br>
                 Lagu ini menggambarkan kerumitan transisi dari hubungan romantis ke pertemanan. Liriknya, "How can we go back to being friends when we just shared a bed?", menyoroti kebingungan dan kesulitan emosional setelah melewati batas dalam sebuah hubungan. Dibuat dengan melodi yang melankolis namun memikat, lagu ini cocok untuk siapa saja yang pernah merasakan dilema serupa.`
         },
         {
             title: "Bergema Sampai Selamanya",
             artist: "Nadhif Basalamah",
-            src: "https://bentley16.github.io/MelodyVerse/bergema_sampai_selamanya.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_bergema_sampai_selamanya.jpg",
+            src: "bergema_sampai_selamanya.mp3",
+            albumArt: "album_art_bergema_sampai_selamanya.jpg",
             info: `<b>🎶 Bergema Sampai Selamanya – Nadhif Basalamah</b><br><br>
                 Lagu ini adalah ode untuk cinta abadi yang tidak akan pernah pudar oleh waktu. Melalui lirik puitis, Nadhif Basalamah menangkap esensi dari ikatan yang mendalam, di mana setiap napas dan langkah diisi dengan kenangan tak terlupakan. Makna dari lagu ini adalah tentang janji yang terukir abadi di jiwa, sebuah pengingat bahwa cinta sejati akan selalu bergema, melewati batas ruang dan waktu.`
         },
         {
             title: "Ride",
             artist: "SoMo",
-            src: "https://bentley16.github.io/MelodyVerse/ride.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_ride.jpg",
+            src: "ride.mp3",
+            albumArt: "album_art_ride.jpg",
             info: `<b>🎶 Ride – SoMo</b><br><br>
                 "Ride" adalah lagu yang merayakan kebebasan dan kegembiraan dalam menikmati hidup tanpa beban. SoMo mengajak pendengar untuk melepaskan kekhawatiran dan menikmati setiap momen perjalanan. Inspirasi di balik lagu ini adalah tentang menjalani hidup dengan santai, seperti mengendarai mobil di bawah langit cerah tanpa tujuan pasti, hanya menikmati kebersamaan dan keindahan yang ada.`
         },
         {
             title: "Rumah Kita",
             artist: "God Bless",
-            src: "https://bentley16.github.io/MelodyVerse/rumah_kita.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_rumah_kita.jpg",
+            src: "rumah_kita.mp3",
+            albumArt: "album_art_rumah_kita.jpg",
             info: `<b>🎶 Rumah Kita – God Bless</b><br><br>
                 Lagu legendaris dari God Bless ini adalah metafora tentang kesederhanaan dan kehangatan sebuah rumah, bukan dari kemewahannya, melainkan dari cinta dan kebersamaan di dalamnya. "Rumah Kita" diciptakan sebagai pengingat bahwa kebahagiaan sejati ditemukan dalam ikatan keluarga dan tempat di mana kita merasa aman dan dicintai, jauh lebih berharga dari istana mana pun.`
         },
         {
             title: "Style",
             artist: "Taylor Swift",
-            src: "https://bentley16.github.io/MelodyVerse/style.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_style.jpg",
+            src: "style.mp3",
+            albumArt: "album_art_style.jpg",
             info: `<b>🎶 Style – Taylor Swift</b><br><br>
                 "Style" adalah lagu yang menangkap dinamika hubungan yang rumit namun tak terhindarkan, di mana dua individu terus-menerus kembali satu sama lain, seperti "we never go out of style". Lagu ini menceritakan tentang daya tarik yang kuat dan tak lekang oleh waktu antara dua orang yang, meskipun menghadapi pasang surut, selalu menemukan jalan kembali. Dibuat dengan sentuhan pop yang kental dan nuansa 80-an.`
         },
         {
             title: "Message In A Bottle",
             artist: "Taylor Swift",
-            src: "https://bentley16.github.io/MelodyVerse/message_in_a_bottle.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_message_in_a_bottle.jpg",
+            src: "message_in_a_bottle.mp3",
+            albumArt: "album_art_message_in_a_bottle.jpg",
             info: `<b>🎶 Message In A Bottle – Taylor Swift</b><br><br>
                 Terinspirasi dari perasaan kerinduan dan harapan, "Message In A Bottle" adalah lagu yang menggambarkan upaya untuk menjaga kenangan dan cinta tetap hidup, meskipun terpisah jarak. Seperti pesan dalam botol yang dilemparkan ke lautan, lagu ini adalah doa agar suatu hari pesan cinta dan kenangan akan menemukan jalannya kembali kepada orang yang dituju. Melodinya yang menyentuh hati mencerminkan emosi mendalam tentang kehilangan dan harapan.`
         },
         {
             title: "Supernatural",
             artist: "Ariana Grande",
-            src: "https://bentley16.github.io/MelodyVerse/supernatural.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_supernatural.jpg",
+            src: "supernatural.mp3",
+            albumArt: "album_art_supernatural.jpg",
             info: `<b>🎶 Supernatural – Ariana Grande</b><br><br>
                 "Supernatural" adalah lagu yang merayakan cinta yang terasa di luar dunia ini, ajaib dan tak dapat dijelaskan. Ariana Grande menyanyikan tentang hubungan yang begitu mendalam sehingga terasa seperti takdir, di mana setiap sentuhan dan pandangan menciptakan alam semesta baru. Makna lagu ini adalah tentang menemukan koneksi spiritual yang unik dan ilahi dengan seseorang, yang melampaui logika dan membuat segalanya terasa alami dan sempurna.`
         },
         {
             title: "Favorite Lesson",
             artist: "Yaeow",
-            src: "https://bentley16.github.io/MelodyVerse/favorite_lesson.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_favorite_lesson.jpg",
+            src: "favorite_lesson.mp3",
+            albumArt: "album_art_favorite_lesson.jpg",
             info: `<b>🎶 Favorite Lesson – Yaeow</b><br><br>
                 Lagu ini adalah penghormatan tulus kepada seseorang yang selalu memberikan pelajaran berharga dalam hidup. Yaeow mengungkapkan rasa syukur atas bimbingan dan dukungan tak henti, yang membantu melewati kesulitan dan tumbuh menjadi pribadi yang lebih baik. Lagu ini dibuat sebagai pengingat akan pentingnya memiliki seseorang yang selalu mendorong, menguji, dan menjadi sumber inspirasi sejati, menjadikan setiap pelajaran sebagai yang terbaik.`
         },
         {
             title: "So High School",
             artist: "Taylor Swift",
-            src: "https://bentley16.github.io/MelodyVerse/so_high_school.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_so_high_school.jpg",
+            src: "so_high_school.mp3",
+            albumArt: "album_art_so_high_school.jpg",
             info: `<b>🎶 So High School – Taylor Swift</b><br><br>
                 "So High School" menangkap perasaan gembira dan malu-malu dari romansa remaja pertama yang intens. Taylor Swift menggambarkan momen-momen klasik cinta masa SMA, dari kupu-kupu di perut hingga bisikan rahasia, yang membuat segalanya terasa baru dan istimewa. Lagu ini merayakan kemurnian dan kegembiraan dari jatuh cinta pertama, di mana setiap interaksi terasa seperti adegan dari film romantis, tanpa beban dan penuh impian.`
         },
         {
             title: "Photograph",
             artist: "Ed Sheeran",
-            src: "https://bentley16.github.io/MelodyVerse/photograph.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_photograph.jpg",
+            src: "photograph.mp3",
+            albumArt: "album_art_photograph.jpg",
             info: `<b>🎶 Photograph – Ed Sheeran</b><br><br>
                 "Photograph" adalah balada yang menyentuh tentang kenangan yang abadi dan janji untuk selalu ada, bahkan ketika jarak memisahkan. Ed Sheeran menggunakan metafora foto untuk menggambarkan bagaimana kenangan seseorang tetap hidup dalam hati, memberikan kekuatan dan kenyamanan. Lagu ini adalah pengingat bahwa meskipun "loving can hurt", cinta dan kenangan yang indah adalah satu-satunya hal yang kita bawa saat pergi, janji untuk selalu menunggu dan berada di sana.`
         },
         {
             title: "You'll Be In My Heart",
             artist: "Niki",
-            src: "https://bentley16.github.io/MelodyVerse/youll_be_in_my_heart.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_youll_be_in_my_heart.jpg",
+            src: "youll_be_in_my_heart.mp3",
+            albumArt: "album_art_youll_be_in_my_heart.jpg",
             info: `<b>🎶 You'll Be In My Heart – Niki</b><br><br>
                 Lagu ini adalah sebuah lagu pengantar tidur dan janji perlindungan abadi, awalnya dari film Tarzan. Versi Niki membawa kehangatan dan ketenangan yang sama, menekankan ikatan tak terpisahkan antara dua jiwa. Makna lagu ini adalah tentang cinta tanpa syarat yang akan selalu ada, mengatasi keraguan dan perbedaan, memberikan rasa aman dan kenyamanan yang mendalam, karena "you'll be in my heart, from this day on, now and forever more."`
         },
         {
             title: "Tarot",
             artist: ".Feast",
-            src: "https://bentley16.github.io/MelodyVerse/tarot.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_tarot.jpg",
+            src: "tarot.mp3",
+            albumArt: "album_art_tarot.jpg",
             info: `<b>🎶 Tarot – .Feast</b><br><br>
                 "Tarot" oleh .Feast adalah eksplorasi tentang takdir, pilihan, dan rahasia kehidupan yang terungkap melalui kartu tarot. Lagu ini mengajak pendengar untuk membuka mata terhadap petunjuk yang tersembunyi, memahami bahwa takdir bukanlah garis tangan semata, melainkan hasil dari keberanian menghadapi persimpangan dan badai. Dengan melodi yang misterius, lagu ini merenungkan bagaimana setiap simbol dan pilihan membentuk kisah hidup kita yang abadi.`
         },
         {
             title: "O, Tuan",
             artist: ".Feast",
-            src: "https://bentley16.github.io/MelodyVerse/o_tuan.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_o_tuan.jpg",
+            src: "o_tuan.mp3",
+            albumArt: "album_art_o_tuan.jpg",
             info: `<b>🎶 O, Tuan – .Feast</b><br><br>
                 "O, Tuan" adalah lagu dengan nuansa kritik sosial dan pencarian kebenaran di tengah hiruk pikuk dunia. .Feast menyuarakan rintihan hati yang resah, mencari makna di balik janji-janji kosong dan kemunafikan kekuasaan. Lagu ini adalah seruan untuk bimbingan, mengingatkan bahwa meskipun harta dan kekuasaan bisa membutakan, keadilan akan selalu hidup dan menjadi tumpuan sampai akhir.`
         },
         {
             title: "Ramai Sepi Bersama",
             artist: "Hindia",
-            src: "https://bentley16.github.io/MelodyVerse/ramai_sepi_bersama.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_ramai_sepi_bersama.jpg",
+            src: "ramai_sepi_bersama.mp3",
+            albumArt: "album_art_ramai_sepi_bersama.jpg",
             info: `<b>🎶 Ramai Sepi Bersama – Hindia</b><br><br>
                 Lagu ini menangkap paradoks kesendirian di tengah keramaian kota. Hindia merenungkan bagaimana seseorang bisa merasa terasing dan sunyi meskipun dikelilingi banyak orang. "Ramai Sepi Bersama" adalah sebuah perjalanan introspektif untuk mencari arti dan damai sejati di antara ilusi dan bising kehidupan modern, berharap menemukan cahaya di ujung keluh agar tak lagi merasa rapuh.`
         },
         {
             title: "Everything U Are",
             artist: "Hindia",
-            src: "https://bentley16.github.io/MelodyVerse/everything_u_are.mp3",
-            albumArt: "https://bentley16.github.io/MelodyVerse/album_art_everything_u_are.jpg",
+            src: "everything_u_are.mp3",
+            albumArt: "album_art_everything_u_are.jpg",
             info: `<b>🎶 Everything U Are – Hindia</b><br><br>
                 "Everything U Are" adalah lagu cinta yang mendalam, merayakan esensi sejati seseorang yang menjadi segalanya bagi pembicara. Hindia menggambarkan bagaimana kehadiran orang tersebut membawa kedamaian dan menjadi bintang penuntun yang menanamkan harapan. Setiap momen bersama terasa ilahi, dan lagu ini adalah pengakuan bahwa keindahan sejati ada dalam setiap sisi dan detail dari orang yang dicintai, sebuah mahakarya yang tak terlukiskan.`
         }
@@ -200,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inisialisasi originalPlaylistOrder
     originalPlaylistOrder = [...playlist];
 
-    // --- Web Audio API Setup (dipanggil sekali saat interaksi pertama) ---
+    // --- Web Audio API untuk EQ dan Effect Level ---
     function setupAudioContext() {
         if (!source) { // Buat sumber hanya sekali
             source = audioContext.createMediaElementSource(audioPlayer);
@@ -220,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn("Playlist kosong. Tidak ada lagu untuk dimuat.");
             currentSongTitle.textContent = "Tidak ada lagu";
             currentArtistName.textContent = "Tambahkan lagu di panel admin";
-            infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album dapat diakses melalui URL publik (misal: GitHub Pages).</p>";
+            infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album di-deploy di GitHub Pages Anda.</p>";
             audioPlayer.src = "";
             currentAlbumArt.src = "album_art_default.jpg";
             pauseSong();
@@ -239,12 +242,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const song = playlist[songIndex];
-        audioPlayer.src = song.src;
+        // Bangun URL lengkap menggunakan BASE_URL
+        audioPlayer.src = BASE_URL + song.src; //
         audioPlayer.load();
-        currentAlbumArt.src = song.albumArt;
+        currentAlbumArt.src = BASE_URL + song.albumArt; //
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
-        infoText.innerHTML = song.info; // Menggunakan infoText
+        infoText.innerHTML = song.info;
         infoText.scrollTop = 0; // Gulirkan info ke atas saat lagu berganti
 
         progressBar.value = 0;
@@ -266,12 +270,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 artist: song.artist,
                 album: 'Custom Playlist',
                 artwork: [
-                    { src: song.albumArt, sizes: '96x96', type: 'image/jpeg' },
-                    { src: song.albumArt, sizes: '128x128', type: 'image/jpeg' },
-                    { src: song.albumArt, sizes: '192x192', type: 'image/jpeg' },
-                    { src: song.albumArt, sizes: '256x256', type: 'image/jpeg' },
-                    { src: song.albumArt, sizes: '384x384', type: 'image/jpeg' },
-                    { src: song.albumArt, sizes: '512x512', type: 'image/jpeg' },
+                    { src: BASE_URL + song.albumArt, sizes: '96x96', type: 'image/jpeg' }, //
+                    { src: BASE_URL + song.albumArt, sizes: '128x128', type: 'image/jpeg' }, //
+                    { src: BASE_URL + song.albumArt, sizes: '192x192', type: 'image/jpeg' }, //
+                    { src: BASE_URL + song.albumArt, sizes: '256x256', type: 'image/jpeg' }, //
+                    { src: BASE_URL + song.albumArt, sizes: '384x384', type: 'image/jpeg' }, //
+                    { src: BASE_URL + song.albumArt, sizes: '512x512', type: 'image/jpeg' }, //
                 ]
             });
 
@@ -686,7 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
             li.setAttribute('data-original-index', originalPlaylistOrder.indexOf(song)); // Simpan indeks asli untuk referensi
             li.setAttribute('data-current-playlist-index', actualIndexInCurrentPlaylist); // Simpan indeks dalam playlist aktif saat ini
             li.innerHTML = `
-                <img src="${song.albumArt}" alt="${song.title} Album Art">
+                <img src="${BASE_URL + song.albumArt}" alt="${song.title} Album Art">
                 <div class="playlist-song-info">
                     <h3>${song.title}</h3>
                     <p>${song.artist}</p>
@@ -788,7 +792,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn("Tidak ada lagu ditemukan di array 'playlist'.");
         currentSongTitle.textContent = "Tidak ada lagu";
         currentArtistName.textContent = "Silakan tambahkan lagu di panel admin";
-        infoText.innerHTML = "<p>Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album dapat diakses melalui URL publik (misal: GitHub Pages).</p>";
+        infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album di-deploy di GitHub Pages Anda.</p>";
     }
 
     // Inisialisasi Web Audio API setelah gesture pengguna (putar pertama kali)
@@ -807,7 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  // Handle empty playlist scenario
                 currentSongTitle.textContent = "Tidak ada lagu";
                 currentArtistName.textContent = "Tambahkan lagu di panel admin";
-                infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album dapat diakses melalui URL publik (misal: GitHub Pages).</p>";
+                infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album di-deploy di GitHub Pages Anda.</p>";
                 audioPlayer.src = "";
                 currentAlbumArt.src = "album_art_default.jpg";
                 pauseSong();
