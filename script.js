@@ -37,15 +37,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTimerCountdown = document.getElementById('modal-timer-countdown');
     const modalCancelTimerBtn = document.getElementById('modal-cancel-timer-btn'); // Tombol cancel di dalam modal
 
-    // Audio Settings Elements (NEW)
+    // Audio Settings Elements
     const audioSettingsBtn = document.getElementById('audio-settings-btn');
     const audioSettingsModal = document.getElementById('audio-settings-modal');
     const closeAudioSettingsModalBtn = document.getElementById('close-audio-settings-modal');
 
     const masterVolumeSlider = document.getElementById('master-volume-slider');
     const masterVolumeValue = document.getElementById('master-volume-value');
+
+    // Equalizer Elements
+    const eqPresetBtns = document.querySelectorAll('.eq-preset-btn');
     const bassLevelSlider = document.getElementById('bass-level-slider');
     const bassLevelValue = document.getElementById('bass-level-value');
+    const midLevelSlider = document.getElementById('mid-level-slider'); // NEW
+    const midLevelValue = document.getElementById('mid-level-value');   // NEW
+    const trebleLevelSlider = document.getElementById('treble-level-slider'); // NEW
+    const trebleLevelValue = document.getElementById('treble-level-value'); // NEW
+
     const effectLevelSlider = document.getElementById('effect-level-slider');
     const effectLevelValue = document.getElementById('effect-level-value');
 
@@ -67,6 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let source = null;
     let masterGainNode = null; // Node untuk volume utama
     let bassFilter = null; // Node untuk bass (low-shelf filter)
+    let midFilter = null; // Node untuk mid (peaking filter) - NEW
+    let trebleFilter = null; // Node untuk treble (high-shelf filter) - NEW
     let effectGainNode = null; // Node untuk level efek
 
     // --- Variabel State ---
@@ -872,18 +882,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 analyser = audioContext.createAnalyser();
                 masterGainNode = audioContext.createGain();
                 bassFilter = audioContext.createBiquadFilter();
+                midFilter = audioContext.createBiquadFilter(); // NEW Mid Filter
+                trebleFilter = audioContext.createBiquadFilter(); // NEW Treble Filter
                 effectGainNode = audioContext.createGain();
 
-                // Konfigurasi Bass Filter (Low-shelf filter)
+                // Konfigurasi Filter Nodes
                 bassFilter.type = 'lowshelf';
                 bassFilter.frequency.value = 250; // Frekuensi cutoff untuk bass (Hz)
                 bassFilter.gain.value = parseFloat(bassLevelSlider.value); // Gain awal dari slider
 
+                midFilter.type = 'peaking'; // Filter untuk mid-range
+                midFilter.frequency.value = 1000; // Frekuensi tengah untuk mid (Hz)
+                midFilter.Q.value = 1; // Kualitas faktor (lebar band)
+                midFilter.gain.value = parseFloat(midLevelSlider.value); // Gain awal dari slider
+
+                trebleFilter.type = 'highshelf'; // Filter untuk treble
+                trebleFilter.frequency.value = 4000; // Frekuensi cutoff untuk treble (Hz)
+                trebleFilter.gain.value = parseFloat(trebleLevelSlider.value); // Gain awal dari slider
+
+
                 // Hubungkan node-node dalam graph:
-                // source -> analyser -> bassFilter -> effectGainNode -> masterGainNode -> destination
+                // source -> analyser -> bassFilter -> midFilter -> trebleFilter -> effectGainNode -> masterGainNode -> destination
                 source.connect(analyser);
                 analyser.connect(bassFilter);
-                bassFilter.connect(effectGainNode);
+                bassFilter.connect(midFilter); // Connect bass to mid
+                midFilter.connect(trebleFilter); // Connect mid to treble
+                trebleFilter.connect(effectGainNode); // Connect treble to effect
                 effectGainNode.connect(masterGainNode);
                 masterGainNode.connect(audioContext.destination);
 
@@ -893,12 +917,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (e) {
                 console.error("Gagal menginisialisasi Web Audio API:", e);
                 audioVisualizerCanvas.style.display = 'none'; // Sembunyikan visualizer jika error
-                // Jika API gagal, fallback ke pemutaran audio langsung
-                audioPlayer.connect(audioContext.destination); // Ini tidak akan bekerja jika audioContext gagal
-                // Jadi, jika ada error, kita harus memastikan audioPlayer tetap bisa memutar langsung
-                // tanpa Web Audio API chain. Untuk kesederhanaan, kita akan biarkan audioPlayer.src
-                // yang menangani pemutaran, dan Web Audio API hanya untuk efek tambahan.
-                // Jika audioContext gagal, efek tidak akan berfungsi, tapi play/pause tetap.
+                // Fallback: Jika Web Audio API gagal, coba putar audio langsung
+                audioPlayer.play().catch(err => console.error("Fallback audio play failed:", err));
+                return; // Keluar dari fungsi playSong agar tidak duplikasi play
             }
         }
 
@@ -1034,7 +1055,6 @@ document.addEventListener('DOMContentLoaded', () => {
     audioPlayer.addEventListener('loadedmetadata', () => {
         if (!isNaN(audioPlayer.duration)) {
             durationSpan.textContent = formatTime(audioPlayer.duration);
-            // Set volume awal saat metadata dimuat
             // Volume utama sekarang dikontrol oleh masterGainNode
             // audioPlayer.volume = masterVolumeSlider.value / 100; // Ini tidak lagi diperlukan
         } else {
@@ -1259,7 +1279,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hideTimerModal();
     });
 
-    // --- Audio Settings Modal Functions (NEW) ---
+    // --- Audio Settings Modal Functions ---
     function showAudioSettingsModal() {
         audioSettingsModal.classList.add('visible');
         modalOverlay.classList.add('visible');
@@ -1272,10 +1292,20 @@ document.addEventListener('DOMContentLoaded', () => {
             bassLevelSlider.value = bassFilter.gain.value;
             bassLevelValue.textContent = `${bassFilter.gain.value.toFixed(1)} dB`;
         }
+        if (midFilter) { // NEW
+            midLevelSlider.value = midFilter.gain.value;
+            midLevelValue.textContent = `${midFilter.gain.value.toFixed(1)} dB`;
+        }
+        if (trebleFilter) { // NEW
+            trebleLevelSlider.value = trebleFilter.gain.value;
+            trebleLevelValue.textContent = `${trebleFilter.gain.value.toFixed(1)} dB`;
+        }
         if (effectGainNode) {
             effectLevelSlider.value = effectGainNode.gain.value * 100;
             effectLevelValue.textContent = `${Math.round(effectGainNode.gain.value * 100)}%`;
         }
+        // Pastikan tidak ada preset yang terpilih saat modal dibuka
+        eqPresetBtns.forEach(btn => btn.classList.remove('selected'));
     }
 
     function hideAudioSettingsModal() {
@@ -1285,8 +1315,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     audioSettingsBtn.addEventListener('click', showAudioSettingsModal);
     closeAudioSettingsModalBtn.addEventListener('click', hideAudioSettingsModal);
+    // Tambahkan event listener untuk overlay modal audio settings
+    // modalOverlay.addEventListener('click', hideAudioSettingsModal); // Sudah ada di timer modal, jadi ini akan menutup kedua modal
 
-    // --- Audio Control Sliders Event Listeners (NEW) ---
+    // --- Audio Control Sliders Event Listeners ---
     masterVolumeSlider.addEventListener('input', () => {
         if (masterGainNode) {
             masterGainNode.gain.value = masterVolumeSlider.value / 100;
@@ -1301,11 +1333,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    midLevelSlider.addEventListener('input', () => { // NEW Mid Slider Listener
+        if (midFilter) {
+            midFilter.gain.value = parseFloat(midLevelSlider.value);
+            midLevelValue.textContent = `${midLevelSlider.value} dB`;
+        }
+    });
+
+    trebleLevelSlider.addEventListener('input', () => { // NEW Treble Slider Listener
+        if (trebleFilter) {
+            trebleFilter.gain.value = parseFloat(trebleLevelSlider.value);
+            trebleLevelValue.textContent = `${trebleLevelSlider.value} dB`;
+        }
+    });
+
     effectLevelSlider.addEventListener('input', () => {
         if (effectGainNode) {
             effectGainNode.gain.value = effectLevelSlider.value / 100;
             effectLevelValue.textContent = `${effectLevelSlider.value}%`;
         }
+    });
+
+    // --- EQ Presets Logic (NEW) ---
+    const eqPresets = {
+        'flat': { bass: 0, mid: 0, treble: 0 },
+        'pop': { bass: 6, mid: -3, treble: 8 },
+        'rock': { bass: 7, mid: -4, treble: 7 },
+        'jazz': { bass: 5, mid: 2, treble: 4 }
+    };
+
+    eqPresetBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const presetName = btn.dataset.preset;
+            const preset = eqPresets[presetName];
+
+            if (preset && bassFilter && midFilter && trebleFilter) {
+                bassFilter.gain.value = preset.bass;
+                midFilter.gain.value = preset.mid;
+                trebleFilter.gain.value = preset.treble;
+
+                // Update slider UI
+                bassLevelSlider.value = preset.bass;
+                midLevelSlider.value = preset.mid;
+                trebleLevelSlider.value = preset.treble;
+
+                // Update value displays
+                bassLevelValue.textContent = `${preset.bass} dB`;
+                midLevelValue.textContent = `${preset.mid} dB`;
+                trebleLevelValue.textContent = `${preset.treble} dB`;
+
+                // Update active state for preset buttons
+                eqPresetBtns.forEach(pBtn => pBtn.classList.remove('selected'));
+                btn.classList.add('selected');
+            }
+        });
     });
 
 
@@ -1472,7 +1553,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loadSong(currentSongIndex);
         buildPlaylist(); // Bangun playlist awal
         updateAllTimerDisplays(); // Inisialisasi tampilan timer
-        // updateMuteButtonIcon(); // Tidak lagi diperlukan karena kontrol volume di modal
         // Muat preferensi tema
         const savedTheme = localStorage.getItem('theme') || 'dark-theme'; // Default ke 'dark-theme'
         applyTheme(savedTheme);
@@ -1482,6 +1562,10 @@ document.addEventListener('DOMContentLoaded', () => {
         masterVolumeValue.textContent = '100%';
         bassLevelSlider.value = 0;
         bassLevelValue.textContent = '0 dB';
+        midLevelSlider.value = 0; // NEW
+        midLevelValue.textContent = '0 dB'; // NEW
+        trebleLevelSlider.value = 0;
+        trebleLevelValue.textContent = '0 dB'; // NEW
         effectLevelSlider.value = 0;
         effectLevelValue.textContent = '0%';
 
