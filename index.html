@@ -59,6 +59,7 @@
 
             <div class="album-art-section">
                 <img id="current-album-art" src="album_art_default.jpg" alt="Album Art" class="album-art-img">
+                <canvas id="audio-visualizer"></canvas>
             </div>
 
             <div class="song-details">
@@ -135,9 +136,19 @@
                     <span id="volume-value">70%</span>
                 </div>
                 <div class="control-group">
+                    <label for="playback-speed-control">Kecepatan Putar:</label>
+                    <input type="range" id="playback-speed-control" min="0.5" max="2" step="0.05" value="1" class="eq-slider">
+                    <span id="playback-speed-value">1.0x</span>
+                </div>
+                <div class="control-group">
                     <label for="treble-control">Treble:</label>
                     <input type="range" id="treble-control" min="-10" max="10" step="0.1" value="0" class="eq-slider">
                     <span id="treble-value">0 dB</span>
+                </div>
+                <div class="control-group">
+                    <label for="mid-control">Mid-range:</label>
+                    <input type="range" id="mid-control" min="-10" max="10" step="0.1" value="0" class="eq-slider">
+                    <span id="mid-value">0 dB</span>
                 </div>
                 <div class="control-group">
                     <label for="bass-control">Bass:</label>
