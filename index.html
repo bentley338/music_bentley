@@ -15,7 +15,6 @@
             Browser Anda tidak mendukung video HTML5.
         </video>
         <div class="video-overlay"></div>
-        <!-- Canvas untuk Visualizer Audio -->
         <canvas id="audio-visualizer-canvas"></canvas>
     </div>
 
@@ -26,15 +25,12 @@
                     <i class="fas fa-music"></i> MelodyVerse
                 </h1>
                 <div class="header-audio-controls">
-                    <!-- Tombol Set Timer -->
                     <button id="set-timer-btn" class="btn btn-timer header-timer-btn">
                         <i class="fas fa-clock"></i> Set Timer
                     </button>
-                    <!-- Tombol Pengaturan Audio/Volume -->
                     <button id="audio-settings-btn" class="btn btn-volume header-volume-btn">
                         <i class="fas fa-sliders-h"></i> Audio
                     </button>
-                    <!-- Tombol Admin Panel (Dipindahkan ke sini) -->
                     <button id="admin-panel-btn" class="btn btn-admin header-admin-btn" style="display: none;">
                         <i class="fas fa-user-shield"></i> Admin
                     </button>
@@ -42,7 +38,6 @@
             </div>
 
             <div class="header-buttons-vertical">
-                <!-- Tombol Tema -->
                 <button id="theme-toggle-btn" class="btn btn-theme">
                     <i class="fas fa-sun"></i> Mode Terang
                 </button>
@@ -85,7 +80,6 @@
                 </div>
             </div>
 
-            <!-- Bagian ini untuk menampilkan timer aktif di player utama -->
             <div id="player-timer-display" class="player-timer-display" style="display: none;">
                 <i class="fas fa-hourglass-half"></i> Timer Aktif: <span id="player-timer-countdown"></span>
                 <button id="player-cancel-timer-btn" class="btn-icon-sm" aria-label="Batalkan Timer">
@@ -94,14 +88,12 @@
             </div>
 
             <div class="controls-section">
-                <!-- Tombol Shuffle -->
                 <button id="shuffle-btn" class="control-btn small-btn" aria-label="Acak Lagu">
                     <i class="fas fa-shuffle"></i>
                 </button>
                 <button id="prev-btn" class="control-btn small-btn" aria-label="Lagu Sebelumnya"><i class="fas fa-backward"></i></button>
                 <button id="play-pause-btn" class="control-btn large-btn" aria-label="Putar/Jeda"><i class="fas fa-play"></i></button>
                 <button id="next-btn" class="control-btn small-btn" aria-label="Lagu Berikutnya"><i class="fas fa-forward"></i></button>
-                <!-- Tombol Repeat -->
                 <button id="repeat-btn" class="control-btn small-btn" aria-label="Ulangi Lagu">
                     <i class="fas fa-repeat"></i>
                 </button>
@@ -117,7 +109,6 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <!-- Input Pencarian Playlist -->
             <div class="playlist-search-section">
                 <input type="text" id="playlist-search-input" placeholder="Cari lagu..." class="search-input">
                 <i class="fas fa-search search-icon"></i>
@@ -126,7 +117,6 @@
                 </ul>
         </aside>
 
-        <!-- Timer Modal -->
         <div id="timer-modal" class="modal">
             <div class="modal-content glass-effect">
                 <span class="close-button" id="close-timer-modal">&times;</span>
@@ -150,7 +140,6 @@
             </div>
         </div>
 
-        <!-- Audio Settings Modal -->
         <div id="audio-settings-modal" class="modal">
             <div class="modal-content glass-effect">
                 <span class="close-button" id="close-audio-settings-modal">&times;</span>
@@ -162,7 +151,6 @@
                     <span id="master-volume-value">100%</span>
                 </div>
 
-                <!-- Equalizer Controls -->
                 <h3>Equalizer</h3>
                 <div class="eq-presets">
                     <button class="eq-preset-btn" data-preset="flat">Flat</button>
@@ -196,7 +184,6 @@
             </div>
         </div>
 
-        <!-- Admin Panel Modal -->
         <div id="admin-panel-modal" class="modal">
             <div class="modal-content glass-effect">
                 <span class="close-button" id="close-admin-panel-modal">&times;</span>
@@ -216,11 +203,28 @@
                 <div class="admin-section">
                     <h3>Kelola Lagu</h3>
                     <ul id="admin-song-list" class="admin-song-list">
-                        <!-- Lagu akan dimuat di sini -->
-                    </ul>
+                        </ul>
                 </div>
             </div>
         </div>
+
+        <div id="auth-modal" class="modal">
+            <div class="modal-content glass-effect">
+                <span class="close-button" id="close-auth-modal">&times;</span>
+                <h2 id="auth-title">Login</h2>
+                <form id="auth-form" class="admin-form">
+                    <input type="email" id="auth-email" placeholder="Email Anda" required>
+                    <input type="password" id="auth-password" placeholder="Password Anda" required>
+                    <button type="submit" id="auth-submit-btn" class="btn btn-primary">Login</button>
+                </form>
+                <p class="auth-toggle-text">
+                    Belum punya akun? <a href="#" id="show-register">Daftar di sini</a>
+                    Sudah punya akun? <a href="#" id="show-login" style="display: none;">Login di sini</a>
+                </p>
+                <p id="auth-error-message" style="color: red; margin-top: 10px;"></p>
+            </div>
+        </div>
+
 
         <div id="sidebar-overlay" class="sidebar-overlay"></div>
         <div id="modal-overlay" class="sidebar-overlay"></div>
