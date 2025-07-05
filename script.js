@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Elemen DOM ---
     const audioPlayer = document.getElementById('audio-player');
     const playPauseBtn = document.getElementById('play-pause-btn');
-    const prevBtn = document.getElementById('prev-btn');
+    const prevBtn = document = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
     const progressBar = document.getElementById('progress-bar');
     const currentTimeSpan = document.getElementById('current-time');
@@ -312,10 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
         infoText.innerHTML = song.info;
         infoText.scrollTop = 0;
 
-        progressBar.value = 0;
-        currentTimeSpan.textContent = '0:00';
-        durationSpan.textContent = '0:00';
-
         const albumArtImg = document.querySelector('.album-art-img');
         if (albumArtImg) {
             albumArtImg.style.animation = 'none';
@@ -379,7 +375,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (playlist.length > 0) {
                 loadSong(0);
             } else {
-                // If playlist is still empty, and no default song, just return
                 return;
             }
         }
@@ -454,18 +449,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const nextSongCalculatedIndex = shuffleMode ? getRandomUniqueIndex() : (currentSongIndex + 1) % playlist.length;
 
-        // If not repeating all and it's the last song (or would loop back to start in non-shuffle mode),
-        // and current index is the last, then pause.
         if (repeatMode === 'off' && !shuffleMode && currentSongIndex === playlist.length -1) {
              pauseSong();
-             loadSong(0); // Load first song but don't play
+             loadSong(0);
              currentSongIndex = 0;
              return;
         }
 
-        // Crossfade effect
-        const fadeOutDuration = 0.5; // seconds
-        const fadeInDuration = 0.5; // seconds
+        const fadeOutDuration = 0.5;
+        const fadeInDuration = 0.5;
         const now = audioContext.currentTime;
 
         gainNode.gain.cancelScheduledValues(now);
@@ -506,9 +498,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
         
-        // Crossfade effect
-        const fadeOutDuration = 0.5; // seconds
-        const fadeInDuration = 0.5; // seconds
+        const fadeOutDuration = 0.5;
+        const fadeInDuration = 0.5;
         const now = audioContext.currentTime;
 
         gainNode.gain.cancelScheduledValues(now);
@@ -949,11 +940,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!currentDefaultSong && playlist.length > 0) {
         localStorage.setItem('defaultMelodyVerseSong', JSON.stringify(playlist[0]));
     } else if (!currentDefaultSong && playlist.length === 0) {
-         // Fallback if playlist and default is empty
          localStorage.setItem('defaultMelodyVerseSong', JSON.stringify({
             title: "Selamat Datang di MelodyVerse",
             artist: "Admin",
-            src: "abstract_wave_bg.mp4", // Or a silent mp3 file if you have one
+            src: "abstract_wave_bg.mp4",
             albumArt: "album_art_default.jpg",
             info: "<p>Playlist Anda kosong! Tambahkan lagu baru melalui panel admin untuk memulai petualangan musik Anda.</p>"
         }));
@@ -965,7 +955,6 @@ document.addEventListener('DOMContentLoaded', () => {
         buildPlaylist();
     } else {
         console.warn("No songs found in 'playlist' array. Loading default song.");
-        // Load the default song explicitly if playlist is empty
         const defaultSongToLoad = JSON.parse(localStorage.getItem('defaultMelodyVerseSong'));
         if (defaultSongToLoad) {
             audioPlayer.src = defaultSongToLoad.src;
@@ -1014,8 +1003,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     pauseSong();
                 }
             } else if (event.key === 'defaultMelodyVerseSong' && playlist.length === 0) {
-                // If only default song changes and playlist is empty, reload default song
-                loadSong(currentSongIndex); // This will pick up the new default song
+                loadSong(currentSongIndex);
             }
         }
     });
