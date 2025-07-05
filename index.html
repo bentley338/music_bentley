@@ -34,16 +34,18 @@
             </div>
         </header>
 
-        <div class="sleep-timer-section glass-effect">
+        <div class="top-links-section">
+            <a href="admin.html" class="top-link"><i class="fas fa-user-gear"></i> Admin</a>
+            <span class="link-separator">|</span>
+            <a href="contact.html" class="top-link"><i class="fas fa-address-book"></i> Kontak</a>
+        </div>
+        
+        <div class="sleep-timer-display glass-effect" id="sleep-timer-display">
             <h4 class="section-title"><i class="fas fa-moon"></i> Timer Tidur</h4>
-            <select id="sleep-timer-select" class="custom-select">
-                <option value="0">Off</option>
-                <option value="5">5 Menit</option>
-                <option value="15">15 Menit</option>
-                <option value="30">30 Menit</option>
-                <option value="60">60 Menit</option>
-            </select>
             <span id="sleep-timer-countdown" class="countdown-text"></span>
+            <button id="open-sleep-timer-modal" class="btn btn-icon btn-small" aria-label="Set Sleep Timer">
+                <i class="fas fa-clock"></i>
+            </button>
         </div>
 
         <main class="music-player glass-effect">
@@ -82,34 +84,13 @@
                 <button id="play-pause-btn" class="control-btn large-btn" aria-label="Play/Pause"><i class="fas fa-play"></i></button>
                 <button id="next-btn" class="control-btn small-btn" aria-label="Next Song"><i class="fas fa-forward"></i></button>
                 <button id="repeat-btn" class="control-btn small-btn" aria-label="Repeat"><i class="fas fa-repeat"></i></button>
+                <button id="open-audio-modal-btn" class="control-btn small-btn" aria-label="Open Audio Controls">
+                    <i class="fas fa-volume-high"></i>
+                </button>
             </div>
 
             <audio id="audio-player"></audio>
         </main>
-
-        <aside id="audio-controls-sidebar" class="audio-controls-sidebar glass-effect">
-            <div class="audio-controls-header">
-                <h2 class="section-title"><i class="fas fa-volume-up"></i> Audio</h2>
-                <button id="close-audio-controls-btn" class="control-btn small-btn" aria-label="Close Audio Controls">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="control-group">
-                <label for="master-volume">Volume Utama:</label>
-                <input type="range" id="master-volume" min="0" max="1" step="0.01" value="0.7" class="volume-slider">
-                <span id="volume-value">70%</span>
-            </div>
-            <div class="control-group">
-                <label for="treble-control">Treble:</label>
-                <input type="range" id="treble-control" min="-10" max="10" step="0.1" value="0" class="eq-slider">
-                <span id="treble-value">0 dB</span>
-            </div>
-            <div class="control-group">
-                <label for="bass-control">Bass:</label>
-                <input type="range" id="bass-control" min="-10" max="10" step="0.1" value="0" class="eq-slider">
-                <span id="bass-value">0 dB</span>
-            </div>
-            </aside>
 
         <aside id="playlist-sidebar" class="playlist-sidebar glass-effect">
             <div class="playlist-header">
@@ -126,13 +107,49 @@
             </ul>
         </aside>
 
+        <div id="sleepTimerModal" class="modal">
+            <div class="modal-content glass-effect">
+                <span class="close-button" id="close-sleep-timer-modal">&times;</span>
+                <h3>Atur Timer Tidur</h3>
+                <div class="modal-options">
+                    <button class="timer-option-btn" data-minutes="5">5 Menit</button>
+                    <button class="timer-option-btn" data-minutes="15">15 Menit</button>
+                    <button class="timer-option-btn" data-minutes="30">30 Menit</button>
+                    <button class="timer-option-btn" data-minutes="60">60 Menit</button>
+                    <button class="timer-option-btn" data-minutes="0">Matikan Timer</button>
+                </div>
+                <div class="custom-timer-group">
+                    <input type="number" id="custom-timer-input" min="1" max="120" placeholder="Kustom (menit)">
+                    <button id="set-custom-timer-btn" class="admin-btn">Atur</button>
+                </div>
+                <p id="modal-timer-countdown" class="countdown-text"></p>
+            </div>
+        </div>
+
+        <div id="audioControlsModal" class="modal">
+            <div class="modal-content glass-effect">
+                <span class="close-button" id="close-audio-modal">&times;</span>
+                <h3>Pengaturan Audio</h3>
+                <div class="control-group">
+                    <label for="master-volume">Volume Utama:</label>
+                    <input type="range" id="master-volume" min="0" max="1" step="0.01" value="0.7" class="volume-slider">
+                    <span id="volume-value">70%</span>
+                </div>
+                <div class="control-group">
+                    <label for="treble-control">Treble:</label>
+                    <input type="range" id="treble-control" min="-10" max="10" step="0.1" value="0" class="eq-slider">
+                    <span id="treble-value">0 dB</span>
+                </div>
+                <div class="control-group">
+                    <label for="bass-control">Bass:</label>
+                    <input type="range" id="bass-control" min="-10" max="10" step="0.1" value="0" class="eq-slider">
+                    <span id="bass-value">0 dB</span>
+                </div>
+                </div>
+        </div>
+
         <div id="sidebar-overlay" class="sidebar-overlay"></div>
     </div>
-
-    <footer class="app-footer">
-        <a href="admin.html" class="footer-link"><i class="fas fa-user-gear"></i> Admin</a>
-        <a href="contact.html" class="footer-link"><i class="fas fa-address-book"></i> Kontak</a>
-    </footer>
 
     <script src="script.js"></script>
 </body>
