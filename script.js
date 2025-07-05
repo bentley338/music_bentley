@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: "Back to Friends",
             artist: "Sombr",
-            src: "https://bentley16.github.io/MelodyVerse/back_to_friends.mp3", // Contoh URL GitHub Pages
+            src: "https://github.com/bentley338/music_bentley/blob/main/back_to_friends.mp3", // Contoh URL GitHub Pages
             albumArt: "https://bentley16.github.io/MelodyVerse/album_art_back_to_friends.jpg", // Contoh URL GitHub Pages
             info: `<b>🎶 Back to Friends – Sombr</b><br><br>
                 Lagu ini menggambarkan kerumitan transisi dari hubungan romantis ke pertemanan. Liriknya, "How can we go back to being friends when we just shared a bed?", menyoroti kebingungan dan kesulitan emosional setelah melewati batas dalam sebuah hubungan. Dibuat dengan melodi yang melankolis namun memikat, lagu ini cocok untuk siapa saja yang pernah merasakan dilema serupa.`
