@@ -272,6 +272,16 @@
             background-color: #0056b3;
             border-color: #004085;
         }
+        .action-btn.move-btn {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+        .action-btn.move-btn:hover {
+            background-color: #545b62;
+            border-color: #4a4e53;
+        }
+
 
         /* Gaya Modal (sama seperti index.html untuk konsistensi) */
         .modal {
@@ -367,6 +377,65 @@
             font-weight: 500;
         }
 
+        .file-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .file-input-wrapper input[type="file"] {
+            flex-grow: 1;
+            padding: 8px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--border-radius-sm);
+            color: var(--input-text);
+            font-size: 1em;
+            outline: none;
+            cursor: pointer;
+        }
+        body.light-mode .file-input-wrapper input[type="file"] {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            color: var(--input-text);
+        }
+
+        .import-export-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .import-export-buttons .admin-btn {
+            flex: 1 1 auto; /* Allow buttons to grow and shrink */
+            min-width: 120px; /* Minimum width to prevent too small buttons */
+            margin-top: 0; /* Override default admin-btn margin */
+        }
+        .import-export-buttons input[type="file"] {
+            display: none; /* Hide default file input */
+        }
+        .import-export-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #28a745; /* Green for import */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            flex: 1 1 auto;
+            min-width: 120px;
+        }
+        .import-export-label:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+
         /* Panel Admin Responsif */
         @media (max-width: 768px) {
             .admin-container {
@@ -395,6 +464,14 @@
             .back-home-btn {
                 padding: 12px 25px;
                 font-size: 0.9em;
+            }
+            .import-export-buttons .admin-btn,
+            .import-export-label {
+                min-width: unset; /* Remove min-width on smaller screens */
+                width: 100%; /* Take full width */
+            }
+            .import-export-buttons {
+                flex-direction: column;
             }
         }
         @media (max-width: 480px) {
@@ -509,10 +586,27 @@
                 <div class="admin-section">
                     <h3>Kelola Lagu</h3>
                     <div class="admin-section-content">
+                        <div class="input-group">
+                            <label for="manage-song-search">Cari Lagu:</label>
+                            <input type="text" id="manage-song-search" placeholder="Cari judul atau artis...">
+                        </div>
                         <ul id="manage-song-list" class="song-list">
                             </ul>
                     </div>
                 </div>
+
+                <div class="admin-section">
+                    <h3>Import / Export Playlist</h3>
+                    <div class="admin-section-content">
+                        <div class="import-export-buttons">
+                            <label for="import-playlist-file" class="import-export-label"><i class="fas fa-file-import"></i> Import Playlist</label>
+                            <input type="file" id="import-playlist-file" accept=".json">
+                            <button id="export-playlist-btn" class="admin-btn"><i class="fas fa-file-export"></i> Export Playlist</button>
+                        </div>
+                        <p id="import-export-message" style="color: green; margin-top: 10px;"></p>
+                    </div>
+                </div>
+
 
                 <div class="admin-section">
                     <h3>Opsi Lain</h3>
@@ -567,12 +661,13 @@
 
             const songTitleInput = document.getElementById('song-title');
             const songArtistInput = document.getElementById('song-artist');
-            const songSrcInput = document.getElementById('song-src'); // Kembali ke nama file
-            const songAlbumArtInput = document.getElementById('song-album-art'); // Kembali ke nama file
-            const songInfoInput = document.getElementById('song-info'); // Info lagu
+            const songSrcInput = document.getElementById('song-src');
+            const songAlbumArtInput = document.getElementById('song-album-art');
+            const songInfoInput = document.getElementById('song-info');
             const addSongBtn = document.getElementById('add-song-btn');
             const addSongMessage = document.getElementById('add-song-message');
             const manageSongList = document.getElementById('manage-song-list');
+            const manageSongSearchInput = document.getElementById('manage-song-search'); // New: Search input for admin panel
 
             const editSongModal = document.getElementById('editSongModal');
             const closeButton = editSongModal.querySelector('.close-button');
@@ -581,25 +676,32 @@
             const editSongArtistInput = document.getElementById('edit-song-artist');
             const editSongSrcInput = document.getElementById('edit-song-src');
             const editSongAlbumArtInput = document.getElementById('edit-song-album-art');
-            const editSongInfoInput = document.getElementById('edit-song-info'); // Info lagu
+            const editSongInfoInput = document.getElementById('edit-song-info');
             const saveEditBtn = document.getElementById('save-edit-btn');
 
             const clearDataBtn = document.getElementById('clear-data-btn');
             const reloadAppBtn = document.getElementById('reload-app-btn');
             const reloadMessage = document.getElementById('reload-message');
 
+            const importPlaylistFile = document.getElementById('import-playlist-file'); // New: Import file input
+            const exportPlaylistBtn = document.getElementById('export-playlist-btn'); // New: Export button
+            const importExportMessage = document.getElementById('import-export-message'); // New: Import/Export message
+
             const toggleThemeBtn = document.getElementById('toggle-theme-btn');
             const backgroundVideo = document.getElementById('background-video');
 
-            // Admin password (client-side, TIDAK AMAN UNTUK PRODUKSI)
             const ADMIN_PASSWORD = "157299pro";
 
-            // Pastikan playlist dimuat dari localStorage, bukan nilai default awal
             let playlist = JSON.parse(localStorage.getItem('musicPlaylist')) || [];
 
-            function renderSongList() {
+            function renderSongList(searchTerm = '') { // Added searchTerm for filtering
                 manageSongList.innerHTML = '';
-                if (playlist.length === 0) {
+                const filteredSongs = playlist.filter(song =>
+                    song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    song.artist.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+
+                if (filteredSongs.length === 0) {
                     const noSongsLi = document.createElement('li');
                     noSongsLi.style.justifyContent = 'center';
                     noSongsLi.style.backgroundColor = 'transparent';
@@ -611,7 +713,8 @@
                     return;
                 }
 
-                playlist.forEach((song, index) => {
+                filteredSongs.forEach((song, index) => {
+                    const originalIndex = playlist.indexOf(song); // Get original index for correct manipulation
                     const li = document.createElement('li');
                     li.innerHTML = `
                         <div class="song-info">
@@ -620,8 +723,10 @@
                             <small>MP3: ${song.src}<br>Album Art: ${song.albumArt}</small>
                         </div>
                         <div class="actions">
-                            <button class="action-btn edit-btn" data-index="${index}"><i class="fas fa-edit"></i> Edit</button>
-                            <button class="action-btn delete-btn" data-index="${index}"><i class="fas fa-trash-alt"></i> Hapus</button>
+                            <button class="action-btn edit-btn" data-index="${originalIndex}"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="action-btn delete-btn" data-index="${originalIndex}"><i class="fas fa-trash-alt"></i> Hapus</button>
+                            <button class="action-btn move-up-btn" data-index="${originalIndex}" ${originalIndex === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
+                            <button class="action-btn move-down-btn" data-index="${originalIndex}" ${originalIndex === playlist.length - 1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
                         </div>
                     `;
                     manageSongList.appendChild(li);
@@ -630,9 +735,7 @@
 
             function savePlaylist() {
                 localStorage.setItem('musicPlaylist', JSON.stringify(playlist));
-                // Mengirim event 'storage' secara manual untuk memberitahu halaman utama (jika terbuka)
-                // agar memperbarui playlist-nya. Ini adalah cara client-side.
-                window.dispatchEvent(new Event('storage'));
+                window.dispatchEvent(new Event('storage')); // Notify main app
             }
 
             // Logika Login
@@ -641,30 +744,29 @@
                     loginSection.style.display = 'none';
                     adminPanel.style.display = 'block';
                     loginMessage.textContent = '';
-                    renderSongList(); // Render lagu setelah login berhasil
+                    renderSongList();
                 } else {
                     loginMessage.textContent = 'Password salah!';
                 }
-                adminPasswordInput.value = ''; // Bersihkan field password
+                adminPasswordInput.value = '';
             });
 
             // Logika Tambah Lagu
             addSongBtn.addEventListener('click', () => {
                 const title = songTitleInput.value.trim();
                 const artist = songArtistInput.value.trim();
-                const src = songSrcInput.value.trim(); // Nama file
-                const albumArt = songAlbumArtInput.value.trim(); // Nama file
-                const info = songInfoInput.value.trim(); // Info lagu
+                const src = songSrcInput.value.trim();
+                const albumArt = songAlbumArtInput.value.trim();
+                const info = songInfoInput.value.trim();
 
                 if (!title || !artist || !src || !albumArt || !info) {
                     addSongMessage.style.color = 'red';
                     addSongMessage.textContent = 'Semua field harus diisi!';
                     return;
                 }
-                
-                // Validasi sederhana untuk format nama file
-                const fileExtensionRegex = /\.(mp3|wav|ogg|m4a)$/i; // Contoh ekstensi audio
-                const imageExtensionRegex = /\.(jpg|jpeg|png|gif|webp)$/i; // Contoh ekstensi gambar
+
+                const fileExtensionRegex = /\.(mp3|wav|ogg|m4a)$/i;
+                const imageExtensionRegex = /\.(jpg|jpeg|png|gif|webp)$/i;
 
                 if (!fileExtensionRegex.test(src)) {
                     addSongMessage.style.color = 'red';
@@ -677,14 +779,12 @@
                     return;
                 }
 
-
                 const newSong = { title, artist, src, albumArt, info };
                 playlist.push(newSong);
                 savePlaylist();
                 renderSongList();
                 addSongMessage.style.color = 'green';
                 addSongMessage.textContent = 'Lagu berhasil ditambahkan dan tersedia untuk semua orang (pastikan file ada di GitHub Pages)!';
-                // Bersihkan form
                 songTitleInput.value = '';
                 songArtistInput.value = '';
                 songSrcInput.value = '';
@@ -692,7 +792,7 @@
                 songInfoInput.value = '';
             });
 
-            // Logika Hapus Lagu
+            // Logika Hapus Lagu & Pindah Posisi
             manageSongList.addEventListener('click', (event) => {
                 const targetButton = event.target.closest('.delete-btn');
                 if (targetButton) {
@@ -700,10 +800,36 @@
                     if (confirm(`Anda yakin ingin menghapus lagu "${playlist[indexToDelete].title}"?`)) {
                         playlist.splice(indexToDelete, 1);
                         savePlaylist();
-                        renderSongList();
+                        renderSongList(manageSongSearchInput.value); // Re-render with current search term
+                    }
+                }
+
+                const moveUpButton = event.target.closest('.move-up-btn');
+                if (moveUpButton) {
+                    const indexToMove = parseInt(moveUpButton.dataset.index);
+                    if (indexToMove > 0) {
+                        [playlist[indexToMove], playlist[indexToMove - 1]] = [playlist[indexToMove - 1], playlist[indexToMove]];
+                        savePlaylist();
+                        renderSongList(manageSongSearchInput.value);
+                    }
+                }
+
+                const moveDownButton = event.target.closest('.move-down-btn');
+                if (moveDownButton) {
+                    const indexToMove = parseInt(moveDownButton.dataset.index);
+                    if (indexToMove < playlist.length - 1) {
+                        [playlist[indexToMove], playlist[indexToMove + 1]] = [playlist[indexToMove + 1], playlist[indexToMove]];
+                        savePlaylist();
+                        renderSongList(manageSongSearchInput.value);
                     }
                 }
             });
+
+            // Pencarian di Admin Panel
+            manageSongSearchInput.addEventListener('input', (event) => {
+                renderSongList(event.target.value);
+            });
+
 
             // Logika Edit Lagu (Buka Modal)
             manageSongList.addEventListener('click', (event) => {
@@ -715,11 +841,11 @@
                     editSongIndexInput.value = indexToEdit;
                     editSongTitleInput.value = song.title;
                     editSongArtistInput.value = song.artist;
-                    editSongSrcInput.value = song.src; // SRC dinonaktifkan tetapi ditampilkan
+                    editSongSrcInput.value = song.src;
                     editSongAlbumArtInput.value = song.albumArt;
-                    editSongInfoInput.value = song.info; // Info lagu
+                    editSongInfoInput.value = song.info;
 
-                    editSongModal.classList.add('visible'); // Tampilkan modal
+                    editSongModal.classList.add('visible');
                 }
             });
 
@@ -743,12 +869,11 @@
 
                 playlist[index].title = editSongTitleInput.value.trim();
                 playlist[index].artist = editSongArtistInput.value.trim();
-                // playlist[index].src tidak dapat diedit
                 playlist[index].albumArt = editSongAlbumArtInput.value.trim();
-                playlist[index].info = editSongInfoInput.value.trim(); // Info lagu
+                playlist[index].info = editSongInfoInput.value.trim();
 
                 savePlaylist();
-                renderSongList();
+                renderSongList(manageSongSearchInput.value);
                 editSongModal.classList.remove('visible');
                 alert('Lagu berhasil diperbarui!');
             });
@@ -760,7 +885,7 @@
                     playlist = [];
                     renderSongList();
                     alert('Semua data lagu telah dihapus!');
-                    savePlaylist(); // Kirim event storage agar halaman utama juga mereset
+                    savePlaylist();
                 }
             });
 
@@ -768,9 +893,78 @@
             reloadAppBtn.addEventListener('click', () => {
                 reloadMessage.textContent = 'Memuat ulang aplikasi...';
                 setTimeout(() => {
-                    window.location.href = 'index.html'; // Redirect ke halaman utama, memaksa pemuatan ulang penuh
+                    window.location.href = 'index.html';
                 }, 1000);
             });
+
+            // Import Playlist
+            importPlaylistFile.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) {
+                    importExportMessage.style.color = 'red';
+                    importExportMessage.textContent = 'Tidak ada file yang dipilih.';
+                    return;
+                }
+                if (file.type !== 'application/json') {
+                    importExportMessage.style.color = 'red';
+                    importExportMessage.textContent = 'Mohon pilih file JSON yang valid.';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        if (Array.isArray(importedData) && importedData.every(song => 
+                            song.title && song.artist && song.src && song.albumArt && song.info !== undefined
+                        )) {
+                            if (confirm('Ini akan mengganti playlist yang ada dengan data yang diimpor. Lanjutkan?')) {
+                                playlist = importedData;
+                                savePlaylist();
+                                renderSongList(manageSongSearchInput.value);
+                                importExportMessage.style.color = 'green';
+                                importExportMessage.textContent = 'Playlist berhasil diimpor!';
+                            } else {
+                                importExportMessage.textContent = ''; // Clear message if canceled
+                            }
+                        } else {
+                            importExportMessage.style.color = 'red';
+                            importExportMessage.textContent = 'Format file JSON tidak valid (bukan playlist).';
+                        }
+                    } catch (error) {
+                        importExportMessage.style.color = 'red';
+                        importExportMessage.textContent = 'Gagal memparsing file JSON: ' + error.message;
+                    }
+                };
+                reader.onerror = () => {
+                    importExportMessage.style.color = 'red';
+                    importExportMessage.textContent = 'Gagal membaca file.';
+                };
+                reader.readAsText(file);
+                event.target.value = ''; // Clear file input after reading
+            });
+
+            // Export Playlist
+            exportPlaylistBtn.addEventListener('click', () => {
+                if (playlist.length === 0) {
+                    importExportMessage.style.color = 'red';
+                    importExportMessage.textContent = 'Tidak ada lagu di playlist untuk diekspor.';
+                    return;
+                }
+                const dataStr = JSON.stringify(playlist, null, 2); // Pretty print JSON
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'MelodyVerse_playlist.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                importExportMessage.style.color = 'green';
+                importExportMessage.textContent = 'Playlist berhasil diekspor!';
+            });
+
 
             // Toggle Tema untuk halaman Admin
             function toggleTheme() {
@@ -794,7 +988,6 @@
                 toggleThemeBtn.setAttribute('aria-label', 'Beralih ke Mode Terang');
             }
 
-            // Pastikan video diputar dan diulang di halaman admin juga
             if (backgroundVideo) {
                 backgroundVideo.play().catch(error => {
                     console.log('Autoplay dicegah di halaman admin. Mungkin diperlukan interaksi pengguna.', error);
