@@ -3,41 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us - BentleyBeats</title>
+    <title>Kontak - MelodyVerse</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="app_icon.png" type="image/png">
     <style>
-        /* Styling khusus untuk halaman kontak (bisa diintegrasikan ke style.css jika mau) */
-        .home-button {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--accent-purple);
-            color: white;
-            padding: 15px 30px;
+        /* Gaya spesifik untuk halaman kontak */
+        .contact-container {
+            padding: 40px;
+            text-align: center;
+            background: var(--player-bg-dark);
+            backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
+            -webkit-backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
+            border: 1px solid var(--player-border);
             border-radius: var(--border-radius-main);
-            text-decoration: none;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.1em;
-            font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 50px var(--shadow-deep);
+            max-width: 500px;
+            width: 90%;
+            margin: auto; /* Untuk memusatkan di halaman */
+            margin-top: 100px; /* Jarak dari atas */
+            transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
         }
 
-        .home-button:hover {
+        .contact-container h2 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--primary-text);
+            font-size: 2em;
+            margin-bottom: 25px;
+            transition: color 0.5s ease;
+        }
+
+        .contact-info {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .contact-info li {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            color: var(--secondary-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: color 0.5s ease;
+        }
+
+        .contact-info li i {
+            color: var(--accent-purple);
+            font-size: 1.3em;
+            transition: color 0.5s ease;
+        }
+
+        .contact-info li a {
+            color: var(--primary-text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .contact-info li a:hover {
+            color: var(--accent-red);
+        }
+
+        /* Override for light mode */
+        body.light-mode .contact-info li i {
+            color: var(--accent-red);
+        }
+        body.light-mode .contact-info li a {
+            color: var(--primary-text);
+        }
+        body.light-mode .contact-info li a:hover {
+            color: var(--accent-purple);
+        }
+
+        .back-home-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background: var(--accent-purple);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-home-btn:hover {
             background-color: var(--accent-red);
-            transform: translateX(-50%) translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
     </style>
 </head>
-<body class="contact-page">
+<body>
     <div class="video-background">
         <video id="background-video" autoplay loop muted playsinline>
             <source src="abstract_wave_bg.mp4" type="video/mp4">
@@ -46,48 +107,66 @@
         <div class="video-overlay"></div>
     </div>
 
-    <div class="container">
-        <div class="contact-header">
-            <h1>Hubungi Kami</h1>
-            <p>Kami senang mendengar dari Anda! Silakan hubungi kami melalui platform di bawah ini.</p>
+    <header>
+        <div class="app-branding">
+            <h1 id="app-title-new" class="app-title-new">
+                <i class="fas fa-music"></i> MelodyVerse
+            </h1>
         </div>
+        <div class="header-right-controls">
+            <button id="toggle-theme-btn" class="btn btn-icon" aria-label="Toggle Theme">
+                <i class="fas fa-sun"></i>
+            </button>
+        </div>
+    </header>
 
-        <div class="contact-info">
-            <div class="contact-card glass-effect">
-                <i class="fab fa-whatsapp icon"></i>
-                <h3>WhatsApp</h3>
-                <p>Chat langsung dengan kami.</p>
-                <a href="https://wa.me/6285810073341" target="_blank">Kirim Pesan</a>
-            </div>
-
-            <div class="contact-card glass-effect">
-                <i class="fab fa-instagram icon"></i>
-                <h3>Instagram</h3>
-                <p>Ikuti kami untuk update terbaru.</p>
-                <a href="https://www.instagram.com/beentley16?igsh=MW5yZTE5ZjdidXc2Zw==" target="_blank">Kunjungi Profil</a>
-            </div>
-
-            <div class="contact-card glass-effect">
-                <i class="fab fa-telegram-plane icon"></i>
-                <h3>Telegram</h3>
-                <p>Terhubung melalui Telegram.</p>
-                <a href="https://t.me/bentley160" target="_blank">Kirim Pesan</a>
-            </div>
+    <div class="container">
+        <div class="contact-container">
+            <h2>Kontak Kami</h2>
+            <ul class="contact-info">
+                <li><i class="fab fa-whatsapp"></i> WhatsApp: <a href="wa.me//6285810073341" target="_blank">wa.me//6285810073341</a></li>
+                <li><i class="fab fa-instagram"></i> Instagram: <a href="https://www.instagram.com/beentley16?igsh=MW5yZTE5ZjdidXc2Zw==" target="_blank">@beentley16</a></li>
+                <li><i class="fab fa-telegram-plane"></i> Telegram: <a href="https://t.me/bentley160" target="_blank">@bentley160</a></li>
+                <li><i class="fas fa-envelope"></i> Email: <a href="mailto:your.email@example.com">your.email@example.com</a> (Ganti dengan email Anda)</li>
+            </ul>
+            <a href="index.html" class="back-home-btn">Kembali ke Pemutar Musik</a>
         </div>
     </div>
 
-    <a href="index.html" class="home-button">
-        <i class="fas fa-home"></i> Kembali ke Pemutar Musik
-    </a>
-
     <script>
-        // Optional: Ensure video background plays
-        const backgroundVideo = document.getElementById('background-video');
-        if (backgroundVideo) {
-            backgroundVideo.play().catch(error => {
-                console.log("Video autoplay blocked on contact page:", error);
-            });
-        }
+        // Copy-paste theme toggle logic from main script.js for consistency
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleThemeBtn = document.getElementById('toggle-theme-btn');
+            const backgroundVideo = document.getElementById('background-video'); // Get video element
+
+            function toggleTheme() {
+                document.body.classList.toggle('light-mode');
+                const isLightMode = document.body.classList.contains('light-mode');
+                localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
+                toggleThemeBtn.innerHTML = isLightMode ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+                toggleThemeBtn.setAttribute('aria-label', isLightMode ? 'Switch to Dark Mode' : 'Switch to Light Mode');
+            }
+
+            toggleThemeBtn.addEventListener('click', toggleTheme);
+
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                toggleThemeBtn.innerHTML = '<i class="fas fa-moon"></i>';
+                toggleThemeBtn.setAttribute('aria-label', 'Switch to Dark Mode');
+            } else {
+                document.body.classList.remove('light-mode');
+                toggleThemeBtn.innerHTML = '<i class="fas fa-sun"></i>';
+                toggleThemeBtn.setAttribute('aria-label', 'Switch to Light Mode');
+            }
+
+            // Ensure video plays and loops on contact page too
+            if (backgroundVideo) {
+                backgroundVideo.play().catch(error => {
+                    console.log('Autoplay was prevented on contact page. User interaction might be needed.', error);
+                });
+            }
+        });
     </script>
 </body>
 </html>
