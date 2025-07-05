@@ -1,3 +1,8 @@
+// Import Firebase SDKs
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+import { getFirestore, collection, query, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- Elemen DOM ---
     const audioPlayer = document.getElementById('audio-player');
@@ -21,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Timer elements (modal)
     const setTimerBtn = document.getElementById('set-timer-btn');
     const timerModal = document.getElementById('timer-modal');
-    const closeModalBtn = document.getElementById('close-timer-modal'); // Tombol X di modal
+    const closeModalBtn = document.getElementById('close-timer-modal');
     const timerOptionBtns = document.querySelectorAll('.timer-option-btn');
     const customTimerInput = document.getElementById('custom-timer-minutes');
     const setCustomTimerBtn = document.getElementById('set-custom-timer-btn');
@@ -30,12 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Timer elements (display di player utama)
     const playerTimerDisplay = document.getElementById('player-timer-display');
     const playerTimerCountdown = document.getElementById('player-timer-countdown');
-    const playerCancelTimerBtn = document.getElementById('player-cancel-timer-btn'); // Tombol cancel di player utama
+    const playerCancelTimerBtn = document.getElementById('player-cancel-timer-btn');
 
     // Timer elements (display di dalam modal)
     const modalActiveTimerDisplay = document.getElementById('modal-active-timer-display');
     const modalTimerCountdown = document.getElementById('modal-timer-countdown');
-    const modalCancelTimerBtn = document.getElementById('modal-cancel-timer-btn'); // Tombol cancel di dalam modal
+    const modalCancelTimerBtn = document.getElementById('modal-cancel-timer-btn');
 
     // Audio Settings Elements
     const audioSettingsBtn = document.getElementById('audio-settings-btn');
@@ -49,10 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const eqPresetBtns = document.querySelectorAll('.eq-preset-btn');
     const bassLevelSlider = document.getElementById('bass-level-slider');
     const bassLevelValue = document.getElementById('bass-level-value');
-    const midLevelSlider = document.getElementById('mid-level-slider'); // NEW
-    const midLevelValue = document.getElementById('mid-level-value');   // NEW
-    const trebleLevelSlider = document.getElementById('treble-level-slider'); // NEW
-    const trebleLevelValue = document.getElementById('treble-level-value'); // NEW
+    const midLevelSlider = document.getElementById('mid-level-slider');
+    const midLevelValue = document.getElementById('mid-level-value');
+    const trebleLevelSlider = document.getElementById('treble-level-slider');
+    const trebleLevelValue = document.getElementById('treble-level-value');
 
     const effectLevelSlider = document.getElementById('effect-level-slider');
     const effectLevelValue = document.getElementById('effect-level-value');
@@ -70,14 +75,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Audio Visualizer Elements
     const audioVisualizerCanvas = document.getElementById('audio-visualizer-canvas');
     const visualizerCtx = audioVisualizerCanvas.getContext('2d');
-    let audioContext = null; // Inisialisasi null, akan dibuat saat play pertama
+    let audioContext = null;
     let analyser = null;
     let source = null;
-    let masterGainNode = null; // Node untuk volume utama
-    let bassFilter = null; // Node untuk bass (low-shelf filter)
-    let midFilter = null; // Node untuk mid (peaking filter) - NEW
-    let trebleFilter = null; // Node untuk treble (high-shelf filter) - NEW
-    let effectGainNode = null; // Node untuk level efek
+    let masterGainNode = null;
+    let bassFilter = null;
+    let midFilter = null;
+    let trebleFilter = null;
+    let effectGainNode = null;
+
+    // Admin Panel Elements (NEW)
+    const adminPanelBtn = document.getElementById('admin-panel-btn');
+    const adminPanelModal = document.getElementById('admin-panel-modal');
+    const closeAdminPanelModalBtn = document.getElementById('close-admin-panel-modal');
+    const addSongForm = document.getElementById('add-song-form');
+    const addTitleInput = document.getElementById('add-title');
+    const addArtistInput = document.getElementById('add-artist');
+    const addSrcInput = document.getElementById('add-src');
+    const addAlbumArtInput = document.getElementById('add-album-art');
+    const addLyricsInput = document.getElementById('add-lyrics');
+    const adminSongListUl = document.getElementById('admin-song-list');
 
     // --- Variabel State ---
     let currentSongIndex = 0;
@@ -86,723 +103,42 @@ document.addEventListener('DOMContentLoaded', () => {
     let sleepTimerIntervalId = null;
     let timeRemaining = 0;
     let isShuffling = false;
-    let repeatMode = 'off'; // 'off', 'one', 'all'
-    let originalPlaylistOrder = [];
-    let shuffledPlaylist = [];
+    let repeatMode = 'off';
+    let currentPlaylistData = []; // Ini akan menyimpan data playlist dari Firestore
+    let originalPlaylistOrder = []; // Digunakan untuk shuffle (salinan dari currentPlaylistData)
+    let shuffledPlaylist = []; // Digunakan untuk shuffle
 
-    // --- DATA LAGU (Playlist lengkap dengan lagu baru) ---
-    const playlist = [
-        {
-            title: "Back to Friends",
-            artist: "Sombr",
-            src: "back_to_friends.mp3",
-            albumArt: "album_art_back_to_friends.jpg",
-            lyrics: `<b>🎶 Back to Friends – Sombr</b><br><br>
-                <b>Verse 1</b><br>
-                Touch my body tender<br>
-                ’Cause the feeling makes me weak<br>
-                Kicking off the covers<br>
-                I see the ceiling while you’re looking down at me<br><br>
-                <b>Chorus</b><br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br><br>
-                <b>Verse 2</b><br>
-                It was last December<br>
-                You were layin’ on my chest<br>
-                I still remember<br>
-                I was scared to take a breath<br>
-                Didn’t want you to move your head<br><br>
-                <b>Chorus</b><br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br><br>
-                <b>Bridge</b><br>
-                The devil in your eyes<br>
-                Won’t deny the lies you’ve sold<br>
-                I’m holding on too tight<br>
-                While you let go<br>
-                This is casual<<br><br>
-                <b>Final Chorus</b><br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br>
-                How can we go back to being friends<br>
-                When we just shared a bed?<br>
-                How can you look at me and pretend<br>
-                I’m someone you’ve never met?<br>
-                I’m someone you’ve never met<br>
-                When we just shared a bed?
-            `
-        },
-        {
-            title: "Bergema Sampai Selamanya",
-            artist: "Nadhif Basalamah",
-            src: "bergema_sampai_selamanya.mp3",
-            albumArt: "album_art_bergema_sampai_selamanya.jpg",
-            lyrics: `<b>🎶 Bergema Sampai Selamanya – Nadhif Basalamah</b><br><br>
-                <b>Verse 1</b><br>
-                Dengarkan hati bicara<br>
-                Di setiap desah napasmu<br>
-                Ada cerita yang takkan pudar<br>
-                Di setiap langkah kakimu<br><br>
-                <b>Chorus</b><br>
-                Bergema sampai selamanya<br>
-                Cinta kita takkan sirna<br>
-                Di setiap nada yang tercipta<br>
-                Hanyalah namamu yang ada<br><br>
-                <b>Verse 2</b><br>
-                Waktu terus berjalan<br>
-                Namun rasa ini takkan lekang<br>
-                Seperti bintang yang takkan padam<br>
-                Bersinarlah di setiap malam<br><br>
-                <b>Chorus</b><br>
-                Bergema sampai selamanya<br>
-                Cinta kita takkan sirna<br>
-                Di setiap nada yang tercipta<br>
-                Hanyalah namamu yang ada<br><br>
-                <b>Bridge</b><br>
-                Tiada akhir bagi kisah kita<br>
-                Terukir abadi di jiwa<br>
-                Kan selalu ada, kan selalu nyata<br>
-                Janji yang takkan pernah pudar<br><br>
-                <b>Chorus</b><br>
-                Bergema sampai selamanya<<br>
-                Cinta kita takkan sirna<br>
-                Di setiap nada yang tercipta<br>
-                Hanyalah namamu yang ada<br><br>
-                <b>Outro</b><br>
-                Bergema... sampai selamanya...<br>
-                Oh-oh-oh...
-            `
-        },
-        {
-            title: "Ride",
-            artist: "SoMo",
-            src: "ride.mp3",
-            albumArt: "album_art_ride.jpg",
-            lyrics: `<b>🎶 Ride – SoMo</b><br><br>
-                <b>Verse 1</b><br>
-                I'm riding high, I'm riding low<br>
-                I'm going where the wind don't blow<br>
-                Just cruising, feeling good tonight<br>
-                Everything is working out just right<br><br>
-                <b>Chorus</b><br>
-                So baby, let's just ride<br>
-                Leave the worries far behind<br>
-                Every moment, every single stride<br>
-                Yeah, we're living in the moment, you and I<br><br>
-                <b>Verse 2</b><br>
-                Sunrise creeping, morning light<br>
-                Another day, another sight<br>
-                No rush, no hurry, take it slow<<br>
-                Just enjoying the ride, you know<br><br>
-                <b>Chorus</b><br>
-                So baby, let's just ride<br>
-                Leave the worries far behind<br>
-                Every moment, every single stride<br>
-                Yeah, we're living in the moment, you and I<br><br>
-                <b>Bridge</b><br>
-                Don't look back, no regrets<br>
-                Just open roads and sunsets<br>
-                This feeling's more than I can say<br>
-                Let's keep on riding, come what may<br><br>
-                <b>Chorus</b><br>
-                So baby, let's just ride<br>
-                Leave the worries far behind<br>
-                Every moment, every single stride<br>
-                Yeah, we're living in the moment, you and I<br><br>
-                <b>Outro</b><br>
-                Just ride, ride, ride<br>
-                With you by my side<br>
-                Yeah, we ride...
-            `
-        },
-        {
-            title: "Rumah Kita",
-            artist: "God Bless",
-            src: "rumah_kita.mp3",
-            albumArt: "album_art_rumah_kita.jpg",
-            lyrics: `<b>🎶 Rumah Kita – God Bless</b><br><br>
-                <b>Verse 1</b><br>
-                Hanya bilik bambu<br>
-                Tempat tinggal kita<br>
-                Tanpa hiasan, tanpa lukisan<br>
-                Hanya jendela, tanpa tiang<br><br>
-                <b>Chorus</b><br>
-                Rumah kita, rumah kita<br>
-                Lebih baik, lebih baik<br>
-                Lebih dari istana<br>
-                Rumah kita, rumah kita<br>
-                Tempat kita berbagi cerita<br><br>
-                <b>Verse 2</b><br>
-                Ada tawa, ada tangis<br>
-                Ada suka, ada duka<br>
-                Semua bersatu di sini<br>
-                Dalam hangatnya keluarga<br><br>
-                <b>Chorus</b><br>
-                Rumah kita, rumah kita<br>
-                Lebih baik, lebih baik<br>
-                Lebih dari istana<br>
-                Rumah kita, rumah kita<br>
-                Tempat kita berbagi cerita<<br>
-                <b>Outro</b><br>
-                Rumah kita...<br>
-                Rumah kita...
-            `
-        },
-        {
-            title: "Style",
-            artist: "Taylor Swift",
-            src: "style.mp3",
-            albumArt: "album_art_style.jpg",
-            lyrics: `<b>🎶 Style – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                Midnight, you come and pick me up, no headlights<br>
-                Long drive, could end in burning flames or paradise<br>
-                Fade into view, oh, it's been a while since I have even heard from you<br>
-                (Heard from you)<br><br>
-                <b>Chorus</b><br>
-                I say, "I've heard that you've been out and about with some other girl"<br>
-                (Oh-oh-oh) I say, "What you've heard is true but I<br>
-                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
-                (Oh-oh-oh) saying, "It's gonna be alright"<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Verse 2</b><br>
-                You got that long hair, slick back, white T-shirt<br>
-                And I got that good girl faith and a tight little skirt<br>
-                And when we go crashing down, we come back every time<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Chorus</b><br>
-                I say, "I've heard that you've been out and about with some other girl"<br>
-                (Oh-oh-oh) I say, "What you've heard is true but I<br>
-                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
-                (Oh-oh-oh) saying, "It's gonna be alright"<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Bridge</b><br>
-                Take me home, just take me home<br>
-                Where there's fire, where there's chaos, and there's love<br>
-                I got a blank space, baby, and I'll write your name<br>
-                But baby, we never go out of style<br><br>
-                <b>Chorus</b><br>
-                I say, "I've heard that you've been out and about with some other girl"<br>
-                (Oh-oh-oh) I say, "What you've heard is true but I<br>
-                Can't stop, won't stop moving, it's like I got this music in my mind"<br>
-                (Oh-oh-oh) saying, "It's gonna be alright"<br>
-                'Cause we never go out of style<br>
-                We never go out of style<br><br>
-                <b>Outro</b><br>
-                Never go out of style<br>
-                We never go out of style<br>
-                Yeah, we never go out of style
-            `
-        },
-        {
-            title: "Message In A Bottle",
-            artist: "Taylor Swift",
-            src: "message_in_a_bottle.mp3",
-            albumArt: "album_art_message_in_a_bottle.jpg",
-            lyrics: `<b>🎶 Message In A Bottle – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                I was ridin' in a getaway car<br>
-                I was crying in a getaway car<br>
-                I was dying in a getaway car<br>
-                Said goodbye to the girl you used to be<br><br>
-                <b>Chorus</b><br>
-                Message in a bottle is all I can give<br>
-                To remind you of what we had, what we've lived<br>
-                Across the ocean, my love will still flow<br>
-                Hoping that someday you'll know<br><br>
-                <b>Verse 2</b><br>
-                Sunrise on the water, a new day starts<br>
-                Still missing you, still breaking my heart<br>
-                Every wave whispers your name to me<br>
-                A silent prayer across the sea<br><br>
-                <b>Chorus</b><br>
-                Message in a bottle is all I can give<br>
-                To remind you of what we had, what we've lived<br>
-                Across the ocean, my love will still flow<br>
-                Hoping that someday you'll know<br><br>
-                <b>Bridge</b><br>
-                And the years go by, still I send my plea<br>
-                Hoping this message finds you, eventually<br>
-                A single teardrop, lost in the blue<br>
-                A simple promise, my love, to you<br><br>
-                <b>Chorus</b><br>
-                Message in a bottle is all I can give<br>
-                To remind you of what we had, what we've lived<br>
-                Across the ocean, my love will still flow<br>
-                Hoping that someday you'll know<br><br>
-                <b>Outro</b><br>
-                Message in a bottle...<br>
-                My love, my love...
-            `
-        },
-        {
-            title: "Supernatural",
-            artist: "Ariana Grande",
-            src: "supernatural.mp3",
-            albumArt: "album_art_supernatural.jpg",
-            lyrics: `<b>🎶 Supernatural – Ariana Grande</b><br><br>
-                <b>Verse 1</b><br>
-                You're my supernatural, my magic<br>
-                Every touch, a dream, a sweet habit<br>
-                In your eyes, a universe I find<br>
-                Leaving all my worries far behind<br><br>
-                <b>Chorus</b><br>
-                Oh, this love is supernatural<br>
-                Something beautiful, something so true<br>
-                Like a melody, forever new<br>
-                Supernatural, just me and you<br><br>
-                <b>Verse 2</b><br>
-                Whispers in the dark, a gentle breeze<br>
-                Floating through the stars, with such ease<br>
-                Every moment with you feels divine<br>
-                Lost in this love, forever mine<br><br>
-                <b>Chorus</b><br>
-                Oh, this love is supernatural<br>
-                Something beautiful, something so true<br>
-                Like a melody, forever new<br>
-                Supernatural, just me and you<br><br>
-                <b>Bridge</b><br>
-                No explanation, no words can define<br>
-                This connection, truly one of a kind<br>
-                Beyond the logic, beyond the known<<br>
-                In this love, we're never alone<br><br>
-                <b>Chorus</b><br>
-                Oh, this love is supernatural<br>
-                Something beautiful, something so true<br>
-                Like a melody, forever new<br>
-                Supernatural, just me and you<br><br>
-                <b>Outro</b><br>
-                Supernatural...<br>
-                Oh, so natural with you...
-            `
-        },
-        {
-            title: "Favorite Lesson",
-            artist: "Yaeow",
-            src: "favorite_lesson.mp3",
-            albumArt: "album_art_favorite_lesson.jpg",
-            lyrics: `<b>🎶 Favorite Lesson – Yaeow</b><br><br>
-                <b>Verse 1</b><br>
-                Always telling me that I should find the time for me<br>
-                Working tirelessly until I lose my energy<br>
-                You’re the only one who really knows the things I need<br>
-                And darling, I’m the same with you<br><br>
-                <b>Chorus</b><br>
-                ‘Cause every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br>
-                Every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br><br>
-                <b>Verse 2</b><br>
-                Building something from the ground up, you always help me see<br>
-                That even when it’s tough, it’s worth the struggle, endlessly<br>
-                You’re the guiding light that always keeps me on my feet<br>
-                And darling, I’m the same with you<br><br>
-                <b>Chorus</b><br>
-                ‘Cause every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br>
-                Every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br><br>
-                <b>Bridge</b><br>
-                Through highs and lows, you’re always there<br>
-                A bond like ours is truly rare<br>
-                No matter what, we’ll always share<br>
-                This journey, with no fear<br><br>
-                <b>Chorus</b><br>
-                ‘Cause every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br>
-                Every lesson you ever taught me<br>
-                Has always been the best<br>
-                I’m so grateful that you’re always with me<br>
-                Always put me to the test<br><br>
-                <b>Outro</b><br>
-                Favorite lesson... favorite lesson...<br>
-                You’re the best... you’re the best...
-            `
-        },
-        {
-            title: "So High School",
-            artist: "Taylor Swift",
-            src: "so_high_school.mp3",
-            albumArt: "album_art_so_high_school.jpg",
-            lyrics: `<b>🎶 So High School – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                I feel like I'm back in high school again<br>
-                Butterflies every time you walk in<br>
-                Like a freshman, crushin' hard, don't pretend<br>
-                This feeling's got me spinnin' 'round the bend<br><br>
-                <b>Chorus</b><br>
-                Oh, you got me feeling so high school<br>
-                Got me skipping through the halls with you<br>
-                Every moment's golden, shiny, and new<br>
-                Yeah, this love is so high school<br><br>
-                <b>Verse 2</b><br>
-                Passing notes and whispering in class<br>
-                Hoping this feeling will forever last<br>
-                Every glance, a secret, a sweet little blast<br>
-                This story's moving way too fast<br><br>
-                <b>Chorus</b><br>
-                Oh, you got me feeling so high school<br>
-                Got me skipping through the halls with you<br>
-                Every moment's golden, shiny, and new<br>
-                Yeah, this love is so high school<br><br>
-                <b>Bridge</b><br>
-                No homework, no drama, just you and me<br>
-                Living out a teenage dream, wild and free<br>
-                Like the first dance, under the gym lights<br>
-                Holding onto these magical nights<br><br>
-                <b>Chorus</b><br>
-                Oh, you got me feeling so high school<br>
-                Got me skipping through the halls with you<br>
-                Every moment's golden, shiny, and new<br>
-                Yeah, this love is so high school<br><br>
-                <b>Outro</b><br>
-                So high school...<br>
-                Yeah, with you, it's so high school...
-            `
-        },
-        {
-            title: "Photograph",
-            artist: "Ed Sheeran",
-            src: "photograph.mp3",
-            albumArt: "album_art_photograph.jpg",
-            lyrics: `<b>🎶 Photograph – Ed Sheeran</b><br><br>
-                <b>Verse 1</b><br>
-                Loving can hurt, loving can hurt sometimes<br>
-                But it's the only thing that I know<br>
-                When it's good, when it's good, it's so good, it's so good<br>
-                'Til it goes bad, 'til it goes bad, 'Til it goes bad<br>
-                But still, I know, that I know, that I know<br>
-                Good things come to those who wait, no, never give up on you<br><br>
-                <b>Chorus</b><br>
-                And if you hurt me, that's okay, baby, only words bleed<br>
-                Inside these pages you just hold me<br>
-                And I won't ever let you go<<br>
-                Wait for me to come home<br><br>
-                <b>Verse 2</b><br>
-                Loving can heal, loving can mend your soul<br>
-                And it's the only thing that I know<br>
-                I swear it will get easier,<br>
-                Remember that with every piece of you<br>
-                And it's the only thing we take with us when we die<br><br>
-                <b>Chorus</b><br>
-                And if you hurt me, that's okay, baby, only words bleed<br>
-                Inside these pages you just hold me<br>
-                And I won't ever let you go<<br>
-                Wait for me to come home<br><br>
-                <b>Bridge</b><br>
-                You could fit me inside the necklace you got when you were sixteen<br>
-                Next to your heartbeat where I should be<br>
-                Keep it deep within your soul<br>
-                And if you want to, take a look at me now<br>
-                Oh, oh, oh, yeah, I'll be there, I'll be there<br>
-                Always when you need me, every moment I'll be waiting<br>
-                Forever with you, every single day<br><br>
-                <b>Chorus</b><br>
-                And if you hurt me, that's okay, baby, only words bleed<br>
-                Inside these pages you just hold me<br>
-                And I won't ever let you go<<br>
-                Wait for me to come home<br><br>
-                <b>Outro</b><br>
-                You can fit me inside the necklace you got when you were sixteen<br>
-                Next to your heartbeat where I should be<br>
-                Keep it deep within your soul<br>
-                And if you want to, take a look at me now
-            `
-        },
-        {
-            title: "You'll Be In My Heart",
-            artist: "Niki",
-            src: "youll_be_in_my_heart.mp3",
-            albumArt: "album_art_youll_be_in_my_heart.jpg",
-            lyrics: `<b>🎶 You'll Be In My Heart – Niki</b><br><br>
-                <b>Verse 1</b><br>
-                Come stop your crying<br>
-                It'll be alright<br>
-                Just take my hand<br>
-                Hold it tight<br>
-                I will protect you<br>
-                From all around you<br>
-                I will be here<br>
-                Don't you cry<br><br>
-                <b>Chorus</b><br>
-                For one so small<br>
-                You seem so strong<br>
-                My arms will hold you<br>
-                Keep you safe and warm<br>
-                This bond between us<br>
-                Can't be broken<br>
-                I will be here, don't you cry<br>
-                'Cause you'll be in my heart<br>
-                Yes, you'll be in my heart<br>
-                From this day on<br>
-                Now and forever more<<br><br>
-                <b>Verse 2</b><br>
-                Why can't they understand the way we feel?<br>
-                They just don't trust what they can't explain<br>
-                I know we're different but deep inside us<br>
-                We're not that different at all<br><br>
-                <b>Chorus</b><br>
-                For one so small<br>
-                You seem so strong<br>
-                My arms will hold you<br>
-                Keep you safe and warm<br>
-                This bond between us<br>
-                Can't be broken<br>
-                I will be here, don't you cry<br>
-                'Cause you'll be in my heart<br>
-                Yes, you'll be in my heart<br>
-                From this day on<br>
-                Now and forever more<br><br>
-                <b>Bridge</b><br>
-                You'll be in my heart<br>
-                No matter what they say<br>
-                You'll be in my heart<br>
-                Always<br>
-                I'll be there, always there<br>
-                For one so small, you seem so strong<br>
-                My arms will hold you, keep you safe and warm<br>
-                This bond between us can't be broken<br>
-                I will be here, don't you cry<br><br>
-                <b>Outro</b><br>
-                'Cause you'll be in my heart<br>
-                Yes, you'll be in my heart<br>
-                From this day on<br>
-                Now and forever more<br>
-                Oh, you'll be in my heart<br>
-                You'll be in my heart<br>
-                Now and forever more
-            `
-        },
-        {
-            title: "Tarot",
-            artist: ".Feast",
-            src: "tarot.mp3",
-            albumArt: "album_art_tarot.jpg",
-            lyrics: `<b>🎶 Tarot – .Feast</b><br><br>
-                <b>Verse 1</b><br>
-                Di antara kartu-kartu tua<br>
-                Terbentang kisah yang tak terduga<br>
-                Masa lalu, kini, dan nanti<br>
-                Terungkap dalam setiap sisi<br><br>
-                <b>Chorus</b><br>
-                Tarot, oh Tarot<br>
-                Buka mataku, tunjukkan jalan<br>
-                Tarot, oh Tarot<br>
-                Bisikkan rahasia kehidupan<br><br>
-                <b>Verse 2</b><br>
-                Pedang dan cawan, koin dan tongkat<br>
-                Setiap simbol punya makna kuat<br>
-                Cahaya dan bayangan menari<<br>
-                Di panggung takdir yang abadi<br><br>
-                <b>Chorus</b><br>
-                Tarot, oh Tarot<br>
-                Buka mataku, tunjukkan jalan<br>
-                Tarot, oh Tarot<br>
-                Bisikkan rahasia kehidupan<br><br>
-                <b>Bridge</b><br>
-                Takdir bukan hanya garis tangan<br>
-                Tapi pilihan di persimpangan<br>
-                Berani melangkah, hadapi badai<br>
-                Dengan petunjuk yang kau berikan<br><br>
-                <b>Chorus</b><br>
-                Tarot, oh Tarot<br>
-                Buka mataku, tunjukkan jalan<br>
-                Tarot, oh Tarot<br>
-                Bisikkan rahasia kehidupan<br><br>
-                <b>Outro</b><br>
-                Tarot... Tarot...<br>
-                Kisahku terukir di sana...
-            `
-        },
-        {
-            title: "O, Tuan",
-            artist: ".Feast",
-            src: "o_tuan.mp3",
-            albumArt: "album_art_o_tuan.jpg",
-            lyrics: `<b>🎶 O, Tuan – .Feast</b><br><br>
-                <b>Verse 1</b><br>
-                O, Tuan, dengarkanlah<br>
-                Rintihan hati yang resah<br>
-                Di tengah bisingnya dunia<br>
-                Mencari makna, mencari arah<br><br>
-                <b>Chorus</b><br>
-                O, Tuan, bimbinglah langkahku<br>
-                Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<br>
-                Hanya pada-Mu aku bertumpu<br><br>
-                <b>Verse 2</b><br>
-                Janji-janji yang terucap<br>
-                Seringkali hanya fatamorgana<br>
-                Kebenaran yang disembunyikan<br>
-                Di balik topeng kemunafikan<br><br>
-                <b>Chorus</b><br>
-                O, Tuan, bimbinglah langkahku<br>
-                Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<br>
-                Hanya pada-Mu aku bertumpu<br><br>
-                <b>Bridge</b><br>
-                Kekuasaan membutakan mata<br>
-                Harta melalaikan jiwa<br>
-                Tapi keadilan takkan mati<br>
-                Sampai akhir nanti<br><br>
-                <b>Chorus</b><br>
-                O, Tuan, bimbinglah langkahku<br>
-                Terangi jalanku yang sendu<br>
-                Dalam gelap, dalam ragu<br>
-                Hanya pada-Mu aku bertumpu<br><br>
-                <b>Outro</b><br>
-                O, Tuan... O, Tuan...<br>
-                Dengarkanlah...
-            `
-        },
-        {
-            title: "Ramai Sepi Bersama",
-            artist: "Hindia",
-            src: "ramai_sepi_bersama.mp3",
-            albumArt: "album_art_ramai_sepi_bersama.jpg",
-            lyrics: `<b>🎶 Ramai Sepi Bersama – Hindia</b><br><br>
-                <b>Verse 1</b><br>
-                Di tengah ramai, aku sendiri<br>
-                Mencari arti, di antara bising<br>
-                Dunia berputar, tak henti-henti<br>
-                Namun hatiku, masih terasing<br><br>
-                <b>Chorus</b><br>
-                Ramai sepi bersama, dalam riuh kota<br>
-                Kita mencari makna, di antara fatamorgana<<br>
-                Ramai sepi bersama, dalam hening jiwa<br>
-                Berharap menemukan, damai yang nyata<br><br>
-                <b>Verse 2</b><br>
-                Wajah-wajah asing, silih berganti<<br>
-                Senyum dan tawa, hanya ilusi<br>
-                Ingin ku bicara, namun tak berani<br>
-                Terjebak dalam, sunyi yang abadi<br><br>
-                <b>Chorus</b><br>
-                Ramai sepi bersama, dalam riuh kota<br>
-                Kita mencari makna, di antara fatamorgana<br>
-                Ramai sepi bersama, dalam hening jiwa<<br>
-                Berharap menemukan, damai yang nyata<br><br>
-                <b>Bridge</b><br>
-                Mungkin ini jalan, yang harus kutempuh<br>
-                Menyelami diri, di antara keruh<br>
-                Mencari cahaya, di ujung keluh<br>
-                Agar tak lagi, merasa rapuh<br><br>
-                <b>Chorus</b><br>
-                Ramai sepi bersama, dalam riuh kota<br>
-                Kita mencari makna, di antara fatamorgana<br>
-                Ramai sepi bersama, dalam hening jiwa<br>
-                Berharap menemukan, damai yang nyata<br><br>
-                <b>Outro</b><br>
-                Ramai sepi... bersama...<br>
-                Hindia...
-            `
-        },
-        {
-            title: "Everything U Are",
-            artist: "Hindia",
-            src: "everything_u_are.mp3",
-            albumArt: "album_art_everything_u_are.jpg",
-            lyrics: `<b>🎶 Everything U Are – Hindia</b><br><br>
-                <b>Verse 1</b><br>
-                In your eyes, I see a universe untold<br>
-                A story waiting, brave and bold<br>
-                Every whisper, every gentle sigh<br>
-                Reflects the truth beneath the sky<br><br>
-                <b>Chorus</b><br>
-                'Cause everything you are, is everything I need<br>
-                A guiding star, planting a hopeful seed<br>
-                In every beat, my heart finds its release<br>
-                Everything you are, brings me inner peace<br><br>
-                <b>Verse 2</b><br>
-                Through fragile moments, and darkest nights<br>
-                Your spirit shines, with endless lights<br>
-                A symphony of grace, a gentle art<br>
-                You're etched forever, deep within my heart<br><br>
-                <b>Chorus</b><br>
-                'Cause everything you are, is everything I need<<br>
-                A guiding star, planting a hopeful seed<br>
-                In every beat, my heart finds its release<br>
-                Everything you are, brings me inner peace<br><br>
-                <b>Bridge</b><br>
-                No words can capture, no song can define<br>
-                The depth of beauty, truly divine<br>
-                A masterpiece, uniquely made<br>
-                In every shade, a love displayed<br><br>
-                <b>Chorus</b><br>
-                'Cause everything you are, is everything I need<br>
-                A guiding star, planting a hopeful seed<<br>
-                In every beat, my heart finds its release<br>
-                Everything you are, brings me inner peace<br><br>
-                <b>Outro</b><br>
-                Everything you are...<br>
-                Oh, everything you are...
-            `
-        },
-        {
-            title: "Guilty As Sin",
-            artist: "Taylor Swift",
-            src: "guilty_as_sin.mp3",
-            albumArt: "album_art_guilty_as_sin.jpg",
-            lyrics: `<b>🎶 Guilty As Sin – Taylor Swift</b><br><br>
-                <b>Verse 1</b><br>
-                What if I told you I'm in love with someone new?<br>
-                What if I told you that my heart broke for them too?<br>
-                Not your fault, not my fault, maybe it's the season<br>
-                But I can't shake this feeling, there's a reason<br><br>
-                <b>Chorus</b><br>
-                Guilty as sin, for the thoughts that I let creep in<br>
-                For the way my mind keeps wandering, where it shouldn't have been<br>
-                Oh, I'm guilty as sin, but the truth is I'm falling<br>
-                For a fantasy, a whisper, a silent calling<br><br>
-                <b>Verse 2</b><br>
-                I try to push it down, to lock it far away<br>
-                But every single night, it haunts me through the day<br>
-                A fragile dream, a secret, a forbidden delight<br>
-                Burning fiercely in the shadows of the night<br><br>
-                <b>Chorus</b><br>
-                Guilty as sin, for the thoughts that I let creep in<br>
-                For the way my mind keeps wandering, where it shouldn't have been<br>
-                Oh, I'm guilty as sin, but the truth is I'm falling<br>
-                For a fantasy, a whisper, a silent calling<br><br>
-                <b>Bridge</b><br>
-                They say temptation's a devil dressed in gold<br>
-                A story whispered, a story left untold<br>
-                But how can something so wrong feel so right?<br>
-                Lost in the shadows, bathed in the moonlight<br><br>
-                <b>Outro</b><br>
-                Guilty as sin... but I can't escape this pull<br>
-                Guilty as sin... losing all control...
-            `
-        }
-    ];
+    // --- Firebase Variables (NEW) ---
+    const firebaseConfig = JSON.parse(`{
+        // PASTE FIREBASE CONFIG AND API KEY HERE
+        // Contoh:
+        // "apiKey": "YOUR_API_KEY",
+        // "authDomain": "YOUR_AUTH_DOMAIN",
+        // "projectId": "YOUR_PROJECT_ID",
+        // "storageBucket": "YOUR_STORAGE_BUCKET",
+        // "messagingSenderId": "YOUR_MESSAGING_SENDER_ID",
+        // "appId": "YOUR_APP_ID"
+    }`); // GANTI DENGAN FIREBASE CONFIG ANDA!
+
+    // Global variables provided by Canvas environment (DO NOT CHANGE)
+    const appId = typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.projectId; // Fallback to projectId if __app_id is not defined
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+    let db;
+    let auth;
+    let currentUserUid = null;
+    // GANTI INI dengan UID ADMIN Anda yang sebenarnya dari Firebase Console
+    // Anda bisa mendapatkan UID Anda dengan login pertama kali, lalu cek console browser
+    const ADMIN_UID = "YOUR_ADMIN_UID_HERE"; // <--- GANTI INI DENGAN UID ADMIN ANDA!
 
     // --- Fungsi Utama Pemutar Musik ---
 
     // Memuat data lagu ke pemutar (album art, judul, artis, lirik)
     function loadSong(songIndex) {
-        // Tentukan playlist yang akan digunakan (asli atau diacak)
-        const currentPlaylist = isShuffling ? shuffledPlaylist : playlist;
+        const playlistToUse = isShuffling ? shuffledPlaylist : currentPlaylistData;
 
-        if (songIndex < 0 || songIndex >= currentPlaylist.length) {
-            console.error("Error: songIndex di luar batas array playlist. Index:", songIndex, "Ukuran array:", currentPlaylist.length);
+        if (songIndex < 0 || songIndex >= playlistToUse.length) {
+            console.error("Error: songIndex di luar batas array playlist. Index:", songIndex, "Ukuran array:", playlistToUse.length);
             currentSongTitle.textContent = "Lagu tidak ditemukan";
             currentArtistName.textContent = "Pilih lagu lain atau cek data";
             lyricsText.innerHTML = "<p>Terjadi kesalahan saat memuat lirik.</p>";
@@ -812,9 +148,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const song = currentPlaylist[songIndex];
+        const song = playlistToUse[songIndex];
         audioPlayer.src = song.src;
-        audioPlayer.load(); // Panggil .load() secara eksplisit setiap kali src berubah
+        audioPlayer.load();
         currentAlbumArt.src = song.albumArt;
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
@@ -832,7 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         updatePlaylistActiveState(songIndex);
 
-        // === IMPLEMENTASI MEDIA SESSION API ===
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song.title,
@@ -848,8 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ]
             });
 
-            // Pastikan action handlers diatur sekali saja atau diatur ulang
-            // agar tidak ada duplikasi listener
             navigator.mediaSession.setActionHandler('play', () => {
                 playSong();
             });
@@ -882,32 +215,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 analyser = audioContext.createAnalyser();
                 masterGainNode = audioContext.createGain();
                 bassFilter = audioContext.createBiquadFilter();
-                midFilter = audioContext.createBiquadFilter(); // NEW Mid Filter
-                trebleFilter = audioContext.createBiquadFilter(); // NEW Treble Filter
+                midFilter = audioContext.createBiquadFilter();
+                trebleFilter = audioContext.createBiquadFilter();
                 effectGainNode = audioContext.createGain();
 
                 // Konfigurasi Filter Nodes
                 bassFilter.type = 'lowshelf';
-                bassFilter.frequency.value = 250; // Frekuensi cutoff untuk bass (Hz)
-                bassFilter.gain.value = parseFloat(bassLevelSlider.value); // Gain awal dari slider
+                bassFilter.frequency.value = 250;
+                bassFilter.gain.value = parseFloat(bassLevelSlider.value);
 
-                midFilter.type = 'peaking'; // Filter untuk mid-range
-                midFilter.frequency.value = 1000; // Frekuensi tengah untuk mid (Hz)
-                midFilter.Q.value = 1; // Kualitas faktor (lebar band)
-                midFilter.gain.value = parseFloat(midLevelSlider.value); // Gain awal dari slider
+                midFilter.type = 'peaking';
+                midFilter.frequency.value = 1000;
+                midFilter.Q.value = 1;
+                midFilter.gain.value = parseFloat(midLevelSlider.value);
 
-                trebleFilter.type = 'highshelf'; // Filter untuk treble
-                trebleFilter.frequency.value = 4000; // Frekuensi cutoff untuk treble (Hz)
-                trebleFilter.gain.value = parseFloat(trebleLevelSlider.value); // Gain awal dari slider
-
+                trebleFilter.type = 'highshelf';
+                trebleFilter.frequency.value = 4000;
+                trebleFilter.gain.value = parseFloat(trebleLevelSlider.value);
 
                 // Hubungkan node-node dalam graph:
                 // source -> analyser -> bassFilter -> midFilter -> trebleFilter -> effectGainNode -> masterGainNode -> destination
                 source.connect(analyser);
                 analyser.connect(bassFilter);
-                bassFilter.connect(midFilter); // Connect bass to mid
-                midFilter.connect(trebleFilter); // Connect mid to treble
-                trebleFilter.connect(effectGainNode); // Connect treble to effect
+                bassFilter.connect(midFilter);
+                midFilter.connect(trebleFilter);
+                trebleFilter.connect(effectGainNode);
                 effectGainNode.connect(masterGainNode);
                 masterGainNode.connect(audioContext.destination);
 
@@ -917,9 +249,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (e) {
                 console.error("Gagal menginisialisasi Web Audio API:", e);
                 audioVisualizerCanvas.style.display = 'none'; // Sembunyikan visualizer jika error
-                // Fallback: Jika Web Audio API gagal, coba putar audio langsung
-                audioPlayer.play().catch(err => console.error("Fallback audio play failed:", err));
-                return; // Keluar dari fungsi playSong agar tidak duplikasi play
+                // Fallback: Jika API gagal, audioPlayer akan memutar langsung ke speaker
+                // tanpa efek atau visualizer.
             }
         }
 
@@ -986,22 +317,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Mainkan lagu berikutnya
     function playNextSong() {
-        const currentPlaylist = isShuffling ? shuffledPlaylist : playlist;
+        const playlistToUse = isShuffling ? shuffledPlaylist : currentPlaylistData;
 
         if (repeatMode === 'one') {
-            loadSong(currentSongIndex); // Muat ulang lagu yang sama
+            loadSong(currentSongIndex);
         } else if (repeatMode === 'all' || isShuffling) {
-            currentSongIndex = (currentSongIndex + 1) % currentPlaylist.length;
+            currentSongIndex = (currentSongIndex + 1) % playlistToUse.length;
             loadSong(currentSongIndex);
         } else { // Repeat off
-            if (currentSongIndex < currentPlaylist.length - 1) {
+            if (currentSongIndex < playlistToUse.length - 1) {
                 currentSongIndex++;
                 loadSong(currentSongIndex);
             } else {
-                // Berhenti jika sudah lagu terakhir dan repeat off
                 pauseSong();
-                currentSongIndex = 0; // Kembali ke lagu pertama
-                loadSong(currentSongIndex); // Muat lagu pertama tanpa memutar
+                currentSongIndex = 0;
+                loadSong(currentSongIndex);
                 return;
             }
         }
@@ -1014,12 +344,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Mainkan lagu sebelumnya
     function playPrevSong() {
-        const currentPlaylist = isShuffling ? shuffledPlaylist : playlist;
+        const playlistToUse = isShuffling ? shuffledPlaylist : currentPlaylistData;
 
         if (repeatMode === 'one') {
-            loadSong(currentSongIndex); // Muat ulang lagu yang sama
+            loadSong(currentSongIndex);
         } else {
-            currentSongIndex = (currentSongIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+            currentSongIndex = (currentSongIndex - 1 + playlistToUse.length) % playlistToUse.length;
             loadSong(currentSongIndex);
         }
 
@@ -1048,15 +378,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
             progressBar.value = progress;
             currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
-            updateLyricsScroll(); // Panggil fungsi auto-scroll lirik
+            updateLyricsScroll();
         }
     });
 
     audioPlayer.addEventListener('loadedmetadata', () => {
         if (!isNaN(audioPlayer.duration)) {
             durationSpan.textContent = formatTime(audioPlayer.duration);
-            // Volume utama sekarang dikontrol oleh masterGainNode
-            // audioPlayer.volume = masterVolumeSlider.value / 100; // Ini tidak lagi diperlukan
         } else {
             durationSpan.textContent = '0:00';
         }
@@ -1073,12 +401,12 @@ document.addEventListener('DOMContentLoaded', () => {
         playNextSong();
     });
 
-    // --- Fungsi Playlist ---
+    // --- Fungsi Playlist (Sekarang dari Firestore) ---
 
     function buildPlaylist(filterText = '') {
         playlistUl.innerHTML = '';
-        const currentPlaylist = isShuffling ? shuffledPlaylist : playlist;
-        const filteredPlaylist = currentPlaylist.filter(song =>
+        const playlistToUse = isShuffling ? shuffledPlaylist : currentPlaylistData;
+        const filteredPlaylist = playlistToUse.filter(song =>
             song.title.toLowerCase().includes(filterText.toLowerCase()) ||
             song.artist.toLowerCase().includes(filterText.toLowerCase())
         );
@@ -1093,9 +421,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         filteredPlaylist.forEach((song, index) => {
             const li = document.createElement('li');
-            // Gunakan index dari playlist asli untuk loadSong agar tidak bingung saat shuffle/filter
-            const originalIndex = playlist.findIndex(s => s.title === song.title && s.artist === song.artist);
-            li.setAttribute('data-original-index', originalIndex); // Simpan indeks asli
+            // Gunakan index dari playlistToUse (currentPlaylistData atau shuffledPlaylist)
+            // untuk loadSong agar tidak bingung saat shuffle/filter
+            const actualIndexInCurrentData = currentPlaylistData.findIndex(s => s.id === song.id); // Temukan index di data asli
+            li.setAttribute('data-original-index', actualIndexInCurrentData); // Simpan indeks asli Firestore
             li.innerHTML = `
                 <img src="${song.albumArt}" alt="${song.title} Album Art">
                 <div class="playlist-song-info">
@@ -1104,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             li.addEventListener('click', () => {
-                // Saat diklik, gunakan indeks asli untuk memuat lagu dari playlist asli
+                // Saat diklik, gunakan indeks asli untuk memuat lagu dari currentPlaylistData
                 currentSongIndex = parseInt(li.getAttribute('data-original-index'));
                 loadSong(currentSongIndex);
                 playSong();
@@ -1169,14 +498,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Sleep Timer Functions ---
 
-    // Fungsi untuk menampilkan modal timer
     function showTimerModal() {
         updateAllTimerDisplays();
         timerModal.classList.add('visible');
         modalOverlay.classList.add('visible');
     }
 
-    // Fungsi untuk menyembunyikan modal timer
     function hideTimerModal() {
         timerModal.classList.remove('visible');
         modalOverlay.classList.remove('visible');
@@ -1184,7 +511,6 @@ document.addEventListener('DOMContentLoaded', () => {
         customTimerInput.value = '';
     }
 
-    // Fungsi untuk memulai sleep timer
     function startSleepTimer(minutes) {
         clearTimeout(sleepTimerTimeoutId);
         clearInterval(sleepTimerIntervalId);
@@ -1216,7 +542,6 @@ document.addEventListener('DOMContentLoaded', () => {
         hideTimerModal();
     }
 
-    // Fungsi untuk mengupdate tampilan timer di player utama dan di modal
     function updateAllTimerDisplays() {
         const displayTime = formatTime(timeRemaining);
 
@@ -1234,7 +559,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Fungsi untuk mereset sleep timer (membatalkan)
     function resetSleepTimer() {
         clearTimeout(sleepTimerTimeoutId);
         clearInterval(sleepTimerIntervalId);
@@ -1247,7 +571,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Timer Event Listeners
     setTimerBtn.addEventListener('click', showTimerModal);
     closeModalBtn.addEventListener('click', hideTimerModal);
-    modalOverlay.addEventListener('click', hideTimerModal);
+    // Pastikan modalOverlay menutup kedua modal jika diklik
+    modalOverlay.addEventListener('click', () => {
+        hideTimerModal();
+        hideAudioSettingsModal();
+        hideAdminPanelModal();
+    });
+
 
     timerOptionBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1292,11 +622,11 @@ document.addEventListener('DOMContentLoaded', () => {
             bassLevelSlider.value = bassFilter.gain.value;
             bassLevelValue.textContent = `${bassFilter.gain.value.toFixed(1)} dB`;
         }
-        if (midFilter) { // NEW
+        if (midFilter) {
             midLevelSlider.value = midFilter.gain.value;
             midLevelValue.textContent = `${midFilter.gain.value.toFixed(1)} dB`;
         }
-        if (trebleFilter) { // NEW
+        if (trebleFilter) {
             trebleLevelSlider.value = trebleFilter.gain.value;
             trebleLevelValue.textContent = `${trebleFilter.gain.value.toFixed(1)} dB`;
         }
@@ -1315,8 +645,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     audioSettingsBtn.addEventListener('click', showAudioSettingsModal);
     closeAudioSettingsModalBtn.addEventListener('click', hideAudioSettingsModal);
-    // Tambahkan event listener untuk overlay modal audio settings
-    // modalOverlay.addEventListener('click', hideAudioSettingsModal); // Sudah ada di timer modal, jadi ini akan menutup kedua modal
 
     // --- Audio Control Sliders Event Listeners ---
     masterVolumeSlider.addEventListener('input', () => {
@@ -1333,14 +661,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    midLevelSlider.addEventListener('input', () => { // NEW Mid Slider Listener
+    midLevelSlider.addEventListener('input', () => {
         if (midFilter) {
             midFilter.gain.value = parseFloat(midLevelSlider.value);
             midLevelValue.textContent = `${midLevelSlider.value} dB`;
         }
     });
 
-    trebleLevelSlider.addEventListener('input', () => { // NEW Treble Slider Listener
+    trebleLevelSlider.addEventListener('input', () => {
         if (trebleFilter) {
             trebleFilter.gain.value = parseFloat(trebleLevelSlider.value);
             trebleLevelValue.textContent = `${trebleLevelSlider.value} dB`;
@@ -1354,7 +682,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- EQ Presets Logic (NEW) ---
+    // --- EQ Presets Logic ---
     const eqPresets = {
         'flat': { bass: 0, mid: 0, treble: 0 },
         'pop': { bass: 6, mid: -3, treble: 8 },
@@ -1404,16 +732,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isShuffling) {
             shuffleBtn.classList.add('active');
             // Buat salinan playlist asli dan acak
-            originalPlaylistOrder = [...playlist]; // Simpan urutan asli
-            shuffledPlaylist = shuffleArray([...playlist]); // Acak salinan
+            originalPlaylistOrder = [...currentPlaylistData]; // Simpan urutan asli dari Firestore
+            shuffledPlaylist = shuffleArray([...currentPlaylistData]); // Acak salinan
             // Perbarui currentSongIndex ke posisi lagu saat ini di playlist yang diacak
-            const currentSong = playlist[currentSongIndex]; // Lagu yang sedang diputar (dari playlist asli)
-            currentSongIndex = shuffledPlaylist.findIndex(song => song.title === currentSong.title && song.artist === currentSong.artist);
+            const currentSong = currentPlaylistData[currentSongIndex]; // Lagu yang sedang diputar (dari playlist asli)
+            currentSongIndex = shuffledPlaylist.findIndex(song => song.id === currentSong.id); // Cari berdasarkan ID Firestore
         } else {
             shuffleBtn.classList.remove('active');
             // Kembali ke urutan playlist asli
             const currentSong = shuffledPlaylist[currentSongIndex]; // Lagu yang sedang diputar (dari playlist acak)
-            currentSongIndex = originalPlaylistOrder.findIndex(song => song.title === currentSong.title && song.artist === currentSong.artist);
+            currentSongIndex = originalPlaylistOrder.findIndex(song => song.id === currentSong.id); // Cari berdasarkan ID Firestore
         }
         buildPlaylist(playlistSearchInput.value); // Rebuild playlist tampilan
         updatePlaylistActiveState(currentSongIndex); // Perbarui highlight
@@ -1444,32 +772,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Interactive Lyrics (Auto-scroll) ---
     function updateLyricsScroll() {
-        const lyricsLines = lyricsText.querySelectorAll('p, b'); // Pilih p atau b (untuk verse/chorus)
+        const lyricsLines = lyricsText.querySelectorAll('p, b');
         if (lyricsLines.length === 0 || isNaN(audioPlayer.duration) || audioPlayer.duration === 0) {
             return;
         }
 
-        // Hapus highlight dari semua baris
         lyricsText.querySelectorAll('.active-lyric').forEach(line => line.classList.remove('active-lyric'));
 
-        // Hitung persentase progres lagu
         const progressPercentage = (audioPlayer.currentTime / audioPlayer.duration);
-
-        // Estimasi baris lirik yang aktif
-        // Ini adalah pendekatan sederhana karena tidak ada timestamp per baris lirik.
-        // Akan lebih akurat jika lirik memiliki timestamp.
         const estimatedLineIndex = Math.floor(progressPercentage * lyricsLines.length);
 
         if (estimatedLineIndex < lyricsLines.length) {
             const activeLine = lyricsLines[estimatedLineIndex];
             activeLine.classList.add('active-lyric');
 
-            // Gulir lirik agar baris aktif terlihat di tengah
             const lyricsSectionHeight = lyricsText.clientHeight;
             const lineHeight = activeLine.offsetHeight;
             const lineOffsetTop = activeLine.offsetTop;
 
-            // Hitung posisi scroll yang diinginkan
             const scrollTo = lineOffsetTop - (lyricsSectionHeight / 2) + (lineHeight / 2);
 
             lyricsText.scrollTo({
@@ -1482,10 +802,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Audio Visualizer ---
     function drawVisualizer() {
         if (!analyser || !isPlaying) {
-            return; // Hanya menggambar jika analyser ada dan audio sedang diputar
+            return;
         }
 
-        requestAnimationFrame(drawVisualizer); // Loop animasi
+        requestAnimationFrame(drawVisualizer);
 
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
@@ -1515,17 +835,16 @@ document.addEventListener('DOMContentLoaded', () => {
         audioVisualizerCanvas.width = window.innerWidth;
         audioVisualizerCanvas.height = window.innerHeight;
     }
-    resizeCanvas(); // Panggil sekali saat dimuat
-    window.addEventListener('resize', resizeCanvas); // Panggil saat resize
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
     // --- Theme Toggle Function ---
     function applyTheme(theme) {
-        document.body.classList.remove('light-theme', 'dark-theme'); // Hapus semua tema
-        document.body.classList.add(theme); // Tambahkan tema baru (misal: 'light-theme')
-        localStorage.setItem('theme', theme); // Simpan preferensi tema
+        document.body.classList.remove('light-theme', 'dark-theme');
+        document.body.classList.add(theme);
+        localStorage.setItem('theme', theme);
 
-        // Update tombol tema
-        if (theme === 'light-theme') { // Perhatikan: kelas tema di body adalah 'light-theme' atau 'dark-theme'
+        if (theme === 'light-theme') {
             themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i> Mode Gelap';
             themeToggleBtn.setAttribute('aria-label', 'Ubah ke Mode Gelap');
         } else {
@@ -1535,7 +854,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     themeToggleBtn.addEventListener('click', () => {
-        // Dapatkan tema saat ini dari body, bukan dari local storage yang mungkin belum diinisialisasi
         const currentThemeClass = document.body.classList.contains('light-theme') ? 'light-theme' : 'dark-theme';
         if (currentThemeClass === 'dark-theme') {
             applyTheme('light-theme');
@@ -1544,35 +862,257 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Admin Panel Functions (NEW) ---
+    function showAdminPanelModal() {
+        adminPanelModal.classList.add('visible');
+        modalOverlay.classList.add('visible');
+        loadAdminSongList(); // Muat daftar lagu saat modal admin dibuka
+    }
+
+    function hideAdminPanelModal() {
+        adminPanelModal.classList.remove('visible');
+        modalOverlay.classList.remove('visible');
+        addSongForm.reset(); // Reset form saat modal ditutup
+    }
+
+    adminPanelBtn.addEventListener('click', showAdminPanelModal);
+    closeAdminPanelModalBtn.addEventListener('click', hideAdminPanelModal);
+
+    addSongForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = addTitleInput.value;
+        const artist = addArtistInput.value;
+        const src = addSrcInput.value;
+        const albumArt = addAlbumArtInput.value;
+        const lyrics = addLyricsInput.value;
+
+        try {
+            await addDoc(collection(db, `artifacts/${appId}/public/songs`), {
+                title,
+                artist,
+                src,
+                albumArt,
+                lyrics,
+                createdAt: new Date() // Tambahkan timestamp
+            });
+            alert("Lagu berhasil ditambahkan!");
+            addSongForm.reset();
+        } catch (e) {
+            console.error("Error adding document: ", e);
+            alert("Gagal menambahkan lagu. Pastikan Anda admin dan koneksi internet stabil.");
+        }
+    });
+
+    async function loadAdminSongList() {
+        adminSongListUl.innerHTML = '<p>Memuat lagu...</p>';
+        try {
+            const q = collection(db, `artifacts/${appId}/public/songs`);
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                adminSongListUl.innerHTML = ''; // Bersihkan sebelum membangun ulang
+                if (snapshot.empty) {
+                    adminSongListUl.innerHTML = '<p>Belum ada lagu di daftar putar.</p>';
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const song = doc.data();
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div class="admin-song-info">
+                            <h4>${song.title}</h4>
+                            <p>${song.artist}</p>
+                        </div>
+                        <div class="admin-song-actions">
+                            <button class="edit-btn" data-id="${doc.id}" data-title="${song.title}" data-artist="${song.artist}" data-src="${song.src}" data-album-art="${song.albumArt}" data-lyrics="${song.lyrics || ''}">Edit</button>
+                            <button class="delete-btn" data-id="${doc.id}">Hapus</button>
+                        </div>
+                    `;
+                    adminSongListUl.appendChild(li);
+                });
+            });
+            // Penting: Mengembalikan unsubscribe function agar bisa di-cleanup saat tidak dibutuhkan
+            // Namun, untuk admin panel yang selalu aktif, ini mungkin tidak perlu di-cleanup
+            // secara eksplisit kecuali jika modal ditutup secara permanen.
+        } catch (e) {
+            console.error("Error loading admin song list: ", e);
+            adminSongListUl.innerHTML = '<p>Gagal memuat daftar lagu admin.</p>';
+        }
+    }
+
+    adminSongListUl.addEventListener('click', async (e) => {
+        const target = e.target;
+        const songId = target.dataset.id;
+
+        if (target.classList.contains('delete-btn')) {
+            if (confirm("Apakah Anda yakin ingin menghapus lagu ini?")) {
+                try {
+                    await deleteDoc(doc(db, `artifacts/${appId}/public/songs`, songId));
+                    alert("Lagu berhasil dihapus!");
+                } catch (e) {
+                    console.error("Error deleting document: ", e);
+                    alert("Gagal menghapus lagu. Pastikan Anda admin dan koneksi internet stabil.");
+                }
+            }
+        } else if (target.classList.contains('edit-btn')) {
+            // Isi form dengan data lagu yang akan diedit
+            addTitleInput.value = target.dataset.title;
+            addArtistInput.value = target.dataset.artist;
+            addSrcInput.value = target.dataset.src;
+            addAlbumArtInput.value = target.dataset.albumArt;
+            addLyricsInput.value = target.dataset.lyrics;
+
+            // Ubah tombol submit menjadi tombol update
+            const submitBtn = addSongForm.querySelector('button[type="submit"]');
+            submitBtn.textContent = "Update Lagu";
+            submitBtn.classList.remove('btn-primary');
+            submitBtn.classList.add('btn-secondary'); // Bisa buat style khusus untuk update
+
+            // Simpan ID lagu yang sedang diedit
+            submitBtn.dataset.editId = songId;
+
+            // Scroll ke atas form
+            adminPanelModal.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+
+    addSongForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = e.submitter; // Dapatkan tombol yang disubmit
+        const editId = submitBtn.dataset.editId; // Ambil ID jika sedang mode edit
+
+        const songData = {
+            title: addTitleInput.value,
+            artist: addArtistInput.value,
+            src: addSrcInput.value,
+            albumArt: addAlbumArtInput.value,
+            lyrics: addLyricsInput.value,
+        };
+
+        try {
+            if (editId) {
+                // Mode Update
+                await updateDoc(doc(db, `artifacts/${appId}/public/songs`, editId), songData);
+                alert("Lagu berhasil diperbarui!");
+                submitBtn.dataset.editId = ''; // Hapus ID edit
+                submitBtn.textContent = "Tambah Lagu"; // Kembalikan teks tombol
+                submitBtn.classList.remove('btn-secondary');
+                submitBtn.classList.add('btn-primary');
+            } else {
+                // Mode Tambah Baru
+                await addDoc(collection(db, `artifacts/${appId}/public/songs`), {
+                    ...songData,
+                    createdAt: new Date()
+                });
+                alert("Lagu berhasil ditambahkan!");
+            }
+            addSongForm.reset();
+        } catch (e) {
+            console.error("Error saving document: ", e);
+            alert("Gagal menyimpan lagu. Pastikan Anda admin dan koneksi internet stabil.");
+        }
+    });
+
 
     // --- Inisialisasi Aplikasi (Fungsi yang Berjalan Saat Halaman Dimuat) ---
-    // Simpan urutan playlist asli saat inisialisasi
-    originalPlaylistOrder = [...playlist];
+    // Inisialisasi Firebase
+    try {
+        const app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
 
-    if (playlist.length > 0) {
-        loadSong(currentSongIndex);
-        buildPlaylist(); // Bangun playlist awal
-        updateAllTimerDisplays(); // Inisialisasi tampilan timer
-        // Muat preferensi tema
-        const savedTheme = localStorage.getItem('theme') || 'dark-theme'; // Default ke 'dark-theme'
-        applyTheme(savedTheme);
+        // Autentikasi anonim untuk semua pengguna
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUserUid = user.uid;
+                console.log("UID Pengguna: ", currentUserUid);
+
+                // Tampilkan tombol admin jika UID cocok dengan ADMIN_UID
+                if (currentUserUid === ADMIN_UID) {
+                    adminPanelBtn.style.display = 'flex'; // Tampilkan tombol admin
+                    console.log("Anda adalah Admin.");
+                } else {
+                    adminPanelBtn.style.display = 'none';
+                    console.log("Anda adalah pengguna biasa.");
+                }
+
+                // Muat playlist dari Firestore setelah autentikasi
+                const playlistCollectionRef = collection(db, `artifacts/${appId}/public/songs`);
+                onSnapshot(playlistCollectionRef, (snapshot) => {
+                    const fetchedPlaylist = [];
+                    snapshot.forEach((doc) => {
+                        fetchedPlaylist.push({ id: doc.id, ...doc.data() });
+                    });
+                    // Urutkan playlist berdasarkan createdAt (atau properti lain jika ada)
+                    fetchedPlaylist.sort((a, b) => (a.createdAt?.toDate() || 0) - (b.createdAt?.toDate() || 0));
+                    currentPlaylistData = fetchedPlaylist;
+                    originalPlaylistOrder = [...currentPlaylistData]; // Update original for shuffle
+
+                    if (currentPlaylistData.length > 0) {
+                        // Jika lagu yang sedang diputar tidak ada lagi di playlist, reset ke 0
+                        const currentSongExists = currentPlaylistData.some(song => song.id === (currentPlaylistData[currentSongIndex] && currentPlaylistData[currentSongIndex].id));
+                        if (!currentSongExists && currentPlaylistData.length > 0) {
+                             currentSongIndex = 0; // Reset ke lagu pertama jika lagu saat ini dihapus
+                             loadSong(currentSongIndex);
+                             pauseSong(); // Jeda setelah reset
+                        } else if (currentPlaylistData.length > 0) {
+                            // Muat ulang lagu saat ini untuk memastikan data terbaru
+                            loadSong(currentSongIndex);
+                        } else {
+                            // Jika playlist kosong
+                            currentSongTitle.textContent = "Tidak ada lagu";
+                            currentArtistName.textContent = "Tambahkan lagu sebagai admin";
+                            lyricsText.innerHTML = "<p>Daftar putar kosong.</p>";
+                            pauseSong();
+                        }
+                        buildPlaylist(playlistSearchInput.value); // Rebuild UI playlist
+                    } else {
+                        // Jika playlist kosong dari awal atau setelah dihapus semua
+                        currentSongTitle.textContent = "Tidak ada lagu";
+                        currentArtistName.textContent = "Tambahkan lagu sebagai admin";
+                        lyricsText.innerHTML = "<p>Daftar putar kosong.</p>";
+                        pauseSong();
+                        buildPlaylist(); // Kosongkan tampilan playlist
+                    }
+                });
+
+            } else {
+                // Pengguna belum terautentikasi, coba sign in anonim
+                try {
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (error) {
+                    console.error("Error signing in:", error);
+                    alert("Gagal terhubung ke layanan autentikasi. Beberapa fitur mungkin tidak berfungsi.");
+                }
+            }
+        });
 
         // Inisialisasi slider volume modal dengan nilai default
         masterVolumeSlider.value = 100;
         masterVolumeValue.textContent = '100%';
         bassLevelSlider.value = 0;
         bassLevelValue.textContent = '0 dB';
-        midLevelSlider.value = 0; // NEW
-        midLevelValue.textContent = '0 dB'; // NEW
+        midLevelSlider.value = 0;
+        midLevelValue.textContent = '0 dB';
         trebleLevelSlider.value = 0;
-        trebleLevelValue.textContent = '0 dB'; // NEW
+        trebleLevelValue.textContent = '0 dB';
         effectLevelSlider.value = 0;
         effectLevelValue.textContent = '0%';
 
-    } else {
-        console.error("Tidak ada lagu ditemukan di array 'playlist'.");
-        currentSongTitle.textContent = "Tidak ada lagu";
-        currentArtistName.textContent = "Silakan tambahkan lagu di script.js";
-        lyricsText.innerHTML = "<p>Silakan tambahkan file MP3 dan gambar album di folder yang sama, lalu update array 'playlist' di script.js.</p>";
+        // Muat preferensi tema
+        const savedTheme = localStorage.getItem('theme') || 'dark-theme';
+        applyTheme(savedTheme);
+
+        updateAllTimerDisplays(); // Inisialisasi tampilan timer
+
+    } catch (error) {
+        console.error("Gagal menginisialisasi Firebase:", error);
+        alert("Terjadi kesalahan saat menginisialisasi Firebase. Pastikan konfigurasi Anda benar.");
+        // Fallback jika Firebase gagal total
+        currentSongTitle.textContent = "Error Aplikasi";
+        currentArtistName.textContent = "Cek konsol browser untuk detail.";
+        lyricsText.innerHTML = "<p>Aplikasi gagal dimuat karena masalah konfigurasi. Silakan periksa konsol browser.</p>";
     }
 });
