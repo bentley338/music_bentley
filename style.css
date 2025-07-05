@@ -381,7 +381,7 @@ header {
     overflow-y: auto;
     border: 1px solid rgba(255, 255, 255, 0.05);
     scroll-behavior: smooth;
-    position: relative; /* Penting untuk auto-scroll */
+    position: relative;
 }
 
 .lyrics-text p {
@@ -913,6 +913,17 @@ header {
 }
 
 /* Audio Settings Modal Styling */
+#audio-settings-modal h3 {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--primary-text);
+    margin-top: 25px;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 20px;
+    width: 100%;
+}
+
 .audio-control-group {
     display: flex;
     flex-direction: column;
@@ -923,7 +934,7 @@ header {
 }
 
 .audio-control-group label {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Roboto', sans-serif; /* Ubah font label */
     font-size: 1.1em;
     color: var(--primary-text);
     margin-bottom: 5px;
@@ -952,6 +963,41 @@ header {
     font-size: 0.9em;
     color: var(--secondary-text);
     margin-top: 5px;
+}
+
+/* EQ Presets */
+.eq-presets {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.eq-preset-btn {
+    background: var(--button-bg);
+    border: 1px solid var(--button-border);
+    color: var(--primary-text);
+    padding: 8px 15px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.eq-preset-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--accent-purple);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.eq-preset-btn.selected {
+    background-color: var(--accent-purple);
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
+    color: white;
 }
 
 .audio-note {
@@ -1102,11 +1148,20 @@ header {
     }
 
     /* Audio Settings Modal Responsive */
+    #audio-settings-modal h3 {
+        font-size: 1.3em;
+        margin-top: 20px;
+        padding-top: 15px;
+    }
     .audio-control-group label {
         font-size: 1em;
     }
     .audio-control-group .volume-slider {
         width: 95%;
+    }
+    .eq-preset-btn {
+        padding: 6px 12px;
+        font-size: 0.85em;
     }
 }
 
