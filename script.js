@@ -4,6 +4,8 @@ import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged }
 import { getFirestore, collection, query, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM Content Loaded. Starting MelodyVerse initialization...");
+
     // --- Elemen DOM ---
     const audioPlayer = document.getElementById('audio-player');
     const playPauseBtn = document.getElementById('play-pause-btn');
@@ -1675,11 +1677,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Inisialisasi Aplikasi (Fungsi yang Berjalan Saat Halaman Dimuat) ---
-    // Inisialisasi Firebase
+    console.log("Memulai inisialisasi Firebase...");
     try {
         const app = initializeApp(firebaseConfig);
         auth = getAuth(app);
         db = getFirestore(app);
+        console.log("Firebase App, Auth, dan Firestore berhasil diinisialisasi.");
 
         // Autentikasi anonim untuk semua pengguna, dan cek status admin
         onAuthStateChanged(auth, async (user) => {
@@ -1687,9 +1690,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentUserUid = user.uid;
                 console.log("UID Pengguna (untuk debug):", currentUserUid);
 
-                // Logika admin
                 if (currentUserUid === ADMIN_UID) {
-                    adminPanelBtn.style.display = 'flex'; // Tampilkan tombol admin
+                    adminPanelBtn.style.display = 'flex';
                     console.log("Anda adalah Admin. Tombol Admin Panel terlihat.");
                 } else {
                     adminPanelBtn.style.display = 'none';
@@ -1699,6 +1701,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Muat playlist dari Firestore secara real-time
                 const playlistCollectionRef = collection(db, `artifacts/${appId}/public/songs`);
                 onSnapshot(playlistCollectionRef, (snapshot) => {
+                    console.log("Menerima pembaruan playlist dari Firestore.");
                     const fetchedPlaylist = [];
                     snapshot.forEach((doc) => {
                         fetchedPlaylist.push({ id: doc.id, ...doc.data() });
@@ -1718,26 +1721,26 @@ document.addEventListener('DOMContentLoaded', () => {
                         const currentSongExists = currentPlaylistData.some(song => song.id === audioPlayer.dataset.songId);
 
                         if (!audioPlayer.src || !currentSongExists || (currentPlaylistData[currentSongIndex] && audioPlayer.dataset.songId !== currentPlaylistData[currentSongIndex].id)) {
-                            // Coba muat lagu saat ini jika masih ada, jika tidak, muat lagu pertama
+                            console.log("Memuat lagu dari playlist Firestore.");
                             const songToLoadIndex = currentSongExists ? currentSongIndex : 0;
                             loadSong(songToLoadIndex);
-                            audioPlayer.dataset.songId = currentPlaylistData[songToLoadIndex]?.id; // Simpan ID lagu aktif
+                            audioPlayer.dataset.songId = currentPlaylistData[songToLoadIndex]?.id;
+                        } else {
+                            console.log("Lagu saat ini masih ada di playlist Firestore. Tidak perlu memuat ulang.");
                         }
 
                         buildPlaylist(playlistSearchInput.value);
                     } else {
-                        // Jika playlist dari Firestore kosong, tampilkan default playlist
-                        currentPlaylistData = [...defaultPlaylist]; // Fallback ke default
+                        console.log("Daftar putar dari Firestore kosong. Menggunakan daftar putar default.");
+                        currentPlaylistData = [...defaultPlaylist];
                         originalPlaylistOrder = [...defaultPlaylist];
-                        currentSongIndex = 0; // Pastikan index kembali ke 0 untuk default playlist
+                        currentSongIndex = 0;
                         loadSong(currentSongIndex);
-                        buildPlaylist(); // Bangun UI dengan default playlist
-                        console.log("Daftar putar dari Firestore kosong. Menampilkan daftar putar default.");
+                        buildPlaylist();
                     }
                 }, (error) => {
                     console.error("Error real-time playlist listener from Firestore: ", error);
                     alert("Gagal memuat daftar putar dari database. Menampilkan daftar putar default. Periksa aturan keamanan Firestore Anda.");
-                    // Fallback ke default playlist jika ada error Firestore
                     currentPlaylistData = [...defaultPlaylist];
                     originalPlaylistOrder = [...defaultPlaylist];
                     currentSongIndex = 0;
@@ -1746,12 +1749,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
             } else {
+                console.log("Pengguna belum terautentikasi. Mencoba sign in anonim...");
                 try {
                     await signInAnonymously(auth);
-                    console.log("Signed in anonymously.");
+                    console.log("Sign in anonim berhasil.");
                 } catch (error) {
                     console.error("Error signing in anonymously:", error);
                     alert("Gagal terhubung ke layanan autentikasi. Beberapa fitur mungkin tidak berfungsi.");
+                    // Jika autentikasi gagal, set playlist ke default agar aplikasi tetap bisa jalan
+                    console.log("Autentikasi gagal. Menggunakan daftar putar default.");
+                    currentPlaylistData = [...defaultPlaylist];
+                    originalPlaylistOrder = [...defaultPlaylist];
+                    currentSongIndex = 0;
+                    loadSong(currentSongIndex);
+                    buildPlaylist();
                 }
             }
         });
@@ -1773,7 +1784,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateAllTimerDisplays();
 
     } catch (error) {
-        console.error("Gagal menginisialisasi Firebase:", error);
+        console.error("Gagal menginisialisasi Firebase secara keseluruhan (fatal):", error);
         alert("Terjadi kesalahan fatal saat menginisialisasi Firebase. Pastikan konfigurasi Anda benar.");
         currentSongTitle.textContent = "Error Aplikasi Fatal";
         currentArtistName.textContent = "Cek konsol browser untuk detail Firebase.";
