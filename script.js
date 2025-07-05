@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentAlbumArt = document.getElementById('current-album-art');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentArtistName = document.getElementById('current-artist-name');
-    const infoText = document.getElementById('info-text'); // Menggunakan infoText
+    const infoText = document.getElementById('info-text');
     const playlistUl = document.getElementById('playlist');
     const togglePlaylistBtn = document.getElementById('toggle-playlist');
     const playlistSidebar = document.getElementById('playlist-sidebar');
@@ -26,39 +26,56 @@ document.addEventListener('DOMContentLoaded', () => {
     const timerOptionBtns = document.querySelectorAll('.timer-option-btn');
     const customTimerInput = document.getElementById('custom-timer-input');
     const setCustomTimerBtn = document.getElementById('set-custom-timer-btn');
-    const sleepTimerCountdown = document.getElementById('sleep-timer-countdown'); // Tampilan utama
-    const modalTimerCountdown = document.getElementById('modal-timer-countdown'); // Tampilan modal
+    const sleepTimerCountdown = document.getElementById('sleep-timer-countdown');
+    const modalTimerCountdown = document.getElementById('modal-timer-countdown');
 
     const openAudioModalBtn = document.getElementById('open-audio-modal-btn');
     const audioControlsModal = document.getElementById('audioControlsModal');
     const closeAudioModalBtn = document.getElementById('close-audio-modal');
     const masterVolumeControl = document.getElementById('master-volume');
     const volumeValueSpan = document.getElementById('volume-value');
+    const playbackSpeedControl = document.getElementById('playback-speed-control'); // New: Playback Speed
+    const playbackSpeedValueSpan = document.getElementById('playback-speed-value'); // New: Playback Speed Value
     const trebleControl = document.getElementById('treble-control');
     const trebleValueSpan = document.getElementById('treble-value');
+    const midControl = document.getElementById('mid-control'); // New: Mid-range
+    const midValueSpan = document.getElementById('mid-value'); // New: Mid-range Value
     const bassControl = document.getElementById('bass-control');
     const bassValueSpan = document.getElementById('bass-value');
-    const effectLevelControl = document.getElementById('effect-level-control'); // New: Effect Level
-    const effectLevelValueSpan = document.getElementById('effect-level-value'); // New: Effect Level Value
+    const effectLevelControl = document.getElementById('effect-level-control');
+    const effectLevelValueSpan = document.getElementById('effect-level-value');
 
     const toggleThemeBtn = document.getElementById('toggle-theme-btn');
     const shuffleBtn = document.getElementById('shuffle-btn');
     const repeatBtn = document.getElementById('repeat-btn');
     const playlistSearchInput = document.getElementById('playlist-search');
 
-    // --- Web Audio API untuk EQ dan Effect Level ---
+    const audioVisualizer = document.getElementById('audio-visualizer');
+    const visualizerCtx = audioVisualizer.getContext('2d');
+
+    // --- Web Audio API untuk EQ, Effect Level, dan Visualizer ---
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    let source; // Akan dibuat setelah audio mulai diputar
-    const gainNode = audioContext.createGain(); // Volume Utama
+    let source;
+    const gainNode = audioContext.createGain();
     const bassFilter = audioContext.createBiquadFilter();
+    const midFilter = audioContext.createBiquadFilter(); // New: Mid-range Filter
     const trebleFilter = audioContext.createBiquadFilter();
-    const effectLevelGainNode = audioContext.createGain(); // Node Gain untuk Effect Level
+    const effectLevelGainNode = audioContext.createGain();
+    const analyser = audioContext.createAnalyser(); // New: Analyser for Visualizer
 
     // Pengaturan Filter EQ
     bassFilter.type = 'lowshelf';
-    bassFilter.frequency.setValueAtTime(250, audioContext.currentTime); // Frekuensi untuk bass
+    bassFilter.frequency.setValueAtTime(250, audioContext.currentTime);
+    midFilter.type = 'peaking'; // Peaking filter for mid-range
+    midFilter.frequency.setValueAtTime(1000, audioContext.currentTime); // Center frequency for mid
+    midFilter.Q.setValueAtTime(1, audioContext.currentTime); // Quality factor
     trebleFilter.type = 'highshelf';
-    trebleFilter.frequency.setValueAtTime(2500, audioContext.currentTime); // Frekuensi untuk treble
+    trebleFilter.frequency.setValueAtTime(2500, audioContext.currentTime);
+
+    // Pengaturan Analyser
+    analyser.fftSize = 256;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
 
     // --- Variabel State ---
     let currentSongIndex = 0;
@@ -67,16 +84,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let sleepTimerEndTime = 0;
     let shuffleMode = false;
     let repeatMode = 'off'; // 'off', 'one', 'all'
-    let originalPlaylistOrder = []; // Untuk menyimpan urutan asli playlist
+    let originalPlaylistOrder = [];
+    let autoplayBlocked = false; // Flag for autoplay blocking
 
     // --- DATA LAGU (LOAD DARI LOCALSTORAGE ATAU DEFAULT) ---
-    // LAGU DEFAULT ASUMSIKAN SEMUA FILE ADA DI FOLDER YANG SAMA DENGAN INDEX.HTML
     let playlist = JSON.parse(localStorage.getItem('musicPlaylist')) || [
         {
             title: "Back to Friends",
             artist: "Sombr",
-            src: "back_to_friends.mp3", // Hanya nama file
-            albumArt: "album_art_back_to_friends.jpg", // Hanya nama file
+            src: "back_to_friends.mp3",
+            albumArt: "album_art_back_to_friends.jpg",
             info: `<b>🎶 Back to Friends – Sombr</b><br><br>
                 Lagu ini menggambarkan kerumitan transisi dari hubungan romantis ke pertemanan. Liriknya, "How can we go back to being friends when we just shared a bed?", menyoroti kebingungan dan kesulitan emosional setelah melewati batas dalam sebuah hubungan. Dibuat dengan melodi yang melankolis namun memikat, lagu ini cocok untuk siapa saja yang pernah merasakan dilema serupa.`
         },
@@ -194,19 +211,50 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
-    // Inisialisasi originalPlaylistOrder
     originalPlaylistOrder = [...playlist];
 
-    // --- Web Audio API untuk EQ dan Effect Level ---
+    // --- Web Audio API Setup ---
     function setupAudioContext() {
-        if (!source) { // Buat sumber hanya sekali
+        if (!source) {
             source = audioContext.createMediaElementSource(audioPlayer);
-            // Hubungkan node: source -> bass -> treble -> effectLevelGain -> gain (master volume) -> destination
+            // Connect nodes: source -> bass -> mid -> treble -> analyser -> effectLevelGain -> gain (master volume) -> destination
             source.connect(bassFilter);
-            bassFilter.connect(trebleFilter);
-            trebleFilter.connect(effectLevelGainNode); // Hubungkan ke effectLevelGainNode
-            effectLevelGainNode.connect(gainNode); // Kemudian ke master volume gainNode
+            bassFilter.connect(midFilter); // Connect mid filter
+            midFilter.connect(trebleFilter);
+            trebleFilter.connect(analyser); // Connect to analyser
+            analyser.connect(effectLevelGainNode);
+            effectLevelGainNode.connect(gainNode);
             gainNode.connect(audioContext.destination);
+        }
+    }
+
+    // --- Audio Visualizer ---
+    function drawVisualizer() {
+        requestAnimationFrame(drawVisualizer);
+
+        analyser.getByteFrequencyData(dataArray);
+
+        const canvasWidth = audioVisualizer.width;
+        const canvasHeight = audioVisualizer.height;
+        visualizerCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        const barWidth = (canvasWidth / bufferLength) * 2.5; // Adjust multiplier for bar width
+        let barHeight;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+            barHeight = dataArray[i] / 2; // Adjust divisor for bar height
+
+            // Gradient for bars
+            let gradient = visualizerCtx.createLinearGradient(0, canvasHeight, 0, 0);
+            gradient.addColorStop(0, 'rgba(138, 43, 226, 0.8)'); // Accent purple
+            gradient.addColorStop(0.5, 'rgba(255, 69, 0, 0.6)'); // Accent red
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0.4)'); // Lighter top
+            visualizerCtx.fillStyle = gradient;
+
+            visualizerCtx.fillRect(x, canvasHeight - barHeight, barWidth, barHeight);
+
+            x += barWidth + 1; // Gap between bars
         }
     }
 
@@ -236,14 +284,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const song = playlist[songIndex];
-        // LANGSUNG GUNAKAN NAMA FILE, ASUMSIKAN SEMUA DI FOLDER YANG SAMA
         audioPlayer.src = song.src;
         audioPlayer.load();
         currentAlbumArt.src = song.albumArt;
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
         infoText.innerHTML = song.info;
-        infoText.scrollTop = 0; // Gulirkan info ke atas saat lagu berganti
+        infoText.scrollTop = 0;
 
         progressBar.value = 0;
         currentTimeSpan.textContent = '0:00';
@@ -252,8 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const albumArtImg = document.querySelector('.album-art-img');
         if (albumArtImg) {
             albumArtImg.style.animation = 'none';
-            void albumArtImg.offsetWidth; // Memicu reflow
-            albumArtImg.style.animation = ''; // Terapkan ulang animasi
+            void albumArtImg.offsetWidth;
+            albumArtImg.style.animation = '';
         }
         updatePlaylistActiveState(songIndex);
 
@@ -294,18 +341,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function playSong() {
-        // Pastikan konteks audio berjalan saat putar dimulai oleh interaksi pengguna
         if (audioContext.state === 'suspended') {
-            setupAudioContext(); // Pastikan sumber dibuat dan terhubung
-            audioContext.resume();
+            setupAudioContext();
+            audioContext.resume().then(() => {
+                attemptPlay();
+            }).catch(e => {
+                console.error("Failed to resume AudioContext:", e);
+                displayAutoplayBlockedMessage();
+            });
+        } else {
+            attemptPlay();
         }
+    }
 
+    function attemptPlay() {
         if (!audioPlayer.src || audioPlayer.src === window.location.href) {
-            console.warn("Sumber audio tidak dimuat atau tidak valid. Mencoba memuat lagu pertama.");
+            console.warn("Audio source not loaded or invalid. Attempting to load first song.");
             if (playlist.length > 0) {
-                loadSong(0); // Coba memuat lagu pertama jika lagu saat ini tidak valid
+                loadSong(0);
             } else {
-                return; // Tidak ada lagu di playlist, tidak bisa diputar
+                return;
             }
         }
 
@@ -320,8 +375,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'playing';
             }
+            autoplayBlocked = false;
         }).catch(error => {
-            console.error("Error memutar audio:", error);
+            console.error("Error playing audio:", error);
             isPlaying = false;
             playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
             playPauseBtn.setAttribute('aria-label', 'Putar');
@@ -329,9 +385,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 navigator.mediaSession.playbackState = 'paused';
             }
             if (error.name === "NotAllowedError" || error.name === "AbortError") {
-                console.log("Autoplay diblokir atau pemutaran dibatalkan. Sentuh tombol putar untuk memulai.");
+                displayAutoplayBlockedMessage();
             }
         });
+    }
+
+    function displayAutoplayBlockedMessage() {
+        if (!autoplayBlocked) {
+            const message = "Autoplay diblokir. Mohon sentuh tombol putar untuk memulai musik.";
+            alert(message); // Or display a more subtle toast notification
+            autoplayBlocked = true;
+        }
     }
 
     function pauseSong() {
@@ -377,15 +441,30 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             currentSongIndex = (currentSongIndex + 1) % playlist.length;
         }
-        
-        // Logika pengulangan playlist penuh atau berhenti
+
         if (currentSongIndex === 0 && repeatMode === 'off' && !shuffleMode) {
             pauseSong();
-            loadSong(currentSongIndex); // Muat lagu pertama tapi jangan putar
+            loadSong(currentSongIndex);
             return;
         } else {
-            loadSong(currentSongIndex);
-            playSong();
+            // Crossfade effect
+            const fadeOutDuration = 1.0; // seconds
+            const fadeInDuration = 1.0; // seconds
+            const now = audioContext.currentTime;
+
+            // Fade out current song
+            gainNode.gain.cancelScheduledValues(now);
+            gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+            gainNode.gain.linearRampToValueAtTime(0.001, now + fadeOutDuration);
+
+            setTimeout(() => {
+                loadSong(currentSongIndex);
+                audioPlayer.play();
+                // Fade in next song
+                gainNode.gain.cancelScheduledValues(audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.001, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolumeControl.value, audioContext.currentTime + fadeInDuration);
+            }, fadeOutDuration * 1000);
         }
     }
 
@@ -402,12 +481,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
-        loadSong(currentSongIndex);
-        if (isPlaying) {
-            playSong();
-        } else {
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        }
+        
+        // Crossfade effect
+        const fadeOutDuration = 1.0; // seconds
+        const fadeInDuration = 1.0; // seconds
+        const now = audioContext.currentTime;
+
+        // Fade out current song
+        gainNode.gain.cancelScheduledValues(now);
+        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+        gainNode.gain.linearRampToValueAtTime(0.001, now + fadeOutDuration);
+
+        setTimeout(() => {
+            loadSong(currentSongIndex);
+            if (isPlaying) {
+                audioPlayer.play();
+                // Fade in next song
+                gainNode.gain.cancelScheduledValues(audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.001, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(masterVolumeControl.value, audioContext.currentTime + fadeInDuration);
+            } else {
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                // Reset gain if not playing
+                gainNode.gain.setValueAtTime(masterVolumeControl.value, audioContext.currentTime);
+            }
+        }, fadeOutDuration * 1000);
     }
 
     // --- Event Listeners (Untuk Interaksi Pengguna) ---
@@ -434,9 +532,9 @@ document.addEventListener('DOMContentLoaded', () => {
     audioPlayer.addEventListener('loadedmetadata', () => {
         if (!isNaN(audioPlayer.duration)) {
             durationSpan.textContent = formatTime(audioPlayer.duration);
-            // Pastikan volume master dan effect level diterapkan saat metadata dimuat
             gainNode.gain.setValueAtTime(masterVolumeControl.value, audioContext.currentTime);
             effectLevelGainNode.gain.setValueAtTime(effectLevelControl.value, audioContext.currentTime);
+            audioPlayer.playbackRate = parseFloat(playbackSpeedControl.value); // Apply saved playback speed
         } else {
             durationSpan.textContent = '0:00';
         }
@@ -461,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sleepTimerCountdown.textContent = '';
             modalTimerCountdown.textContent = '';
             timerOptionBtns.forEach(btn => btn.classList.remove('active'));
-            customTimerInput.value = ''; // Hapus input kustom
+            customTimerInput.value = '';
             return;
         }
 
@@ -469,7 +567,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSleepTimerCountdownDisplay();
         sleepTimerId = setInterval(updateSleepTimerCountdownDisplay, 1000);
 
-        // Atur status aktif untuk opsi yang dipilih
         timerOptionBtns.forEach(btn => {
             if (parseInt(btn.dataset.minutes) === minutes) {
                 btn.classList.add('active');
@@ -477,12 +574,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.classList.remove('active');
             }
         });
-        if (minutes > 0 && ![5, 15, 30, 60].includes(minutes)) { // Untuk timer kustom
+        if (minutes > 0 && ![5, 15, 30, 60].includes(minutes)) {
             customTimerInput.value = minutes;
         } else {
             customTimerInput.value = '';
         }
-        sleepTimerModal.classList.remove('visible'); // Tutup modal setelah diatur
+        sleepTimerModal.classList.remove('visible');
         sidebarOverlay.classList.remove('visible');
     }
 
@@ -493,14 +590,14 @@ document.addEventListener('DOMContentLoaded', () => {
             pauseSong();
             sleepTimerCountdown.textContent = 'Waktu habis!';
             modalTimerCountdown.textContent = 'Waktu habis!';
-            // Reset opsi modal
             timerOptionBtns.forEach(btn => btn.classList.remove('active'));
             customTimerInput.value = '';
-            startSleepTimer(0); // Reset status timer
+            startSleepTimer(0);
         } else {
             const minutes = Math.floor(remainingTime / (60 * 1000));
             const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
-            const formattedTime = `Berhenti dalam: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+            const formattedTime = `Berhenti dalam: ${minutes}:${formattedSeconds}`;
             sleepTimerCountdown.textContent = formattedTime;
             modalTimerCountdown.textContent = formattedTime;
         }
@@ -509,7 +606,6 @@ document.addEventListener('DOMContentLoaded', () => {
     openSleepTimerModalBtn.addEventListener('click', () => {
         sleepTimerModal.classList.add('visible');
         sidebarOverlay.classList.add('visible');
-        // Pastikan hitung mundur di modal diperbarui saat dibuka
         if (sleepTimerEndTime > Date.now()) {
             updateSleepTimerCountdownDisplay();
         } else {
@@ -553,13 +649,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const volume = parseFloat(masterVolumeControl.value);
         gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
         volumeValueSpan.textContent = `${Math.round(volume * 100)}%`;
-        audioPlayer.volume = volume; // Pertahankan volume native tetap sinkron
+        audioPlayer.volume = volume;
+    });
+
+    playbackSpeedControl.addEventListener('input', () => {
+        const speed = parseFloat(playbackSpeedControl.value);
+        audioPlayer.playbackRate = speed;
+        playbackSpeedValueSpan.textContent = `${speed.toFixed(2)}x`;
     });
 
     trebleControl.addEventListener('input', () => {
         const value = parseFloat(trebleControl.value);
         trebleFilter.gain.setValueAtTime(value, audioContext.currentTime);
         trebleValueSpan.textContent = `${value} dB`;
+    });
+
+    midControl.addEventListener('input', () => { // Mid-range control
+        const value = parseFloat(midControl.value);
+        midFilter.gain.setValueAtTime(value, audioContext.currentTime);
+        midValueSpan.textContent = `${value} dB`;
     });
 
     bassControl.addEventListener('input', () => {
@@ -574,11 +682,13 @@ document.addEventListener('DOMContentLoaded', () => {
         effectLevelValueSpan.textContent = `${Math.round(value * 100)}%`;
     });
 
-
     // Inisialisasi nilai Kontrol Audio
     masterVolumeControl.value = audioPlayer.volume;
     volumeValueSpan.textContent = `${Math.round(audioPlayer.volume * 100)}%`;
+    playbackSpeedControl.value = audioPlayer.playbackRate; // Set initial speed
+    playbackSpeedValueSpan.textContent = `${audioPlayer.playbackRate.toFixed(2)}x`;
     trebleValueSpan.textContent = `${trebleControl.value} dB`;
+    midValueSpan.textContent = `${midControl.value} dB`; // Initial mid value
     bassValueSpan.textContent = `${bassControl.value} dB`;
     effectLevelValueSpan.textContent = `${Math.round(effectLevelControl.value * 100)}%`;
 
@@ -594,7 +704,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     toggleThemeBtn.addEventListener('click', toggleTheme);
 
-    // Muat tema yang disimpan
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
@@ -616,40 +725,38 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             restoreOriginalPlaylist();
         }
-        buildPlaylist(playlistSearchInput.value); // Bangun ulang playlist untuk mencerminkan urutan
+        buildPlaylist(playlistSearchInput.value);
         updatePlaylistActiveState(currentSongIndex);
     });
 
     repeatBtn.addEventListener('click', () => {
         if (repeatMode === 'off') {
             repeatMode = 'all';
-            repeatBtn.innerHTML = '<i class="fas fa-repeat"></i>'; // Ikon ulangi semua
+            repeatBtn.innerHTML = '<i class="fas fa-repeat"></i>';
             repeatBtn.classList.add('active');
         } else if (repeatMode === 'all') {
             repeatMode = 'one';
-            repeatBtn.innerHTML = '<i class="fas fa-repeat-one"></i>'; // Ikon ulangi satu
+            repeatBtn.innerHTML = '<i class="fas fa-repeat-one"></i>';
         } else {
             repeatMode = 'off';
-            repeatBtn.innerHTML = '<i class="fas fa-repeat"></i>'; // Ikon mati
+            repeatBtn.innerHTML = '<i class="fas fa-repeat"></i>';
             repeatBtn.classList.remove('active');
         }
         repeatBtn.setAttribute('aria-label', `Ulangi: ${repeatMode}`);
     });
 
     function shufflePlaylist() {
-        originalPlaylistOrder = [...playlist]; // Salin playlist saat ini sebelum diacak
+        originalPlaylistOrder = [...playlist];
         for (let i = playlist.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
         }
-        // Temukan indeks baru dari lagu yang sedang diputar di daftar yang diacak
         const currentSong = originalPlaylistOrder[currentSongIndex];
         currentSongIndex = playlist.findIndex(song => song.src === currentSong.src);
     }
 
     function restoreOriginalPlaylist() {
-        playlist = [...originalPlaylistOrder]; // Kembalikan ke urutan asli
-        // Temukan indeks baru dari lagu yang sedang diputar di daftar yang dipulihkan
+        playlist = [...originalPlaylistOrder];
         const currentSong = originalPlaylistOrder[currentSongIndex];
         currentSongIndex = playlist.findIndex(song => song.src === currentSong.src);
     }
@@ -658,7 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Fungsi Playlist ---
     function buildPlaylist(searchTerm = '') {
         playlistUl.innerHTML = '';
-        const filteredPlaylist = originalPlaylistOrder.filter(song => // Filter dari urutan asli
+        const filteredPlaylist = originalPlaylistOrder.filter(song =>
             song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             song.artist.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -678,11 +785,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         filteredPlaylist.forEach((song, index) => {
             const li = document.createElement('li');
-            // Temukan indeks sebenarnya dalam playlist saat ini (diacak atau tidak)
             const actualIndexInCurrentPlaylist = playlist.findIndex(s => s.src === song.src);
 
-            li.setAttribute('data-original-index', originalPlaylistOrder.indexOf(song)); // Simpan indeks asli untuk referensi
-            li.setAttribute('data-current-playlist-index', actualIndexInCurrentPlaylist); // Simpan indeks dalam playlist aktif saat ini
+            li.setAttribute('data-original-index', originalPlaylistOrder.indexOf(song));
+            li.setAttribute('data-current-playlist-index', actualIndexInCurrentPlaylist);
             li.innerHTML = `
                 <img src="${song.albumArt}" alt="${song.title} Album Art">
                 <div class="playlist-song-info">
@@ -735,10 +841,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function showPlaylistSidebar() {
+        buildPlaylist(playlistSearchInput.value); // Rebuild playlist on open
         playlistSidebar.classList.add('visible');
         sidebarOverlay.classList.add('visible');
-        audioControlsModal.classList.remove('visible'); // Sembunyikan modal audio jika playlist terbuka
-        sleepTimerModal.classList.remove('visible'); // Sembunyikan modal timer jika playlist terbuka
+        audioControlsModal.classList.remove('visible');
+        sleepTimerModal.classList.remove('visible');
     }
 
     function hidePlaylistSidebar() {
@@ -746,7 +853,6 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarOverlay.classList.remove('visible');
     }
 
-    // Overlay untuk menutup modal/sidebar yang terbuka
     sidebarOverlay.addEventListener('click', () => {
         hidePlaylistSidebar();
         audioControlsModal.classList.remove('visible');
@@ -770,48 +876,97 @@ document.addEventListener('DOMContentLoaded', () => {
         buildPlaylist(event.target.value);
     });
 
+    // --- Pintasan Keyboard ---
+    document.addEventListener('keydown', (event) => {
+        if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+            return; // Don't trigger shortcuts if user is typing in an input field
+        }
+
+        switch (event.key) {
+            case ' ': // Spacebar for Play/Pause
+                event.preventDefault(); // Prevent page scroll
+                playPauseToggle();
+                break;
+            case 'ArrowRight': // Right arrow for Next Song
+                playNextSong();
+                break;
+            case 'ArrowLeft': // Left arrow for Previous Song
+                playPrevSong();
+                break;
+            case 'm': // 'M' for Mute/Unmute (toggle volume to 0 or original)
+                if (audioPlayer.volume > 0) {
+                    audioPlayer.dataset.previousVolume = audioPlayer.volume; // Store current volume
+                    audioPlayer.volume = 0;
+                    masterVolumeControl.value = 0;
+                } else {
+                    audioPlayer.volume = parseFloat(audioPlayer.dataset.previousVolume || 0.7); // Restore previous volume or default
+                    masterVolumeControl.value = audioPlayer.volume;
+                }
+                gainNode.gain.setValueAtTime(audioPlayer.volume, audioContext.currentTime);
+                volumeValueSpan.textContent = `${Math.round(audioPlayer.volume * 100)}%`;
+                break;
+            case 'l': // 'L' for opening playlist
+                event.preventDefault();
+                togglePlaylistBtn.click();
+                break;
+            case 'o': // 'O' for opening audio controls
+                event.preventDefault();
+                openAudioModalBtn.click();
+                break;
+        }
+    });
+
+
     // --- Inisialisasi Aplikasi ---
-    // Muat data playlist dari localStorage jika tersedia, jika tidak gunakan default
     if (localStorage.getItem('musicPlaylist')) {
         playlist = JSON.parse(localStorage.getItem('musicPlaylist'));
-        originalPlaylistOrder = [...playlist]; // Salin ke originalPlaylistOrder
+        originalPlaylistOrder = [...playlist];
     }
 
     if (playlist.length > 0) {
         loadSong(currentSongIndex);
         buildPlaylist();
     } else {
-        console.warn("Tidak ada lagu ditemukan di array 'playlist'.");
+        console.warn("No songs found in 'playlist' array.");
         currentSongTitle.textContent = "Tidak ada lagu";
         currentArtistName.textContent = "Silakan tambahkan lagu di panel admin";
         infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album ada di folder yang sama dengan file HTML utama Anda di GitHub Pages.</p>";
     }
 
-    // Inisialisasi Web Audio API setelah gesture pengguna (putar pertama kali)
-    audioPlayer.addEventListener('play', setupAudioContext, { once: true });
+    // Inisialisasi Web Audio API dan Visualizer setelah gesture pengguna (putar pertama kali)
+    audioPlayer.addEventListener('play', () => {
+        setupAudioContext();
+        drawVisualizer(); // Start visualizer only when playing
+        gainNode.gain.setValueAtTime(masterVolumeControl.value, audioContext.currentTime); // Ensure gain is set on play
+    }, { once: true });
+
+    // Handle initial video autoplay
+    if (backgroundVideo) {
+        backgroundVideo.play().catch(error => {
+            console.log('Autoplay video dicegah. Interaksi pengguna mungkin diperlukan.', error);
+        });
+    }
 
     // Jika admin panel melakukan perubahan, kita perlu me-refresh playlist utama
     window.addEventListener('storage', (event) => {
         if (event.key === 'musicPlaylist') {
             console.log('Perubahan playlist terdeteksi dari localStorage, memuat ulang playlist.');
-            playlist = JSON.parse(localStorage.getItem('musicPlaylist')) || [];
-            originalPlaylistOrder = [...playlist];
-            if (playlist.length > 0 && currentSongIndex >= playlist.length) {
-                currentSongIndex = 0; // Reset index if current song no longer exists
-            }
-            if (playlist.length === 0) {
-                 // Handle empty playlist scenario
-                currentSongTitle.textContent = "Tidak ada lagu";
-                currentArtistName.textContent = "Tambahkan lagu di panel admin";
-                infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album ada di folder yang sama dengan file HTML utama Anda di GitHub Pages.</p>";
-                audioPlayer.src = "";
-                currentAlbumArt.src = "album_art_default.jpg";
-                pauseSong();
-            }
-            loadSong(currentSongIndex);
-            buildPlaylist();
-            if (isPlaying) { // Continue playing if it was playing before
-                playSong();
+            const newPlaylist = JSON.parse(localStorage.getItem('musicPlaylist')) || [];
+            if (JSON.stringify(playlist) !== JSON.stringify(newPlaylist)) { // Only update if content changed
+                playlist = newPlaylist;
+                originalPlaylistOrder = [...playlist];
+                if (playlist.length > 0 && currentSongIndex >= playlist.length) {
+                    currentSongIndex = 0;
+                } else if (playlist.length === 0) {
+                    currentSongIndex = 0; // Reset index if playlist becomes empty
+                }
+                loadSong(currentSongIndex);
+                buildPlaylist();
+                if (isPlaying && playlist.length > 0) {
+                    playSong();
+                } else if (playlist.length === 0) {
+                    pauseSong(); // Pause if playlist becomes empty
+                }
             }
         }
     });
