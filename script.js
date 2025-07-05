@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let trebleFilter = null;
     let effectGainNode = null;
 
-    // Admin Panel Elements (NEW)
+    // Admin Panel Elements
     const adminPanelBtn = document.getElementById('admin-panel-btn');
     const adminPanelModal = document.getElementById('admin-panel-modal');
     const closeAdminPanelModalBtn = document.getElementById('close-admin-panel-modal');
@@ -108,28 +108,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let originalPlaylistOrder = []; // Digunakan untuk shuffle (salinan dari currentPlaylistData)
     let shuffledPlaylist = []; // Digunakan untuk shuffle
 
-    // --- Firebase Variables (NEW) ---
-    const firebaseConfig = JSON.parse(`{
-        // PASTE FIREBASE CONFIG AND API KEY HERE
-        // Contoh:
-        // "apiKey": "YOUR_API_KEY",
-        // "authDomain": "YOUR_AUTH_DOMAIN",
-        // "projectId": "YOUR_PROJECT_ID",
-        // "storageBucket": "YOUR_STORAGE_BUCKET",
-        // "messagingSenderId": "YOUR_MESSAGING_SENDER_ID",
-        // "appId": "YOUR_APP_ID"
-    }`); // GANTI DENGAN FIREBASE CONFIG ANDA!
+    // --- Firebase Variables (SUDAH DIISI DENGAN KONFIGURASI ANDA) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyBlG2wzbUshZAUxLaP8-WGpYSkdm1FhMh4",
+      authDomain: "melodyverse-app.firebaseapp.com",
+      projectId: "melodyverse-app",
+      storageBucket: "melodyverse-app.firebasestorage.app",
+      messagingSenderId: "150568860733",
+      appId: "1:150568860733:web:3a0fcce02aa16e57663e54",
+      measurementId: "G-JB2RKBQP33" // Ini untuk Google Analytics, bisa diabaikan jika tidak pakai
+    };
 
     // Global variables provided by Canvas environment (DO NOT CHANGE)
-    const appId = typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.projectId; // Fallback to projectId if __app_id is not defined
-    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+    // Menggunakan projectId sebagai appId untuk path Firestore
+    const appId = typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.projectId;
 
     let db;
     let auth;
     let currentUserUid = null;
-    // GANTI INI dengan UID ADMIN Anda yang sebenarnya dari Firebase Console
-    // Anda bisa mendapatkan UID Anda dengan login pertama kali, lalu cek console browser
-    const ADMIN_UID = "YOUR_ADMIN_UID_HERE"; // <--- GANTI INI DENGAN UID ADMIN ANDA!
+    // PENTING: GANTI INI dengan UID ADMIN Anda yang sebenarnya dari konsol browser!
+    // Contoh: "yourActualAdminUIDStringHere"
+    const ADMIN_UID = "YOUR_ADMIN_UID_YANG_ANDA_SALIN_DARI_KONSOL"; // <--- GANTI INI!
 
     // --- Fungsi Utama Pemutar Musik ---
 
@@ -421,19 +420,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         filteredPlaylist.forEach((song, index) => {
             const li = document.createElement('li');
-            // Gunakan index dari playlistToUse (currentPlaylistData atau shuffledPlaylist)
-            // untuk loadSong agar tidak bingung saat shuffle/filter
-            const actualIndexInCurrentData = currentPlaylistData.findIndex(s => s.id === song.id); // Temukan index di data asli
-            li.setAttribute('data-original-index', actualIndexInCurrentData); // Simpan indeks asli Firestore
+            // Gunakan index dari currentPlaylistData (playlist asli dari Firestore) untuk loadSong
+            const actualIndexInCurrentData = currentPlaylistData.findIndex(s => s.id === song.id);
+            li.setAttribute('data-original-index', actualIndexInCurrentData);
             li.innerHTML = `
-                <img src="${song.albumArt}" alt="${song.title} Album Art">
+                <img src="${song.albumArt}" onerror="this.onerror=null;this.src='album_art_default.jpg';" alt="${song.title} Album Art">
                 <div class="playlist-song-info">
                     <h3>${song.title}</h3>
                     <p>${song.artist}</p>
                 </div>
             `;
             li.addEventListener('click', () => {
-                // Saat diklik, gunakan indeks asli untuk memuat lagu dari currentPlaylistData
                 currentSongIndex = parseInt(li.getAttribute('data-original-index'));
                 loadSong(currentSongIndex);
                 playSong();
@@ -450,7 +447,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         playlistItems.forEach(item => item.classList.remove('active'));
 
-        // Temukan item yang aktif berdasarkan data-original-index
         const activeItem = playlistUl.querySelector(`li[data-original-index="${activeIndex}"]`);
         if (activeItem) {
             activeItem.classList.add('active');
@@ -571,8 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Timer Event Listeners
     setTimerBtn.addEventListener('click', showTimerModal);
     closeModalBtn.addEventListener('click', hideTimerModal);
-    // Pastikan modalOverlay menutup kedua modal jika diklik
-    modalOverlay.addEventListener('click', () => {
+    modalOverlay.addEventListener('click', () => { // Overlay untuk menutup semua modal
         hideTimerModal();
         hideAudioSettingsModal();
         hideAdminPanelModal();
@@ -594,7 +589,7 @@ document.addEventListener('DOMContentLoaded', () => {
             timerOptionBtns.forEach(b => b.classList.remove('selected'));
             startSleepTimer(minutes);
         } else {
-            alert("Mohon masukkan durasi timer yang valid (lebih dari 0 menit).");
+            alert("Durasi timer yang valid (lebih dari 0 menit).");
         }
     });
 
@@ -613,7 +608,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function showAudioSettingsModal() {
         audioSettingsModal.classList.add('visible');
         modalOverlay.classList.add('visible');
-        // Pastikan slider volume modal diperbarui dengan nilai masterGainNode saat dibuka
         if (masterGainNode) {
             masterVolumeSlider.value = masterGainNode.gain.value * 100;
             masterVolumeValue.textContent = `${Math.round(masterGainNode.gain.value * 100)}%`;
@@ -634,7 +628,6 @@ document.addEventListener('DOMContentLoaded', () => {
             effectLevelSlider.value = effectGainNode.gain.value * 100;
             effectLevelValue.textContent = `${Math.round(effectGainNode.gain.value * 100)}%`;
         }
-        // Pastikan tidak ada preset yang terpilih saat modal dibuka
         eqPresetBtns.forEach(btn => btn.classList.remove('selected'));
     }
 
@@ -700,17 +693,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 midFilter.gain.value = preset.mid;
                 trebleFilter.gain.value = preset.treble;
 
-                // Update slider UI
                 bassLevelSlider.value = preset.bass;
                 midLevelSlider.value = preset.mid;
                 trebleLevelSlider.value = preset.treble;
 
-                // Update value displays
                 bassLevelValue.textContent = `${preset.bass} dB`;
                 midLevelValue.textContent = `${preset.mid} dB`;
                 trebleLevelValue.textContent = `${preset.treble} dB`;
 
-                // Update active state for preset buttons
                 eqPresetBtns.forEach(pBtn => pBtn.classList.remove('selected'));
                 btn.classList.add('selected');
             }
@@ -722,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]]; // Tukar elemen
+            [array[i], array[j]] = [array[j], array[i]];
         }
         return array;
     }
@@ -731,36 +721,33 @@ document.addEventListener('DOMContentLoaded', () => {
         isShuffling = !isShuffling;
         if (isShuffling) {
             shuffleBtn.classList.add('active');
-            // Buat salinan playlist asli dan acak
-            originalPlaylistOrder = [...currentPlaylistData]; // Simpan urutan asli dari Firestore
-            shuffledPlaylist = shuffleArray([...currentPlaylistData]); // Acak salinan
-            // Perbarui currentSongIndex ke posisi lagu saat ini di playlist yang diacak
-            const currentSong = currentPlaylistData[currentSongIndex]; // Lagu yang sedang diputar (dari playlist asli)
-            currentSongIndex = shuffledPlaylist.findIndex(song => song.id === currentSong.id); // Cari berdasarkan ID Firestore
+            originalPlaylistOrder = [...currentPlaylistData];
+            shuffledPlaylist = shuffleArray([...currentPlaylistData]);
+            const currentSong = currentPlaylistData[currentSongIndex];
+            currentSongIndex = shuffledPlaylist.findIndex(song => song.id === currentSong.id);
         } else {
             shuffleBtn.classList.remove('active');
-            // Kembali ke urutan playlist asli
-            const currentSong = shuffledPlaylist[currentSongIndex]; // Lagu yang sedang diputar (dari playlist acak)
-            currentSongIndex = originalPlaylistOrder.findIndex(song => song.id === currentSong.id); // Cari berdasarkan ID Firestore
+            const currentSong = shuffledPlaylist[currentSongIndex];
+            currentSongIndex = originalPlaylistOrder.findIndex(song => song.id === currentSong.id);
         }
-        buildPlaylist(playlistSearchInput.value); // Rebuild playlist tampilan
-        updatePlaylistActiveState(currentSongIndex); // Perbarui highlight
+        buildPlaylist(playlistSearchInput.value);
+        updatePlaylistActiveState(currentSongIndex);
     });
 
     repeatBtn.addEventListener('click', () => {
         if (repeatMode === 'off') {
             repeatMode = 'all';
             repeatBtn.classList.add('active');
-            repeatBtn.innerHTML = '<i class="fas fa-repeat-all"></i>'; // FontAwesome 6
+            repeatBtn.innerHTML = '<i class="fas fa-repeat-all"></i>';
             repeatBtn.setAttribute('aria-label', 'Ulangi Semua Lagu');
         } else if (repeatMode === 'all') {
             repeatMode = 'one';
-            repeatBtn.innerHTML = '<i class="fas fa-repeat-1"></i>'; // FontAwesome 6
+            repeatBtn.innerHTML = '<i class="fas fa-repeat-1"></i>';
             repeatBtn.setAttribute('aria-label', 'Ulangi Satu Lagu');
         } else { // repeatMode === 'one'
             repeatMode = 'off';
             repeatBtn.classList.remove('active');
-            repeatBtn.innerHTML = '<i class="fas fa-repeat"></i>'; // FontAwesome 6
+            repeatBtn.innerHTML = '<i class="fas fa-repeat"></i>';
             repeatBtn.setAttribute('aria-label', 'Ulangi Lagu');
         }
     });
@@ -862,17 +849,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Admin Panel Functions (NEW) ---
+    // --- Admin Panel Functions ---
     function showAdminPanelModal() {
         adminPanelModal.classList.add('visible');
         modalOverlay.classList.add('visible');
-        loadAdminSongList(); // Muat daftar lagu saat modal admin dibuka
+        loadAdminSongList();
     }
 
     function hideAdminPanelModal() {
         adminPanelModal.classList.remove('visible');
         modalOverlay.classList.remove('visible');
-        addSongForm.reset(); // Reset form saat modal ditutup
+        addSongForm.reset();
+        const submitBtn = addSongForm.querySelector('button[type="submit"]');
+        submitBtn.textContent = "Tambah Lagu";
+        submitBtn.classList.remove('btn-secondary');
+        submitBtn.classList.add('btn-primary');
+        submitBtn.dataset.editId = '';
     }
 
     adminPanelBtn.addEventListener('click', showAdminPanelModal);
@@ -880,37 +872,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addSongForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const title = addTitleInput.value;
-        const artist = addArtistInput.value;
-        const src = addSrcInput.value;
-        const albumArt = addAlbumArtInput.value;
-        const lyrics = addLyricsInput.value;
+        const submitBtn = e.submitter;
+        const editId = submitBtn.dataset.editId;
+
+        const songData = {
+            title: addTitleInput.value,
+            artist: addArtistInput.value,
+            src: addSrcInput.value,
+            albumArt: addAlbumArtInput.value,
+            lyrics: addLyricsInput.value,
+        };
 
         try {
-            await addDoc(collection(db, `artifacts/${appId}/public/songs`), {
-                title,
-                artist,
-                src,
-                albumArt,
-                lyrics,
-                createdAt: new Date() // Tambahkan timestamp
-            });
-            alert("Lagu berhasil ditambahkan!");
+            if (editId) {
+                await updateDoc(doc(db, `artifacts/${appId}/public/songs`, editId), songData);
+                alert("Lagu berhasil diperbarui!");
+            } else {
+                await addDoc(collection(db, `artifacts/${appId}/public/songs`), {
+                    ...songData,
+                    createdAt: new Date().toISOString()
+                });
+                alert("Lagu berhasil ditambahkan!");
+            }
             addSongForm.reset();
-        } catch (e) {
-            console.error("Error adding document: ", e);
-            alert("Gagal menambahkan lagu. Pastikan Anda admin dan koneksi internet stabil.");
+            submitBtn.dataset.editId = '';
+            submitBtn.textContent = "Tambah Lagu";
+            submitBtn.classList.remove('btn-secondary');
+            submitBtn.classList.add('btn-primary');
+
+        } catch (error) {
+            console.error("Error saving document: ", error);
+            alert("Gagal menyimpan lagu. Pastikan Anda admin dan koneksi internet stabil. Error: " + error.message);
         }
     });
 
     async function loadAdminSongList() {
-        adminSongListUl.innerHTML = '<p>Memuat lagu...</p>';
+        adminSongListUl.innerHTML = '<p style="text-align:center; padding: 20px;">Memuat lagu...</p>';
         try {
             const q = collection(db, `artifacts/${appId}/public/songs`);
-            const unsubscribe = onSnapshot(q, (snapshot) => {
-                adminSongListUl.innerHTML = ''; // Bersihkan sebelum membangun ulang
+            onSnapshot(q, (snapshot) => {
+                adminSongListUl.innerHTML = '';
                 if (snapshot.empty) {
-                    adminSongListUl.innerHTML = '<p>Belum ada lagu di daftar putar.</p>';
+                    adminSongListUl.innerHTML = '<p style="text-align:center; padding: 20px;">Belum ada lagu di daftar putar.</p>';
                     return;
                 }
                 snapshot.forEach((doc) => {
@@ -928,13 +931,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     adminSongListUl.appendChild(li);
                 });
+            }, (error) => {
+                console.error("Error listening to Firestore: ", error);
+                adminSongListUl.innerHTML = '<p style="text-align:center; padding: 20px; color: red;">Gagal memuat daftar lagu admin. Periksa aturan keamanan Firestore Anda.</p>';
             });
-            // Penting: Mengembalikan unsubscribe function agar bisa di-cleanup saat tidak dibutuhkan
-            // Namun, untuk admin panel yang selalu aktif, ini mungkin tidak perlu di-cleanup
-            // secara eksplisit kecuali jika modal ditutup secara permanen.
         } catch (e) {
-            console.error("Error loading admin song list: ", e);
-            adminSongListUl.innerHTML = '<p>Gagal memuat daftar lagu admin.</p>';
+            console.error("Error setting up loadAdminSongList listener: ", e);
+            adminSongListUl.innerHTML = '<p style="text-align:center; padding: 20px; color: red;">Terjadi kesalahan saat menyiapkan koneksi database.</p>';
         }
     }
 
@@ -947,70 +950,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     await deleteDoc(doc(db, `artifacts/${appId}/public/songs`, songId));
                     alert("Lagu berhasil dihapus!");
-                } catch (e) {
-                    console.error("Error deleting document: ", e);
-                    alert("Gagal menghapus lagu. Pastikan Anda admin dan koneksi internet stabil.");
+                } catch (error) {
+                    console.error("Error deleting document: ", error);
+                    alert("Gagal menghapus lagu. Pastikan Anda admin dan koneksi internet stabil. Error: " + error.message);
                 }
             }
         } else if (target.classList.contains('edit-btn')) {
-            // Isi form dengan data lagu yang akan diedit
             addTitleInput.value = target.dataset.title;
             addArtistInput.value = target.dataset.artist;
             addSrcInput.value = target.dataset.src;
             addAlbumArtInput.value = target.dataset.albumArt;
             addLyricsInput.value = target.dataset.lyrics;
 
-            // Ubah tombol submit menjadi tombol update
             const submitBtn = addSongForm.querySelector('button[type="submit"]');
             submitBtn.textContent = "Update Lagu";
             submitBtn.classList.remove('btn-primary');
-            submitBtn.classList.add('btn-secondary'); // Bisa buat style khusus untuk update
-
-            // Simpan ID lagu yang sedang diedit
+            submitBtn.classList.add('btn-secondary');
             submitBtn.dataset.editId = songId;
 
-            // Scroll ke atas form
             adminPanelModal.scrollTo({ top: 0, behavior: 'smooth' });
         }
     });
-
-    addSongForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const submitBtn = e.submitter; // Dapatkan tombol yang disubmit
-        const editId = submitBtn.dataset.editId; // Ambil ID jika sedang mode edit
-
-        const songData = {
-            title: addTitleInput.value,
-            artist: addArtistInput.value,
-            src: addSrcInput.value,
-            albumArt: addAlbumArtInput.value,
-            lyrics: addLyricsInput.value,
-        };
-
-        try {
-            if (editId) {
-                // Mode Update
-                await updateDoc(doc(db, `artifacts/${appId}/public/songs`, editId), songData);
-                alert("Lagu berhasil diperbarui!");
-                submitBtn.dataset.editId = ''; // Hapus ID edit
-                submitBtn.textContent = "Tambah Lagu"; // Kembalikan teks tombol
-                submitBtn.classList.remove('btn-secondary');
-                submitBtn.classList.add('btn-primary');
-            } else {
-                // Mode Tambah Baru
-                await addDoc(collection(db, `artifacts/${appId}/public/songs`), {
-                    ...songData,
-                    createdAt: new Date()
-                });
-                alert("Lagu berhasil ditambahkan!");
-            }
-            addSongForm.reset();
-        } catch (e) {
-            console.error("Error saving document: ", e);
-            alert("Gagal menyimpan lagu. Pastikan Anda admin dan koneksi internet stabil.");
-        }
-    });
-
 
     // --- Inisialisasi Aplikasi (Fungsi yang Berjalan Saat Halaman Dimuat) ---
     // Inisialisasi Firebase
@@ -1019,69 +979,74 @@ document.addEventListener('DOMContentLoaded', () => {
         auth = getAuth(app);
         db = getFirestore(app);
 
-        // Autentikasi anonim untuk semua pengguna
+        // Autentikasi anonim untuk semua pengguna, dan cek status admin
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserUid = user.uid;
-                console.log("UID Pengguna: ", currentUserUid);
+                console.log("UID Pengguna (untuk debug):", currentUserUid); // Ini akan selalu mencetak UID setiap pengguna
 
-                // Tampilkan tombol admin jika UID cocok dengan ADMIN_UID
+                // Logika admin
                 if (currentUserUid === ADMIN_UID) {
                     adminPanelBtn.style.display = 'flex'; // Tampilkan tombol admin
-                    console.log("Anda adalah Admin.");
+                    console.log("Anda adalah Admin. Tombol Admin Panel terlihat.");
                 } else {
                     adminPanelBtn.style.display = 'none';
-                    console.log("Anda adalah pengguna biasa.");
+                    console.log("Anda adalah pengguna biasa. Tombol Admin Panel tersembunyi.");
                 }
 
-                // Muat playlist dari Firestore setelah autentikasi
+                // Muat playlist dari Firestore secara real-time
                 const playlistCollectionRef = collection(db, `artifacts/${appId}/public/songs`);
                 onSnapshot(playlistCollectionRef, (snapshot) => {
                     const fetchedPlaylist = [];
                     snapshot.forEach((doc) => {
                         fetchedPlaylist.push({ id: doc.id, ...doc.data() });
                     });
-                    // Urutkan playlist berdasarkan createdAt (atau properti lain jika ada)
-                    fetchedPlaylist.sort((a, b) => (a.createdAt?.toDate() || 0) - (b.createdAt?.toDate() || 0));
+                    // Urutkan playlist berdasarkan createdAt (jika ada)
+                    fetchedPlaylist.sort((a, b) => {
+                        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                        return dateA.getTime() - dateB.getTime();
+                    });
+
                     currentPlaylistData = fetchedPlaylist;
                     originalPlaylistOrder = [...currentPlaylistData]; // Update original for shuffle
 
                     if (currentPlaylistData.length > 0) {
-                        // Jika lagu yang sedang diputar tidak ada lagi di playlist, reset ke 0
-                        const currentSongExists = currentPlaylistData.some(song => song.id === (currentPlaylistData[currentSongIndex] && currentPlaylistData[currentSongIndex].id));
-                        if (!currentSongExists && currentPlaylistData.length > 0) {
-                             currentSongIndex = 0; // Reset ke lagu pertama jika lagu saat ini dihapus
-                             loadSong(currentSongIndex);
-                             pauseSong(); // Jeda setelah reset
-                        } else if (currentPlaylistData.length > 0) {
-                            // Muat ulang lagu saat ini untuk memastikan data terbaru
-                            loadSong(currentSongIndex);
-                        } else {
-                            // Jika playlist kosong
-                            currentSongTitle.textContent = "Tidak ada lagu";
-                            currentArtistName.textContent = "Tambahkan lagu sebagai admin";
-                            lyricsText.innerHTML = "<p>Daftar putar kosong.</p>";
-                            pauseSong();
+                        // Pastikan currentSongIndex valid
+                        if (currentSongIndex >= currentPlaylistData.length || !currentPlaylistData[currentSongIndex]) {
+                             currentSongIndex = 0; // Reset ke lagu pertama jika index out of bounds atau lagu tidak ada
                         }
+                        // Muat ulang lagu saat ini untuk memastikan data terbaru dan context player tidak hilang
+                        // Hanya muat jika ada perubahan signifikan pada lagu yang sedang diputar (ID berbeda)
+                        // atau jika belum ada lagu yang dimuat (audioPlayer.src kosong)
+                        if (!audioPlayer.src || (currentPlaylistData[currentSongIndex] && audioPlayer.dataset.songId !== currentPlaylistData[currentSongIndex].id)) {
+                            loadSong(currentSongIndex);
+                            audioPlayer.dataset.songId = currentPlaylistData[currentSongIndex]?.id; // Simpan ID lagu aktif
+                        }
+
                         buildPlaylist(playlistSearchInput.value); // Rebuild UI playlist
                     } else {
-                        // Jika playlist kosong dari awal atau setelah dihapus semua
+                        // Jika playlist kosong
                         currentSongTitle.textContent = "Tidak ada lagu";
                         currentArtistName.textContent = "Tambahkan lagu sebagai admin";
-                        lyricsText.innerHTML = "<p>Daftar putar kosong.</p>";
+                        lyricsText.innerHTML = "<p>Daftar putar kosong. Tambahkan lagu sebagai admin untuk memulai!</p>";
                         pauseSong();
                         buildPlaylist(); // Kosongkan tampilan playlist
                     }
+                }, (error) => {
+                    console.error("Error real-time playlist listener: ", error);
+                    alert("Gagal memuat daftar putar. Pastikan aturan keamanan Firestore Anda benar.");
+                    currentSongTitle.textContent = "Error Memuat Playlist";
+                    currentArtistName.textContent = "Periksa koneksi atau aturan Firebase.";
+                    lyricsText.innerHTML = "<p>Gagal mengambil lagu dari database. Periksa konsol browser.</p>";
                 });
 
             } else {
-                // Pengguna belum terautentikasi, coba sign in anonim
+                // Pengguna belum terautentikasi (atau logout), coba sign in anonim
                 try {
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
+                    // Menggunakan signInAnonymously karena initialAuthToken tidak selalu tersedia di semua lingkungan
+                    await signInAnonymously(auth);
+                    console.log("Signed in anonymously.");
                 } catch (error) {
                     console.error("Error signing in:", error);
                     alert("Gagal terhubung ke layanan autentikasi. Beberapa fitur mungkin tidak berfungsi.");
@@ -1109,10 +1074,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } catch (error) {
         console.error("Gagal menginisialisasi Firebase:", error);
-        alert("Terjadi kesalahan saat menginisialisasi Firebase. Pastikan konfigurasi Anda benar.");
-        // Fallback jika Firebase gagal total
-        currentSongTitle.textContent = "Error Aplikasi";
-        currentArtistName.textContent = "Cek konsol browser untuk detail.";
-        lyricsText.innerHTML = "<p>Aplikasi gagal dimuat karena masalah konfigurasi. Silakan periksa konsol browser.</p>";
+        alert("Terjadi kesalahan fatal saat menginisialisasi Firebase. Pastikan konfigurasi Anda benar.");
+        currentSongTitle.textContent = "Error Aplikasi Fatal";
+        currentArtistName.textContent = "Cek konsol browser untuk detail Firebase.";
+        lyricsText.innerHTML = "<p>Aplikasi gagal dimuat. Periksa konfigurasi Firebase Anda di script.js dan konsol browser.</p>";
     }
 });
