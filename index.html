@@ -26,7 +26,7 @@
             </div>
 
             <div class="header-right-controls">
-                <button id="toggle-theme-btn" class="btn btn-icon" aria-label="Toggle Theme">
+                <button id="toggle-theme-btn" class="btn btn-icon" aria-label="Toggle Tema">
                     <i class="fas fa-sun"></i> </button>
                 <button id="toggle-playlist" class="btn btn-playlist">
                     <i class="fas fa-list-music"></i> Daftar Putar
@@ -43,7 +43,7 @@
         <div class="sleep-timer-display glass-effect" id="sleep-timer-display">
             <h4 class="section-title"><i class="fas fa-moon"></i> Timer Tidur</h4>
             <span id="sleep-timer-countdown" class="countdown-text"></span>
-            <button id="open-sleep-timer-modal" class="btn btn-icon btn-small" aria-label="Set Sleep Timer">
+            <button id="open-sleep-timer-modal" class="btn btn-icon btn-small" aria-label="Atur Timer Tidur">
                 <i class="fas fa-clock"></i>
             </button>
         </div>
@@ -58,16 +58,16 @@
             </div>
 
             <div class="album-art-section">
-                <img id="current-album-art" src="album_art_back_to_friends.jpg" alt="Album Art" class="album-art-img">
+                <img id="current-album-art" src="album_art_default.jpg" alt="Album Art" class="album-art-img">
             </div>
 
             <div class="song-details">
-                <h2 id="current-song-title" class="song-title">Back to Friends</h2>
-                <p id="current-artist-name" class="artist-name">Sombr</p>
+                <h2 id="current-song-title" class="song-title">Memuat...</h2>
+                <p id="current-artist-name" class="artist-name">Memuat...</p>
             </div>
 
-            <div class="lyrics-section">
-                <p id="lyrics-text" class="lyrics-text">Memuat lirik...</p>
+            <div class="info-section">
+                <p id="info-text" class="info-text">Memuat info lagu...</p>
             </div>
 
             <div class="progress-bar-section">
@@ -79,14 +79,13 @@
             </div>
 
             <div class="controls-section">
-                <button id="shuffle-btn" class="control-btn small-btn" aria-label="Shuffle"><i class="fas fa-shuffle"></i></button>
-                <button id="prev-btn" class="control-btn small-btn" aria-label="Previous Song"><i class="fas fa-backward"></i></button>
-                <button id="play-pause-btn" class="control-btn large-btn" aria-label="Play/Pause"><i class="fas fa-play"></i></button>
-                <button id="next-btn" class="control-btn small-btn" aria-label="Next Song"><i class="fas fa-forward"></i></button>
-                <button id="repeat-btn" class="control-btn small-btn" aria-label="Repeat"><i class="fas fa-repeat"></i></button>
-                <button id="open-audio-modal-btn" class="control-btn small-btn" aria-label="Open Audio Controls">
-                    <i class="fas fa-volume-high"></i>
-                </button>
+                <button id="shuffle-btn" class="control-btn small-btn" aria-label="Acak"><i class="fas fa-shuffle"></i></button>
+                <button id="prev-btn" class="control-btn small-btn" aria-label="Lagu Sebelumnya"><i class="fas fa-backward"></i></button>
+                <button id="play-pause-btn" class="control-btn large-btn" aria-label="Putar/Jeda"><i class="fas fa-play"></i></button>
+                <button id="next-btn" class="control-btn small-btn" aria-label="Lagu Berikutnya"><i class="fas fa-forward"></i></button>
+                <button id="repeat-btn" class="control-btn small-btn" aria-label="Ulangi"><i class="fas fa-repeat"></i></button>
+                <button id="open-audio-modal-btn" class="control-btn small-btn" aria-label="Buka Pengaturan Audio">
+                    <i class="fas fa-sliders"></i> </button>
             </div>
 
             <audio id="audio-player"></audio>
@@ -95,7 +94,7 @@
         <aside id="playlist-sidebar" class="playlist-sidebar glass-effect">
             <div class="playlist-header">
                 <h2 class="playlist-title">Daftar Putar</h2>
-                <button id="close-playlist-btn" class="control-btn small-btn" aria-label="Close Playlist">
+                <button id="close-playlist-btn" class="control-btn small-btn" aria-label="Tutup Daftar Putar">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -145,7 +144,12 @@
                     <input type="range" id="bass-control" min="-10" max="10" step="0.1" value="0" class="eq-slider">
                     <span id="bass-value">0 dB</span>
                 </div>
+                <div class="control-group">
+                    <label for="effect-level-control">Effect Level (Output):</label>
+                    <input type="range" id="effect-level-control" min="0" max="2" step="0.01" value="1" class="eq-slider">
+                    <span id="effect-level-value">100%</span>
                 </div>
+            </div>
         </div>
 
         <div id="sidebar-overlay" class="sidebar-overlay"></div>
