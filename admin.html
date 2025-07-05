@@ -491,12 +491,12 @@
                             <input type="text" id="song-artist">
                         </div>
                         <div class="input-group">
-                            <label for="song-src">URL File MP3 (dari GitHub Pages):</label>
-                            <input type="text" id="song-src" placeholder="https://yourusername.github.io/your-repo/song.mp3">
+                            <label for="song-src">Nama File MP3 (ex: song.mp3):</label>
+                            <input type="text" id="song-src" placeholder="misalnya: song.mp3">
                         </div>
                         <div class="input-group">
-                            <label for="song-album-art">URL Album Art (dari GitHub Pages):</label>
-                            <input type="text" id="song-album-art" placeholder="https://yourusername.github.io/your-repo/album_art.jpg">
+                            <label for="song-album-art">Nama File Album Art (ex: album_art.jpg):</label>
+                            <input type="text" id="song-album-art" placeholder="misalnya: album_art.jpg">
                         </div>
                         <div class="input-group">
                             <label for="song-info">Info Lagu (Gunakan &lt;br&gt; untuk baris baru):</label>
@@ -544,10 +544,10 @@
                 <input type="text" id="edit-song-artist">
             </div>
             <div class="input-group">
-                <label for="edit-song-src">URL File MP3:</label>
+                <label for="edit-song-src">Nama File MP3:</label>
                 <input type="text" id="edit-song-src" disabled> </div>
             <div class="input-group">
-                <label for="edit-song-album-art">URL Album Art:</label>
+                <label for="edit-song-album-art">Nama File Album Art:</label>
                 <input type="text" id="edit-song-album-art">
             </div>
             <div class="input-group">
@@ -568,9 +568,9 @@
 
             const songTitleInput = document.getElementById('song-title');
             const songArtistInput = document.getElementById('song-artist');
-            const songSrcInput = document.getElementById('song-src'); // Now URL
-            const songAlbumArtInput = document.getElementById('song-album-art'); // Now URL
-            const songInfoInput = document.getElementById('song-info'); // Changed from songLyricsInput
+            const songSrcInput = document.getElementById('song-src'); // Kembali ke nama file
+            const songAlbumArtInput = document.getElementById('song-album-art'); // Kembali ke nama file
+            const songInfoInput = document.getElementById('song-info'); // Info lagu
             const addSongBtn = document.getElementById('add-song-btn');
             const addSongMessage = document.getElementById('add-song-message');
             const manageSongList = document.getElementById('manage-song-list');
@@ -582,7 +582,7 @@
             const editSongArtistInput = document.getElementById('edit-song-artist');
             const editSongSrcInput = document.getElementById('edit-song-src');
             const editSongAlbumArtInput = document.getElementById('edit-song-album-art');
-            const editSongInfoInput = document.getElementById('edit-song-info'); // Changed from editSongLyricsInput
+            const editSongInfoInput = document.getElementById('edit-song-info'); // Info lagu
             const saveEditBtn = document.getElementById('save-edit-btn');
 
             const clearDataBtn = document.getElementById('clear-data-btn');
@@ -653,8 +653,8 @@
             addSongBtn.addEventListener('click', () => {
                 const title = songTitleInput.value.trim();
                 const artist = songArtistInput.value.trim();
-                const src = songSrcInput.value.trim(); // URL
-                const albumArt = songAlbumArtInput.value.trim(); // URL
+                const src = songSrcInput.value.trim(); // Nama file
+                const albumArt = songAlbumArtInput.value.trim(); // Nama file
                 const info = songInfoInput.value.trim(); // Info lagu
 
                 if (!title || !artist || !src || !albumArt || !info) {
@@ -663,22 +663,28 @@
                     return;
                 }
                 
-                // Validasi URL sederhana
-                try {
-                    new URL(src);
-                    new URL(albumArt);
-                } catch (e) {
+                // Validasi sederhana untuk format nama file
+                const fileExtensionRegex = /\.(mp3|wav|ogg|m4a)$/i; // Contoh ekstensi audio
+                const imageExtensionRegex = /\.(jpg|jpeg|png|gif|webp)$/i; // Contoh ekstensi gambar
+
+                if (!fileExtensionRegex.test(src)) {
                     addSongMessage.style.color = 'red';
-                    addSongMessage.textContent = 'URL MP3 atau Album Art tidak valid!';
+                    addSongMessage.textContent = 'Nama file MP3 harus memiliki ekstensi audio yang valid (mis: .mp3)!';
                     return;
                 }
+                if (!imageExtensionRegex.test(albumArt)) {
+                    addSongMessage.style.color = 'red';
+                    addSongMessage.textContent = 'Nama file Album Art harus memiliki ekstensi gambar yang valid (mis: .jpg)!';
+                    return;
+                }
+
 
                 const newSong = { title, artist, src, albumArt, info };
                 playlist.push(newSong);
                 savePlaylist();
                 renderSongList();
                 addSongMessage.style.color = 'green';
-                addSongMessage.textContent = 'Lagu berhasil ditambahkan dan tersedia untuk semua orang!';
+                addSongMessage.textContent = 'Lagu berhasil ditambahkan dan tersedia untuk semua orang (pastikan file ada di GitHub Pages)!';
                 // Bersihkan form
                 songTitleInput.value = '';
                 songArtistInput.value = '';
