@@ -354,7 +354,6 @@ header {
 
 .song-title {
     font-family: 'Montserrat', sans-serif;
-    margin: 0;
     font-size: 2.2em;
     color: var(--primary-text);
     text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
@@ -934,15 +933,15 @@ header {
 }
 
 .audio-control-group label {
-    font-family: 'Roboto', sans-serif; /* Ubah font label */
+    font-family: 'Roboto', sans-serif;
     font-size: 1.1em;
     color: var(--primary-text);
     margin-bottom: 5px;
 }
 
 .audio-control-group .volume-slider {
-    width: 90%; /* Sesuaikan lebar slider di modal */
-    height: 8px; /* Sedikit lebih tebal */
+    width: 90%;
+    height: 8px;
     background: rgba(255, 255, 255, 0.15);
 }
 
@@ -1008,6 +1007,121 @@ header {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* Admin Panel Styling */
+.admin-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.admin-section h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.4em;
+    color: var(--primary-text);
+    margin-bottom: 15px;
+}
+
+.admin-form input[type="text"],
+.admin-form textarea {
+    width: calc(100% - 30px);
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--primary-text);
+    font-size: 1em;
+    outline: none;
+    resize: vertical;
+}
+
+.admin-form textarea {
+    min-height: 80px;
+}
+
+.admin-form button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    margin-top: 10px;
+}
+
+.admin-song-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px; /* Batasi tinggi untuk scroll */
+    overflow-y: auto;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-song-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.admin-song-list li:last-child {
+    border-bottom: none;
+}
+
+.admin-song-info {
+    flex-grow: 1;
+    text-align: left;
+    margin-right: 10px;
+}
+
+.admin-song-info h4 {
+    margin: 0;
+    font-size: 1em;
+    color: var(--primary-text);
+}
+
+.admin-song-info p {
+    margin: 2px 0 0;
+    font-size: 0.8em;
+    color: var(--secondary-text);
+}
+
+.admin-song-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.admin-song-actions button {
+    padding: 6px 10px;
+    font-size: 0.8em;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.admin-song-actions .edit-btn {
+    background-color: rgba(0, 123, 255, 0.2);
+    border: 1px solid rgba(0, 123, 255, 0.5);
+    color: #007bff;
+}
+.admin-song-actions .edit-btn:hover {
+    background-color: rgba(0, 123, 255, 0.4);
+}
+
+.admin-song-actions .delete-btn {
+    background-color: rgba(220, 53, 69, 0.2);
+    border: 1px solid rgba(220, 53, 69, 0.5);
+    color: #dc3545;
+}
+.admin-song-actions .delete-btn:hover {
+    background-color: rgba(220, 53, 69, 0.4);
+}
 
 /* Responsive Design (umum) */
 @media (max-width: 768px) {
@@ -1040,7 +1154,7 @@ header {
         gap: 8px;
     }
 
-    .btn-playlist, .btn-contact, .btn-theme {
+    .btn-playlist, .btn-contact, .btn-theme, .btn-admin { /* Tambahkan btn-admin */
         padding: 8px 12px;
         font-size: 0.8em;
     }
@@ -1162,6 +1276,34 @@ header {
     .eq-preset-btn {
         padding: 6px 12px;
         font-size: 0.85em;
+    }
+
+    /* Admin Panel Responsive */
+    .admin-section h3 {
+        font-size: 1.2em;
+    }
+    .admin-form input[type="text"],
+    .admin-form textarea {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    .admin-form button[type="submit"] {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    .admin-song-list li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .admin-song-info {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
+    .admin-song-actions {
+        width: 100%;
+        justify-content: flex-end;
     }
 }
 
