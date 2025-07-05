@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- PLAYLIST DEFAULT (INI ADALAH DATA BAWAAN YANG TIDAK AKAN BERUBAH) ---
     // Pastikan semua file ini ada di root folder repositori GitHub Anda.
-    // Contoh: 'https://bentley338.github.io/music_bentley/back_to_friends.mp3'
     // CUKUP NAMA FILENYA SAJA, KARENA KITA TIDAK PAKAI BASE_URL LAGI.
     // Asumsi: Semua file media ada di folder yang sama dengan index.html
     const DEFAULT_PLAYLIST = [
@@ -199,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // currentPlaylist dan originalPlaylistOrder akan diinisialisasi berdasarkan
     // localStorage, dan jika kosong, akan menggunakan DEFAULT_PLAYLIST.
     let currentPlaylist = [];
-    let originalPlaylistOrder = [];
+    let originalPlaylistOrder = []; // Selalu menyimpan urutan asli dari currentPlaylist
 
     // --- Inisialisasi Playlist saat DOMContentLoaded ---
     function initializePlaylist() {
@@ -211,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentPlaylist = savedPlaylist;
             } else {
                 // Jika localStorage kosong, gunakan playlist default.
-                currentPlaylist = [...DEFAULT_PLAYLIST];
+                currentPlaylist = [...DEFAULT_PLAYLIST]; // Salin untuk menghindari modifikasi DEFAULT_PLAYLIST langsung
                 // Simpan default ke localStorage untuk penggunaan pertama kali dan konsistensi.
                 localStorage.setItem('musicPlaylist', JSON.stringify(currentPlaylist));
             }
@@ -245,8 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSongTitle.textContent = "Tidak ada lagu";
         currentArtistName.textContent = "Tambahkan lagu di panel admin";
         infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album ada di folder yang sama dengan file HTML utama Anda di GitHub Pages.</p>";
-        audioPlayer.src = "";
-        currentAlbumArt.src = "album_art_default.jpg";
+        audioPlayer.src = ""; // Bersihkan sumber audio
+        currentAlbumArt.src = "album_art_default.jpg"; // Gambar default
         pauseSong();
         playlistUl.innerHTML = '<li style="justify-content: center; cursor: default; background-color: transparent; transform: none; border-left: none; color: var(--secondary-text);">Tidak ada lagu ditemukan.</li>';
     }
@@ -254,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Web Audio API ---
     function setupAudioContext() {
-        if (!source) {
+        if (!source) { // Buat sumber hanya sekali
             source = audioContext.createMediaElementSource(audioPlayer);
             source.connect(bassFilter);
             bassFilter.connect(trebleFilter);
@@ -280,9 +279,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const song = currentPlaylist[songIndex];
-        audioPlayer.src = song.src;
-        audioPlayer.load();
-        currentAlbumArt.src = song.albumArt; // Menggunakan jalur relatif langsung
+        audioPlayer.src = song.src; // Langsung pakai nama file (jalur relatif)
+        audioPlayer.load(); // Load audio element
+        currentAlbumArt.src = song.albumArt; // Langsung pakai nama file (jalur relatif)
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
         infoText.innerHTML = song.info;
@@ -342,11 +341,11 @@ document.addEventListener('DOMContentLoaded', () => {
             audioContext.resume();
         }
 
-        if (!audioPlayer.src) { // Pastikan ada src sebelum memutar
+        if (!audioPlayer.src) {
              console.warn("Audio source kosong. Tidak bisa memutar.");
              if(currentPlaylist.length > 0) {
-                 loadSong(0); // Coba muat lagu pertama jika kosong
-                 playSong(); // Kemudian coba putar lagi
+                 loadSong(0);
+                 playSong();
              }
              return;
         }
@@ -480,15 +479,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             durationSpan.textContent = '0:00';
         }
-        // Pastikan album art default dimuat jika src tidak valid
-        if (!currentAlbumArt.src || currentAlbumArt.src === window.location.href) {
+        // Pastikan album art default dimuat jika src tidak valid atau tidak ditemukan
+        if (!currentAlbumArt.src || currentAlbumArt.src === window.location.href || currentAlbumArt.naturalWidth === 0) {
             currentAlbumArt.src = 'album_art_default.jpg';
         }
     });
 
     audioPlayer.addEventListener('error', (e) => {
         console.error("Error loading audio:", e);
-        // Tampilkan pesan error kepada pengguna jika lagu gagal dimuat
         currentSongTitle.textContent = "Error Memuat Lagu";
         currentArtistName.textContent = "File mungkin tidak ditemukan atau rusak.";
         infoText.innerHTML = "<p>Terjadi masalah saat memuat file audio. Pastikan nama file dan lokasinya sudah benar di GitHub Pages Anda.</p>";
@@ -813,6 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Inisialisasi Aplikasi (Panggil fungsi inisialisasi) ---
+    // Pastikan ini dipanggil SETELAH SEMUA DEKLARASI FUNGSI DI ATASNYA.
     initializePlaylist();
 
     // Inisialisasi Web Audio API setelah gesture pengguna (putar pertama kali)
