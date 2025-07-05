@@ -15,8 +15,6 @@
             Browser Anda tidak mendukung video HTML5.
         </video>
         <div class="video-overlay"></div>
-        <!-- Canvas untuk Visualizer Audio -->
-        <canvas id="audio-visualizer-canvas"></canvas>
     </div>
 
     <div class="container">
@@ -25,32 +23,28 @@
                 <h1 id="app-title-new" class="app-title-new">
                     <i class="fas fa-music"></i> MelodyVerse
                 </h1>
-                <div class="header-audio-controls">
-                    <!-- Tombol Set Timer -->
-                    <button id="set-timer-btn" class="btn btn-timer header-timer-btn">
-                        <i class="fas fa-clock"></i> Set Timer
-                    </button>
-                    <!-- Tombol Pengaturan Audio/Volume -->
-                    <button id="audio-settings-btn" class="btn btn-volume header-volume-btn">
-                        <i class="fas fa-sliders-h"></i> Audio
-                    </button>
-                    <!-- Tombol Admin Panel DIHAPUS -->
-                </div>
             </div>
 
-            <div class="header-buttons-vertical">
-                <!-- Tombol Tema -->
-                <button id="theme-toggle-btn" class="btn btn-theme">
-                    <i class="fas fa-sun"></i> Mode Terang
-                </button>
+            <div class="header-right-controls">
+                <button id="toggle-theme-btn" class="btn btn-icon" aria-label="Toggle Theme">
+                    <i class="fas fa-sun"></i> </button>
                 <button id="toggle-playlist" class="btn btn-playlist">
                     <i class="fas fa-list-music"></i> Daftar Putar
                 </button>
-                <a href="contact.html" class="btn btn-contact">
-                    <i class="fas fa-address-book"></i> Kontak
-                </a>
             </div>
         </header>
+
+        <div class="sleep-timer-section glass-effect">
+            <h4 class="section-title"><i class="fas fa-moon"></i> Timer Tidur</h4>
+            <select id="sleep-timer-select" class="custom-select">
+                <option value="0">Off</option>
+                <option value="5">5 Menit</option>
+                <option value="15">15 Menit</option>
+                <option value="30">30 Menit</option>
+                <option value="60">60 Menit</option>
+            </select>
+            <span id="sleep-timer-countdown" class="countdown-text"></span>
+        </div>
 
         <main class="music-player glass-effect">
             <div class="header-player">
@@ -82,123 +76,63 @@
                 </div>
             </div>
 
-            <!-- Bagian ini untuk menampilkan timer aktif di player utama -->
-            <div id="player-timer-display" class="player-timer-display" style="display: none;">
-                <i class="fas fa-hourglass-half"></i> Timer Aktif: <span id="player-timer-countdown"></span>
-                <button id="player-cancel-timer-btn" class="btn-icon-sm" aria-label="Batalkan Timer">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
             <div class="controls-section">
-                <!-- Tombol Shuffle -->
-                <button id="shuffle-btn" class="control-btn small-btn" aria-label="Acak Lagu">
-                    <i class="fas fa-shuffle"></i>
-                </button>
-                <button id="prev-btn" class="control-btn small-btn" aria-label="Lagu Sebelumnya"><i class="fas fa-backward"></i></button>
-                <button id="play-pause-btn" class="control-btn large-btn" aria-label="Putar/Jeda"><i class="fas fa-play"></i></button>
-                <button id="next-btn" class="control-btn small-btn" aria-label="Lagu Berikutnya"><i class="fas fa-forward"></i></button>
-                <!-- Tombol Repeat -->
-                <button id="repeat-btn" class="control-btn small-btn" aria-label="Ulangi Lagu">
-                    <i class="fas fa-repeat"></i>
-                </button>
+                <button id="shuffle-btn" class="control-btn small-btn" aria-label="Shuffle"><i class="fas fa-shuffle"></i></button>
+                <button id="prev-btn" class="control-btn small-btn" aria-label="Previous Song"><i class="fas fa-backward"></i></button>
+                <button id="play-pause-btn" class="control-btn large-btn" aria-label="Play/Pause"><i class="fas fa-play"></i></button>
+                <button id="next-btn" class="control-btn small-btn" aria-label="Next Song"><i class="fas fa-forward"></i></button>
+                <button id="repeat-btn" class="control-btn small-btn" aria-label="Repeat"><i class="fas fa-repeat"></i></button>
             </div>
 
             <audio id="audio-player"></audio>
         </main>
 
-        <aside id="playlist-sidebar" class="playlist-sidebar glass-effect">
-            <div class="playlist-header">
-                <h2 class="playlist-title">Daftar Putar</h2>
-                <button id="close-playlist-btn" class="control-btn small-btn" aria-label="Tutup Daftar Putar">
+        <aside id="audio-controls-sidebar" class="audio-controls-sidebar glass-effect">
+            <div class="audio-controls-header">
+                <h2 class="section-title"><i class="fas fa-volume-up"></i> Audio</h2>
+                <button id="close-audio-controls-btn" class="control-btn small-btn" aria-label="Close Audio Controls">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <!-- Input Pencarian Playlist -->
-            <div class="playlist-search-section">
-                <input type="text" id="playlist-search-input" placeholder="Cari lagu..." class="search-input">
-                <i class="fas fa-search search-icon"></i>
+            <div class="control-group">
+                <label for="master-volume">Volume Utama:</label>
+                <input type="range" id="master-volume" min="0" max="1" step="0.01" value="0.7" class="volume-slider">
+                <span id="volume-value">70%</span>
+            </div>
+            <div class="control-group">
+                <label for="treble-control">Treble:</label>
+                <input type="range" id="treble-control" min="-10" max="10" step="0.1" value="0" class="eq-slider">
+                <span id="treble-value">0 dB</span>
+            </div>
+            <div class="control-group">
+                <label for="bass-control">Bass:</label>
+                <input type="range" id="bass-control" min="-10" max="10" step="0.1" value="0" class="eq-slider">
+                <span id="bass-value">0 dB</span>
+            </div>
+            </aside>
+
+        <aside id="playlist-sidebar" class="playlist-sidebar glass-effect">
+            <div class="playlist-header">
+                <h2 class="playlist-title">Daftar Putar</h2>
+                <button id="close-playlist-btn" class="control-btn small-btn" aria-label="Close Playlist">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="search-bar-container">
+                <input type="text" id="playlist-search" placeholder="Cari lagu..." class="search-input">
+                <i class="fas fa-magnifying-glass search-icon"></i>
             </div>
             <ul id="playlist" class="playlist-items">
-                </ul>
+            </ul>
         </aside>
 
-        <!-- Timer Modal -->
-        <div id="timer-modal" class="modal">
-            <div class="modal-content glass-effect">
-                <span class="close-button" id="close-timer-modal">&times;</span>
-                <h2>Atur Timer Tidur</h2>
-                <div class="timer-options">
-                    <button class="timer-option-btn" data-minutes="5">5 Menit</button>
-                    <button class="timer-option-btn" data-minutes="15">15 Menit</button>
-                    <button class="timer-option-btn" data-minutes="30">30 Menit</button>
-                    <button class="timer-option-btn" data-minutes="45">45 Menit</button>
-                    <button class="timer-option-btn" data-minutes="60">60 Menit</button>
-                    <button class="timer-option-btn" data-minutes="90">90 Menit</button>
-                </div>
-                <div class="custom-timer-input">
-                    <input type="number" id="custom-timer-minutes" min="1" placeholder="Menit kustom">
-                    <button id="set-custom-timer-btn" class="btn btn-primary">Atur</button>
-                </div>
-                <div id="modal-active-timer-display" class="modal-active-timer-display" style="display: none;">
-                    <p>Timer saat ini: <span id="modal-timer-countdown"></span></p>
-                    <button id="modal-cancel-timer-btn" class="btn btn-secondary">Batalkan Timer</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Audio Settings Modal -->
-        <div id="audio-settings-modal" class="modal">
-            <div class="modal-content glass-effect">
-                <span class="close-button" id="close-audio-settings-modal">&times;</span>
-                <h2>Pengaturan Audio</h2>
-
-                <div class="audio-control-group">
-                    <label for="master-volume-slider">Volume Utama:</label>
-                    <input type="range" id="master-volume-slider" value="100" min="0" max="100" class="volume-slider">
-                    <span id="master-volume-value">100%</span>
-                </div>
-
-                <!-- Equalizer Controls -->
-                <h3>Equalizer</h3>
-                <div class="eq-presets">
-                    <button class="eq-preset-btn" data-preset="flat">Flat</button>
-                    <button class="eq-preset-btn" data-preset="pop">Pop</button>
-                    <button class="eq-preset-btn" data-preset="rock">Rock</button>
-                    <button class="eq-preset-btn" data-preset="jazz">Jazz</button>
-                </div>
-
-                <div class="audio-control-group">
-                    <label for="bass-level-slider">Bass:</label>
-                    <input type="range" id="bass-level-slider" value="0" min="-20" max="20" class="volume-slider eq-slider">
-                    <span id="bass-level-value">0 dB</span>
-                </div>
-                <div class="audio-control-group">
-                    <label for="mid-level-slider">Mid:</label>
-                    <input type="range" id="mid-level-slider" value="0" min="-20" max="20" class="volume-slider eq-slider">
-                    <span id="mid-level-value">0 dB</span>
-                </div>
-                <div class="audio-control-group">
-                    <label for="treble-level-slider">Treble:</label>
-                    <input type="range" id="treble-level-slider" value="0" min="-20" max="20" class="volume-slider eq-slider">
-                    <span id="treble-level-value">0 dB</span>
-                </div>
-
-                <div class="audio-control-group">
-                    <label for="effect-level-slider">Level Efek:</label>
-                    <input type="range" id="effect-level-slider" value="0" min="0" max="100" class="volume-slider">
-                    <span id="effect-level-value">0%</span>
-                </div>
-                <p class="audio-note">Catatan: Fitur 'Mic Level' tidak tersedia dalam pemutar musik ini.</p>
-            </div>
-        </div>
-
-        <!-- Admin Panel Modal DIHAPUS -->
-        <!-- Login/Register Modal DIHAPUS -->
-
         <div id="sidebar-overlay" class="sidebar-overlay"></div>
-        <div id="modal-overlay" class="sidebar-overlay"></div>
     </div>
+
+    <footer class="app-footer">
+        <a href="admin.html" class="footer-link"><i class="fas fa-user-gear"></i> Admin</a>
+        <a href="contact.html" class="footer-link"><i class="fas fa-address-book"></i> Kontak</a>
+    </footer>
 
     <script src="script.js"></script>
 </body>
