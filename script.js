@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Elemen DOM ---
     const audioPlayer = document.getElementById('audio-player');
     const playPauseBtn = document.getElementById('play-pause-btn');
-    const prevBtn = document = document.getElementById('prev-btn');
+    const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
     const progressBar = document.getElementById('progress-bar');
     const currentTimeSpan = document.getElementById('current-time');
@@ -88,7 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let autoplayBlocked = false;
 
     // --- DATA LAGU (LOAD DARI LOCALSTORAGE ATAU DEFAULT) ---
-    let playlist = JSON.parse(localStorage.getItem('musicPlaylist')) || [
+    // Daftar lagu default saat pertama kali aplikasi dibuka atau localStorage kosong.
+    // PASTIKAN SEMUA FILE MP3 DAN GAMBAR ALBUM ADA DI FOLDER YANG SAMA DENGAN INDEX.HTML ANDA.
+    let defaultInitialPlaylist = [
         {
             title: "Guilty as Sin?",
             artist: "Taylor Swift",
@@ -219,6 +221,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
+
+    // Coba memuat playlist dari localStorage, jika tidak ada, gunakan defaultInitialPlaylist
+    let playlist = JSON.parse(localStorage.getItem('musicPlaylist'));
+    if (!playlist || playlist.length === 0) {
+        playlist = [...defaultInitialPlaylist];
+        // Simpan playlist default ini ke localStorage agar tidak kosong di kunjungan berikutnya
+        localStorage.setItem('musicPlaylist', JSON.stringify(playlist));
+    }
+    
     originalPlaylistOrder = [...playlist];
 
     // --- Web Audio API Setup ---
@@ -269,20 +280,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadSong(songIndex) {
         if (playlist.length === 0) {
-            console.warn("Playlist kosong. Tidak ada lagu untuk dimuat.");
-            // Cek jika ada lagu default yang diatur
+            console.warn("Playlist kosong. Mencoba memuat lagu default.");
+            // Cek jika ada lagu default yang diatur oleh admin
             const defaultSong = JSON.parse(localStorage.getItem('defaultMelodyVerseSong'));
             if (defaultSong && defaultSong.src) {
                 audioPlayer.src = defaultSong.src;
                 currentAlbumArt.src = defaultSong.albumArt || "album_art_default.jpg";
                 currentSongTitle.textContent = defaultSong.title || "Lagu Default";
                 currentArtistName.textContent = defaultSong.artist || "Artis Default";
-                infoText.innerHTML = defaultSong.info || "<p>Tidak ada lagu di playlist utama. Ini adalah lagu default.</p>";
+                infoText.innerHTML = defaultSong.info || "<p>Tidak ada lagu di playlist utama. Ini adalah lagu default yang diatur admin.</p>";
                 audioPlayer.load();
-                pauseSong();
+                pauseSong(); // Jangan otomatis putar, biarkan user berinteraksi
                 return;
             }
 
+            // Jika tidak ada lagu di playlist maupun lagu default yang diatur
             currentSongTitle.textContent = "Tidak ada lagu";
             currentArtistName.textContent = "Tambahkan lagu di panel admin";
             infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album ada di folder yang sama dengan file HTML utama Anda di GitHub Pages.</p>";
@@ -319,6 +331,12 @@ document.addEventListener('DOMContentLoaded', () => {
             albumArtImg.style.animation = '';
         }
         updatePlaylistActiveState(songIndex);
+
+        // Reset progress bar and time display for new song
+        progressBar.value = 0;
+        currentTimeSpan.textContent = '0:00';
+        durationSpan.textContent = '0:00';
+
 
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
@@ -371,11 +389,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function attemptPlay() {
         if (!audioPlayer.src || audioPlayer.src === window.location.href) {
-            console.warn("Audio source not loaded or invalid. Attempting to load first song.");
+            console.warn("Audio source not loaded or invalid. Attempting to load first song or default.");
             if (playlist.length > 0) {
                 loadSong(0);
             } else {
-                return;
+                // If playlist is still empty and no default song is loaded, we can't play.
+                const defaultSong = JSON.parse(localStorage.getItem('defaultMelodyVerseSong'));
+                if (defaultSong && defaultSong.src) {
+                    // If a default song is available, ensure it's loaded before attempting to play.
+                    // The loadSong function handles displaying the default song details.
+                    loadSong(-1); // Pass invalid index to trigger default song logic within loadSong
+                } else {
+                    // No songs to play at all
+                    return;
+                }
             }
         }
 
@@ -930,44 +957,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Inisialisasi Aplikasi ---
+    // Atur default song untuk playlist kosong pertama kali jika belum ada
+    if (!localStorage.getItem('defaultMelodyVerseSong')) {
+        localStorage.setItem('defaultMelodyVerseSong', JSON.stringify({
+           title: "Selamat Datang di MelodyVerse",
+           artist: "Admin",
+           src: "abstract_wave_bg.mp4", // Atau file mp3 kosong jika Anda punya
+           albumArt: "album_art_default.jpg",
+           info: "<p>Playlist Anda kosong! Tambahkan lagu baru melalui panel admin untuk memulai petualangan musik Anda.</p>"
+       }));
+    }
+
+    // Periksa apakah playlist di localStorage kosong saat startup
+    // Jika ya, muat playlist dari defaultInitialPlaylist dan simpan ke localStorage
     if (localStorage.getItem('musicPlaylist')) {
-        playlist = JSON.parse(localStorage.getItem('musicPlaylist'));
-        originalPlaylistOrder = [...playlist];
-    }
-
-    // Default song setup if playlist is empty or if no default is set yet
-    const currentDefaultSong = JSON.parse(localStorage.getItem('defaultMelodyVerseSong'));
-    if (!currentDefaultSong && playlist.length > 0) {
-        localStorage.setItem('defaultMelodyVerseSong', JSON.stringify(playlist[0]));
-    } else if (!currentDefaultSong && playlist.length === 0) {
-         localStorage.setItem('defaultMelodyVerseSong', JSON.stringify({
-            title: "Selamat Datang di MelodyVerse",
-            artist: "Admin",
-            src: "abstract_wave_bg.mp4",
-            albumArt: "album_art_default.jpg",
-            info: "<p>Playlist Anda kosong! Tambahkan lagu baru melalui panel admin untuk memulai petualangan musik Anda.</p>"
-        }));
-    }
-
-
-    if (playlist.length > 0) {
-        loadSong(currentSongIndex);
-        buildPlaylist();
+        let storedPlaylist = JSON.parse(localStorage.getItem('musicPlaylist'));
+        if (storedPlaylist.length === 0 && defaultInitialPlaylist.length > 0) {
+            // Jika playlist di localStorage kosong tapi ada default awal, gunakan itu
+            playlist = [...defaultInitialPlaylist];
+            localStorage.setItem('musicPlaylist', JSON.stringify(playlist));
+            console.log("LocalStorage playlist kosong, memuat dari defaultInitialPlaylist.");
+        } else {
+            // Jika ada playlist di localStorage, gunakan itu
+            playlist = storedPlaylist;
+        }
     } else {
-        console.warn("No songs found in 'playlist' array. Loading default song.");
-        const defaultSongToLoad = JSON.parse(localStorage.getItem('defaultMelodyVerseSong'));
-        if (defaultSongToLoad) {
-            audioPlayer.src = defaultSongToLoad.src;
-            currentAlbumArt.src = defaultSongToLoad.albumArt || "album_art_default.jpg";
-            currentSongTitle.textContent = defaultSongToLoad.title || "Lagu Default";
-            currentArtistName.textContent = defaultSongToLoad.artist || "Artis Default";
-            infoText.innerHTML = defaultSongToLoad.info || "<p>Tidak ada lagu di playlist utama. Ini adalah lagu default.</p>";
+        // Jika tidak ada musicPlaylist di localStorage sama sekali, gunakan defaultInitialPlaylist
+        playlist = [...defaultInitialPlaylist];
+        localStorage.setItem('musicPlaylist', JSON.stringify(playlist));
+        console.log("Tidak ada playlist di localStorage, memuat defaultInitialPlaylist.");
+    }
+    
+    originalPlaylistOrder = [...playlist]; // Selalu sinkronkan originalPlaylistOrder
+
+    // Tentukan lagu yang akan dimuat saat startup
+    if (playlist.length > 0) {
+        // Jika ada lagu di playlist, muat lagu pertama atau lagu terakhir yang diputar
+        loadSong(currentSongIndex);
+        buildPlaylist(); // Bangun playlist sidebar
+    } else {
+        // Jika playlist benar-benar kosong (setelah semua upaya), muat lagu default
+        console.warn("Playlist masih kosong, memuat default fallback song.");
+        const defaultFallbackSong = JSON.parse(localStorage.getItem('defaultMelodyVerseSong'));
+        if (defaultFallbackSong) {
+            audioPlayer.src = defaultFallbackSong.src;
+            currentAlbumArt.src = defaultFallbackSong.albumArt || "album_art_default.jpg";
+            currentSongTitle.textContent = defaultFallbackSong.title || "Lagu Default";
+            currentArtistName.textContent = defaultFallbackSong.artist || "Artis Default";
+            infoText.innerHTML = defaultFallbackSong.info || "<p>Playlist kosong. Ini adalah lagu default sementara.</p>";
             audioPlayer.load();
         } else {
+            // Jika bahkan defaultFallbackSong tidak ada (seharusnya tidak terjadi)
             currentSongTitle.textContent = "Tidak ada lagu";
             currentArtistName.textContent = "Silakan tambahkan lagu di panel admin";
             infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album ada di folder yang sama dengan file HTML utama Anda di GitHub Pages.</p>";
+            audioPlayer.src = "";
+            currentAlbumArt.src = "album_art_default.jpg";
         }
+        pauseSong(); // Pastikan tidak otomatis play
     }
 
 
@@ -983,27 +1030,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Listener untuk perubahan localStorage
     window.addEventListener('storage', (event) => {
         if (event.key === 'musicPlaylist' || event.key === 'defaultMelodyVerseSong') {
             console.log('Perubahan playlist atau lagu default terdeteksi dari localStorage, memuat ulang playlist.');
             const newPlaylist = JSON.parse(localStorage.getItem('musicPlaylist')) || [];
+            
+            // Hanya perbarui jika konten playlist benar-benar berubah
             if (JSON.stringify(playlist) !== JSON.stringify(newPlaylist)) {
                 playlist = newPlaylist;
                 originalPlaylistOrder = [...playlist];
-                if (playlist.length > 0 && currentSongIndex >= playlist.length) {
-                    currentSongIndex = 0;
-                } else if (playlist.length === 0) {
-                    currentSongIndex = 0;
+                
+                // Atur ulang currentSongIndex jika lagu saat ini tidak ada di playlist baru
+                if (playlist.length > 0) {
+                    let foundCurrentSong = false;
+                    if (currentSongIndex < playlist.length && playlist[currentSongIndex]) {
+                        // Coba pertahankan lagu yang sedang diputar jika masih ada
+                        const currentlyPlayingSrc = audioPlayer.src.split('/').pop();
+                        if (currentlyPlayingSrc && playlist[currentSongIndex].src === currentlyPlayingSrc) {
+                            foundCurrentSong = true;
+                        }
+                    }
+                    if (!foundCurrentSong) {
+                         // Jika lagu saat ini tidak ditemukan, atau index tidak valid, kembali ke lagu pertama
+                        currentSongIndex = 0; 
+                    }
+                } else {
+                    currentSongIndex = 0; // Jika playlist kosong, reset index
                 }
+                
                 loadSong(currentSongIndex);
                 buildPlaylist();
                 if (isPlaying && playlist.length > 0) {
                     playSong();
                 } else if (playlist.length === 0) {
                     pauseSong();
+                    // Load default fallback if playlist becomes empty
+                    const defaultFallbackSong = JSON.parse(localStorage.getItem('defaultMelodyVerseSong'));
+                    if (defaultFallbackSong) {
+                        audioPlayer.src = defaultFallbackSong.src;
+                        currentAlbumArt.src = defaultFallbackSong.albumArt || "album_art_default.jpg";
+                        currentSongTitle.textContent = defaultFallbackSong.title || "Lagu Default";
+                        currentArtistName.textContent = defaultFallbackSong.artist || "Artis Default";
+                        infoText.innerHTML = defaultFallbackSong.info || "<p>Playlist kosong. Ini adalah lagu default sementara.</p>";
+                        audioPlayer.load();
+                    }
                 }
             } else if (event.key === 'defaultMelodyVerseSong' && playlist.length === 0) {
-                loadSong(currentSongIndex);
+                // Jika hanya lagu default yang berubah dan playlist utama kosong, muat ulang default
+                loadSong(currentSongIndex); // Ini akan memicu logika pemuatan lagu default
             }
         }
     });
