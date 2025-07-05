@@ -558,132 +558,7 @@
     </div>
 
     <script>
-        // Copy-paste DEFAULT_PLAYLIST dari script.js utama
-        // Pastikan DEFAULT_PLAYLIST_ADMIN ini sama persis dengan DEFAULT_PLAYLIST di script.js
-        const DEFAULT_PLAYLIST_ADMIN = [
-             {
-            title: "Back to Friends",
-            artist: "Sombr",
-            src: "back_to_friends.mp3",
-            albumArt: "album_art_back_to_friends.jpg",
-            info: `<b>🎶 Back to Friends – Sombr</b><br><br>
-                Lagu ini menggambarkan kerumitan transisi dari hubungan romantis ke pertemanan. Liriknya, "How can we go back to being friends when we just shared a bed?", menyoroti kebingungan dan kesulitan emosional setelah melewati batas dalam sebuah hubungan. Dibuat dengan melodi yang melankolis namun memikat, lagu ini cocok untuk siapa saja yang pernah merasakan dilema serupa.`
-        },
-        {
-            title: "Bergema Sampai Selamanya",
-            artist: "Nadhif Basalamah",
-            src: "bergema_sampai_selamanya.mp3",
-            albumArt: "album_art_bergema_sampai_selamanya.jpg",
-            info: `<b>🎶 Bergema Sampai Selamanya – Nadhif Basalamah</b><br><br>
-                Lagu ini adalah ode untuk cinta abadi yang tidak akan pernah pudar oleh waktu. Melalui lirik puitis, Nadhif Basalamah menangkap esensi dari ikatan yang mendalam, di mana setiap napas dan langkah diisi dengan kenangan tak terlupakan. Makna dari lagu ini adalah tentang janji yang terukir abadi di jiwa, sebuah pengingat bahwa cinta sejati akan selalu bergema, melewati batas ruang dan waktu.`
-        },
-        {
-            title: "Ride",
-            artist: "SoMo",
-            src: "ride.mp3",
-            albumArt: "album_art_ride.jpg",
-            info: `<b>🎶 Ride – SoMo</b><br><br>
-                "Ride" adalah lagu yang merayakan kebebasan dan kegembiraan dalam menikmati hidup tanpa beban. SoMo mengajak pendengar untuk melepaskan kekhawatiran dan menikmati setiap momen perjalanan. Inspirasi di balik lagu ini adalah tentang menjalani hidup dengan santai, seperti mengendarai mobil di bawah langit cerah tanpa tujuan pasti, hanya menikmati kebersamaan dan keindahan yang ada.`
-        },
-        {
-            title: "Rumah Kita",
-            artist: "God Bless",
-            src: "rumah_kita.mp3",
-            albumArt: "album_art_rumah_kita.jpg",
-            info: `<b>🎶 Rumah Kita – God Bless</b><br><br>
-                Lagu legendaris dari God Bless ini adalah metafora tentang kesederhanaan dan kehangatan sebuah rumah, bukan dari kemewahannya, melainkan dari cinta dan kebersamaan di dalamnya. "Rumah Kita" diciptakan sebagai pengingat bahwa kebahagiaan sejati ditemukan dalam ikatan keluarga dan tempat di mana kita merasa aman dan dicintai, jauh lebih berharga dari istana mana pun.`
-        },
-        {
-            title: "Style",
-            artist: "Taylor Swift",
-            src: "style.mp3",
-            albumArt: "album_art_style.jpg",
-            info: `<b>🎶 Style – Taylor Swift</b><br><br>
-                "Style" adalah lagu yang menangkap dinamika hubungan yang rumit namun tak terhindarkan, di mana dua individu terus-menerus kembali satu sama lain, seperti "we never go out of style". Lagu ini menceritakan tentang daya tarik yang kuat dan tak lekang oleh waktu antara dua orang yang, meskipun menghadapi pasang surut, selalu menemukan jalan kembali. Dibuat dengan sentuhan pop yang kental dan nuansa 80-an.`
-        },
-        {
-            title: "Message In A Bottle",
-            artist: "Taylor Swift",
-            src: "message_in_a_bottle.mp3",
-            albumArt: "album_art_message_in_a_bottle.jpg",
-            info: `<b>🎶 Message In A Bottle – Taylor Swift</b><br><br>
-                Terinspirasi dari perasaan kerinduan dan harapan, "Message In A Bottle" adalah lagu yang menggambarkan upaya untuk menjaga kenangan dan cinta tetap hidup, meskipun terpisah jarak. Seperti pesan dalam botol yang dilemparkan ke lautan, lagu ini adalah doa agar suatu hari pesan cinta dan kenangan akan menemukan jalannya kembali kepada orang yang dituju. Melodinya yang menyentuh hati mencerminkan emosi mendalam tentang kehilangan dan harapan.`
-        },
-        {
-            title: "Supernatural",
-            artist: "Ariana Grande",
-            src: "supernatural.mp3",
-            albumArt: "album_art_supernatural.jpg",
-            info: `<b>🎶 Supernatural – Ariana Grande</b><br><br>
-                "Supernatural" adalah lagu yang merayakan cinta yang terasa di luar dunia ini, ajaib dan tak dapat dijelaskan. Ariana Grande menyanyikan tentang hubungan yang begitu mendalam sehingga terasa seperti takdir, di mana setiap sentuhan dan pandangan menciptakan alam semesta baru. Makna lagu ini adalah tentang menemukan koneksi spiritual yang unik dan ilahi dengan seseorang, yang melampaui logika dan membuat segalanya terasa alami dan sempurna.`
-        },
-        {
-            title: "Favorite Lesson",
-            artist: "Yaeow",
-            src: "favorite_lesson.mp3",
-            albumArt: "album_art_favorite_lesson.jpg",
-            info: `<b>🎶 Favorite Lesson – Yaeow</b><br><br>
-                Lagu ini adalah penghormatan tulus kepada seseorang yang selalu memberikan pelajaran berharga dalam hidup. Yaeow mengungkapkan rasa syukur atas bimbingan dan dukungan tak henti, yang membantu melewati kesulitan dan tumbuh menjadi pribadi yang lebih baik. Lagu ini dibuat sebagai pengingat akan pentingnya memiliki seseorang yang selalu mendorong, menguji, dan menjadi sumber inspirasi sejati, menjadikan setiap pelajaran sebagai yang terbaik.`
-        },
-        {
-            title: "So High School",
-            artist: "Taylor Swift",
-            src: "so_high_school.mp3",
-            albumArt: "album_art_so_high_school.jpg",
-            info: `<b>🎶 So High School – Taylor Swift</b><br><br>
-                "So High School" menangkap perasaan gembira dan malu-malu dari romansa remaja pertama yang intens. Taylor Swift menggambarkan momen-momen klasik cinta masa SMA, dari kupu-kupu di perut hingga bisikan rahasia, yang membuat segalanya terasa baru dan istimewa. Lagu ini merayakan kemurnian dan kegembiraan dari jatuh cinta pertama, di mana setiap interaksi terasa seperti adegan dari film romantis, tanpa beban dan penuh impian.`
-        },
-        {
-            title: "Photograph",
-            artist: "Ed Sheeran",
-            src: "photograph.mp3",
-            albumArt: "album_art_photograph.jpg",
-            info: `<b>🎶 Photograph – Ed Sheeran</b><br><br>
-                "Photograph" adalah balada yang menyentuh tentang kenangan yang abadi dan janji untuk selalu ada, bahkan ketika jarak memisahkan. Ed Sheeran menggunakan metafora foto untuk menggambarkan bagaimana kenangan seseorang tetap hidup dalam hati, memberikan kekuatan dan kenyamanan. Lagu ini adalah pengingat bahwa meskipun "loving can hurt", cinta dan kenangan yang indah adalah satu-satunya hal yang kita bawa saat pergi, janji untuk selalu menunggu dan berada di sana.`
-        },
-        {
-            title: "You'll Be In My Heart",
-            artist: "Niki",
-            src: "youll_be_in_my_heart.mp3",
-            albumArt: "album_art_youll_be_in_my_heart.jpg",
-            info: `<b>🎶 You'll Be In My Heart – Niki</b><br><br>
-                Lagu ini adalah sebuah lagu pengantar tidur dan janji perlindungan abadi, awalnya dari film Tarzan. Versi Niki membawa kehangatan dan ketenangan yang sama, menekankan ikatan tak terpisahkan antara dua jiwa. Makna lagu ini adalah tentang cinta tanpa syarat yang akan selalu ada, mengatasi keraguan dan perbedaan, memberikan rasa aman dan kenyamanan yang mendalam, karena "you'll be in my heart, from this day on, now and forever more."`
-        },
-        {
-            title: "Tarot",
-            artist: ".Feast",
-            src: "tarot.mp3",
-            albumArt: "album_art_tarot.jpg",
-            info: `<b>🎶 Tarot – .Feast</b><br><br>
-                "Tarot" oleh .Feast adalah eksplorasi tentang takdir, pilihan, dan rahasia kehidupan yang terungkap melalui kartu tarot. Lagu ini mengajak pendengar untuk membuka mata terhadap petunjuk yang tersembunyi, memahami bahwa takdir bukanlah garis tangan semata, melainkan hasil dari keberanian menghadapi persimpangan dan badai. Dengan melodi yang misterius, lagu ini merenungkan bagaimana setiap simbol dan pilihan membentuk kisah kita yang abadi.`
-        },
-        {
-            title: "O, Tuan",
-            artist: ".Feast",
-            src: "o_tuan.mp3",
-            albumArt: "album_art_o_tuan.jpg",
-            info: `<b>🎶 O, Tuan – .Feast</b><br><br>
-                "O, Tuan" adalah lagu dengan nuansa kritik sosial dan pencarian kebenaran di tengah hiruk pikuk dunia. .Feast menyuarakan rintihan hati yang resah, mencari makna di balik janji-janji kosong dan kemunafikan kekuasaan. Lagu ini adalah seruan untuk bimbingan, mengingatkan bahwa meskipun harta dan kekuasaan bisa membutakan, keadilan akan selalu hidup dan menjadi tumpuan sampai akhir.`
-        },
-        {
-            title: "Ramai Sepi Bersama",
-            artist: "Hindia",
-            src: "ramai_sepi_bersama.mp3",
-            albumArt: "album_art_ramai_sepi_bersama.jpg",
-            info: `<b>🎶 Ramai Sepi Bersama – Hindia</b><br><br>
-                Lagu ini menangkap paradoks kesendirian di tengah keramaian kota. Hindia merenungkan bagaimana seseorang bisa merasa terasing dan sunyi meskipun dikelilingi banyak orang. "Ramai Sepi Bersama" adalah sebuah perjalanan introspektif untuk mencari arti dan damai sejati di antara ilusi dan bising kehidupan modern, berharap menemukan cahaya di ujung keluh agar tak lagi merasa rapuh.`
-        },
-        {
-            title: "Everything U Are",
-            artist: "Hindia",
-            src: "everything_u_are.mp3",
-            albumArt: "album_art_everything_u_are.jpg",
-            info: `<b>🎶 Everything U Are – Hindia</b><br><br>
-                "Everything U Are" adalah lagu cinta yang mendalam, merayakan esensi sejati seseorang yang menjadi segalanya bagi pembicara. Hindia menggambarkan bagaimana kehadiran orang tersebut membawa kedamaian dan menjadi bintang penuntun yang menanamkan harapan. Setiap momen bersama terasa ilahi, dan lagu ini adalah pengakuan bahwa keindahan sejati ada dalam setiap sisi dan detail dari orang yang dicintai, sebuah mahakarya yang tak terlukiskan.`
-        }
-        ];
-
-    document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
             const adminPasswordInput = document.getElementById('admin-password');
             const loginBtn = document.getElementById('login-btn');
             const loginMessage = document.getElementById('login-message');
@@ -692,9 +567,9 @@
 
             const songTitleInput = document.getElementById('song-title');
             const songArtistInput = document.getElementById('song-artist');
-            const songSrcInput = document.getElementById('song-src');
-            const songAlbumArtInput = document.getElementById('song-album-art');
-            const songInfoInput = document.getElementById('song-info');
+            const songSrcInput = document.getElementById('song-src'); // Kembali ke nama file
+            const songAlbumArtInput = document.getElementById('song-album-art'); // Kembali ke nama file
+            const songInfoInput = document.getElementById('song-info'); // Info lagu
             const addSongBtn = document.getElementById('add-song-btn');
             const addSongMessage = document.getElementById('add-song-message');
             const manageSongList = document.getElementById('manage-song-list');
@@ -706,7 +581,7 @@
             const editSongArtistInput = document.getElementById('edit-song-artist');
             const editSongSrcInput = document.getElementById('edit-song-src');
             const editSongAlbumArtInput = document.getElementById('edit-song-album-art');
-            const editSongInfoInput = document.getElementById('edit-song-info');
+            const editSongInfoInput = document.getElementById('edit-song-info'); // Info lagu
             const saveEditBtn = document.getElementById('save-edit-btn');
 
             const clearDataBtn = document.getElementById('clear-data-btn');
@@ -716,68 +591,70 @@
             const toggleThemeBtn = document.getElementById('toggle-theme-btn');
             const backgroundVideo = document.getElementById('background-video');
 
+            // Admin password (client-side, TIDAK AMAN UNTUK PRODUKSI)
             const ADMIN_PASSWORD = "157299pro";
 
-            // Ini akan menjadi playlist yang dimanipulasi di admin panel
-            // Ini akan selalu berisi gabungan DEFAULT_PLAYLIST dari script.js utama
-            // dan apa pun yang disimpan di localStorage oleh admin itu sendiri.
-            let adminManagedPlaylist = [];
+            // Pastikan playlist dimuat dari localStorage, bukan nilai default awal
+            let playlist = JSON.parse(localStorage.getItem('musicPlaylist')) || [];
 
-            // Fungsi untuk memuat playlist ke admin panel dari localStorage atau default
-            function loadAdminManagedPlaylist() {
-                try {
-                    const savedSongs = JSON.parse(localStorage.getItem('musicPlaylist'));
-                    
-                    // Filter lagu default dari savedSongs untuk menghindari duplikasi
-                    // yang sudah diedit atau dihapus di admin panel.
-                    // Ini penting agar `adminManagedPlaylist` mencerminkan state yang benar.
-                    const filteredDefault = DEFAULT_PLAYLIST_ADMIN.filter(defaultSong => 
-                        !savedSongs || !savedSongs.some(savedSong => savedSong.src === defaultSong.src)
-                    );
-
-                    if (savedSongs && savedSongs.length > 0) {
-                        // Gabungkan lagu default yang belum ada di savedSongs dengan savedSongs.
-                        adminManagedPlaylist = [...filteredDefault, ...savedSongs];
-                    } else {
-                        // Jika belum ada apa-apa di localStorage, mulai dengan semua lagu default.
-                        adminManagedPlaylist = [...DEFAULT_PLAYLIST_ADMIN];
-                    }
-                } catch (e) {
-                    console.error("Error saat memuat playlist admin dari localStorage:", e);
-                    // Fallback ke default playlist jika ada error parsing localStorage
-                    adminManagedPlaylist = [...DEFAULT_PLAYLIST_ADMIN];
+            function renderSongList() {
+                manageSongList.innerHTML = '';
+                if (playlist.length === 0) {
+                    const noSongsLi = document.createElement('li');
+                    noSongsLi.style.justifyContent = 'center';
+                    noSongsLi.style.backgroundColor = 'transparent';
+                    noSongsLi.style.borderLeft = 'none';
+                    noSongsLi.style.padding = '10px 0';
+                    noSongsLi.style.color = 'var(--secondary-text)';
+                    noSongsLi.textContent = "Tidak ada lagu dalam playlist.";
+                    manageSongList.appendChild(noSongsLi);
+                    return;
                 }
-                savePlaylist(); // Simpan versi yang sudah dikonsolidasi ke localStorage
-                renderSongList();
+
+                playlist.forEach((song, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div class="song-info">
+                            <h3>${song.title}</h3>
+                            <p>${song.artist}</p>
+                            <small>MP3: ${song.src}<br>Album Art: ${song.albumArt}</small>
+                        </div>
+                        <div class="actions">
+                            <button class="action-btn edit-btn" data-index="${index}"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="action-btn delete-btn" data-index="${index}"><i class="fas fa-trash-alt"></i> Hapus</button>
+                        </div>
+                    `;
+                    manageSongList.appendChild(li);
+                });
             }
 
-            // Fungsi untuk menyimpan playlist dari admin panel ke localStorage
             function savePlaylist() {
-                localStorage.setItem('musicPlaylist', JSON.stringify(adminManagedPlaylist));
-                // Memicu event 'storage' untuk halaman utama agar playlist diperbarui
+                localStorage.setItem('musicPlaylist', JSON.stringify(playlist));
+                // Mengirim event 'storage' secara manual untuk memberitahu halaman utama (jika terbuka)
+                // agar memperbarui playlist-nya. Ini adalah cara client-side.
                 window.dispatchEvent(new Event('storage'));
             }
 
-            // Logika Login Admin
+            // Logika Login
             loginBtn.addEventListener('click', () => {
                 if (adminPasswordInput.value === ADMIN_PASSWORD) {
                     loginSection.style.display = 'none';
                     adminPanel.style.display = 'block';
                     loginMessage.textContent = '';
-                    loadAdminManagedPlaylist(); // Muat playlist saat login berhasil
+                    renderSongList(); // Render lagu setelah login berhasil
                 } else {
                     loginMessage.textContent = 'Password salah!';
                 }
-                adminPasswordInput.value = '';
+                adminPasswordInput.value = ''; // Bersihkan field password
             });
 
             // Logika Tambah Lagu
             addSongBtn.addEventListener('click', () => {
                 const title = songTitleInput.value.trim();
                 const artist = songArtistInput.value.trim();
-                const src = songSrcInput.value.trim();
-                const albumArt = songAlbumArtInput.value.trim();
-                const info = songInfoInput.value.trim();
+                const src = songSrcInput.value.trim(); // Nama file
+                const albumArt = songAlbumArtInput.value.trim(); // Nama file
+                const info = songInfoInput.value.trim(); // Info lagu
 
                 if (!title || !artist || !src || !albumArt || !info) {
                     addSongMessage.style.color = 'red';
@@ -785,8 +662,9 @@
                     return;
                 }
                 
-                const fileExtensionRegex = /\.(mp3|wav|ogg|m4a)$/i;
-                const imageExtensionRegex = /\.(jpg|jpeg|png|gif|webp)$/i;
+                // Validasi sederhana untuk format nama file
+                const fileExtensionRegex = /\.(mp3|wav|ogg|m4a)$/i; // Contoh ekstensi audio
+                const imageExtensionRegex = /\.(jpg|jpeg|png|gif|webp)$/i; // Contoh ekstensi gambar
 
                 if (!fileExtensionRegex.test(src)) {
                     addSongMessage.style.color = 'red';
@@ -799,13 +677,14 @@
                     return;
                 }
 
+
                 const newSong = { title, artist, src, albumArt, info };
-                adminManagedPlaylist.push(newSong); // Tambah ke playlist yang dikelola admin
+                playlist.push(newSong);
                 savePlaylist();
-                renderSongList(); // Render ulang daftar di admin panel
+                renderSongList();
                 addSongMessage.style.color = 'green';
                 addSongMessage.textContent = 'Lagu berhasil ditambahkan dan tersedia untuk semua orang (pastikan file ada di GitHub Pages)!';
-                
+                // Bersihkan form
                 songTitleInput.value = '';
                 songArtistInput.value = '';
                 songSrcInput.value = '';
@@ -818,8 +697,8 @@
                 const targetButton = event.target.closest('.delete-btn');
                 if (targetButton) {
                     const indexToDelete = parseInt(targetButton.dataset.index);
-                    if (confirm(`Anda yakin ingin menghapus lagu "${adminManagedPlaylist[indexToDelete].title}"?`)) {
-                        adminManagedPlaylist.splice(indexToDelete, 1);
+                    if (confirm(`Anda yakin ingin menghapus lagu "${playlist[indexToDelete].title}"?`)) {
+                        playlist.splice(indexToDelete, 1);
                         savePlaylist();
                         renderSongList();
                     }
@@ -831,20 +710,20 @@
                 const targetButton = event.target.closest('.edit-btn');
                 if (targetButton) {
                     const indexToEdit = parseInt(targetButton.dataset.index);
-                    const song = adminManagedPlaylist[indexToEdit];
+                    const song = playlist[indexToEdit];
 
                     editSongIndexInput.value = indexToEdit;
                     editSongTitleInput.value = song.title;
                     editSongArtistInput.value = song.artist;
-                    editSongSrcInput.value = song.src;
+                    editSongSrcInput.value = song.src; // SRC dinonaktifkan tetapi ditampilkan
                     editSongAlbumArtInput.value = song.albumArt;
-                    editSongInfoInput.value = song.info;
+                    editSongInfoInput.value = song.info; // Info lagu
 
-                    editSongModal.classList.add('visible');
+                    editSongModal.classList.add('visible'); // Tampilkan modal
                 }
             });
 
-            // Tutup Modal Edit Lagu
+            // Tutup Modal
             closeButton.addEventListener('click', () => {
                 editSongModal.classList.remove('visible');
             });
@@ -857,15 +736,16 @@
             // Simpan Lagu yang Diedit
             saveEditBtn.addEventListener('click', () => {
                 const index = parseInt(editSongIndexInput.value);
-                if (index < 0 || index >= adminManagedPlaylist.length) {
+                if (index < 0 || index >= playlist.length) {
                     alert('Indeks lagu tidak valid.');
                     return;
                 }
 
-                adminManagedPlaylist[index].title = editSongTitleInput.value.trim();
-                adminManagedPlaylist[index].artist = editSongArtistInput.value.trim();
-                adminManagedPlaylist[index].albumArt = editSongAlbumArtInput.value.trim();
-                adminManagedPlaylist[index].info = editSongInfoInput.value.trim();
+                playlist[index].title = editSongTitleInput.value.trim();
+                playlist[index].artist = editSongArtistInput.value.trim();
+                // playlist[index].src tidak dapat diedit
+                playlist[index].albumArt = editSongAlbumArtInput.value.trim();
+                playlist[index].info = editSongInfoInput.value.trim(); // Info lagu
 
                 savePlaylist();
                 renderSongList();
@@ -873,14 +753,14 @@
                 alert('Lagu berhasil diperbarui!');
             });
 
-            // Bersihkan Semua Data (Reset ke DEFAULT_PLAYLIST)
+            // Bersihkan Semua Data
             clearDataBtn.addEventListener('click', () => {
-                if (confirm('Ini akan menghapus SEMUA lagu yang tersimpan di browser Anda dan MERESET ke daftar lagu default bawaan aplikasi. Lanjutkan?')) {
+                if (confirm('Ini akan menghapus SEMUA lagu dari playlist Anda secara permanen. Lanjutkan?')) {
                     localStorage.removeItem('musicPlaylist');
-                    adminManagedPlaylist = [...DEFAULT_PLAYLIST_ADMIN]; // Reset ke default playlist admin
-                    savePlaylist(); // Simpan default playlist ke localStorage
+                    playlist = [];
                     renderSongList();
-                    alert('Semua data lagu telah direset ke default!');
+                    alert('Semua data lagu telah dihapus!');
+                    savePlaylist(); // Kirim event storage agar halaman utama juga mereset
                 }
             });
 
@@ -914,26 +794,11 @@
                 toggleThemeBtn.setAttribute('aria-label', 'Beralih ke Mode Terang');
             }
 
+            // Pastikan video diputar dan diulang di halaman admin juga
             if (backgroundVideo) {
                 backgroundVideo.play().catch(error => {
                     console.log('Autoplay dicegah di halaman admin. Mungkin diperlukan interaksi pengguna.', error);
                 });
-            }
-
-            // Inisialisasi awal saat halaman admin dimuat (jika tidak login)
-            // Ini agar adminManagedPlaylist tidak kosong saat login pertama kali.
-            if (loginSection.style.display !== 'none') { // Hanya jalankan jika belum login
-                 try {
-                    const savedSongs = JSON.parse(localStorage.getItem('musicPlaylist'));
-                    if (savedSongs && savedSongs.length > 0) {
-                        adminManagedPlaylist = savedSongs;
-                    } else {
-                        adminManagedPlaylist = [...DEFAULT_PLAYLIST_ADMIN]; // Ambil salinan default
-                    }
-                } catch (e) {
-                    console.error("Error saat inisialisasi playlist admin di luar login:", e);
-                    adminManagedPlaylist = [...DEFAULT_PLAYLIST_ADMIN];
-                }
             }
         });
     </script>
