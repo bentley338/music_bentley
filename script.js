@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- BASE URL UNTUK FILE MEDIA (SANGAT PENTING!) ---
     // GANTI INI DENGAN URL DASAR GITHUB PAGES ANDA!
     // Contoh: 'https://yourusername.github.io/your-repository-name/'
-    const BASE_URL = 'https://github.com/bentley338/music_bentley'; //
+    const BASE_URL = 'https://github.com/bentley338/music_bentley/'; //
 
     // --- DATA LAGU (LOAD DARI LOCALSTORAGE ATAU DEFAULT) ---
     // Lagu-lagu default akan menyimpan HANYA nama file.
