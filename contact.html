@@ -20,17 +20,19 @@
             box-shadow: 0 15px 50px var(--shadow-deep);
             max-width: 500px;
             width: 90%;
-            margin: auto; /* Untuk memusatkan di halaman */
-            margin-top: 100px; /* Jarak dari atas */
+            margin: auto;
+            margin-top: 100px; /* Space from header */
+            margin-bottom: 20px;
             transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
         }
 
         .contact-container h2 {
             font-family: 'Montserrat', sans-serif;
             color: var(--primary-text);
-            font-size: 2em;
-            margin-bottom: 25px;
+            font-size: 2.5em; /* Larger title */
+            margin-bottom: 30px;
             transition: color 0.5s ease;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
         }
 
         .contact-info {
@@ -40,19 +42,19 @@
         }
 
         .contact-info li {
-            margin-bottom: 15px;
-            font-size: 1.1em;
+            margin-bottom: 20px; /* Increased spacing */
+            font-size: 1.2em; /* Larger font */
             color: var(--secondary-text);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 15px; /* Increased gap */
             transition: color 0.5s ease;
         }
 
         .contact-info li i {
             color: var(--accent-purple);
-            font-size: 1.3em;
+            font-size: 1.8em; /* Larger icons */
             transition: color 0.5s ease;
         }
 
@@ -64,6 +66,7 @@
 
         .contact-info li a:hover {
             color: var(--accent-red);
+            text-shadow: 0 0 5px rgba(255, 69, 0, 0.5);
         }
 
         /* Override for light mode */
@@ -79,22 +82,70 @@
 
         .back-home-btn {
             display: inline-block;
-            margin-top: 30px;
-            padding: 12px 25px;
+            margin-top: 40px; /* More space from contact info */
+            padding: 15px 30px; /* Larger button */
             background: var(--accent-purple);
             color: white;
             text-decoration: none;
             border-radius: var(--border-radius-sm);
-            font-weight: 600;
+            font-weight: 700; /* Bolder text */
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
         .back-home-btn:hover {
             background-color: var(--accent-red);
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+        }
+
+        /* Responsive adjustments for contact page */
+        @media (max-width: 768px) {
+            .contact-container {
+                padding: 30px;
+                margin-top: 80px;
+            }
+            .contact-container h2 {
+                font-size: 2em;
+            }
+            .contact-info li {
+                font-size: 1.1em;
+                gap: 10px;
+            }
+            .contact-info li i {
+                font-size: 1.5em;
+            }
+            .back-home-btn {
+                padding: 12px 25px;
+                font-size: 0.9em;
+                margin-top: 30px;
+            }
+        }
+        @media (max-width: 480px) {
+            .contact-container {
+                padding: 20px;
+                margin-top: 70px;
+            }
+            .contact-container h2 {
+                font-size: 1.8em;
+                margin-bottom: 20px;
+            }
+            .contact-info li {
+                flex-direction: column; /* Stack icon and text */
+                align-items: center;
+                gap: 5px;
+                font-size: 1em;
+            }
+            .contact-info li i {
+                font-size: 1.3em;
+            }
+            .back-home-btn {
+                padding: 10px 20px;
+                font-size: 0.85em;
+                margin-top: 25px;
+            }
         }
     </style>
 </head>
@@ -124,20 +175,19 @@
         <div class="contact-container">
             <h2>Kontak Kami</h2>
             <ul class="contact-info">
-                <li><i class="fab fa-whatsapp"></i> WhatsApp: <a href="wa.me//6285810073341" target="_blank">wa.me//6285810073341</a></li>
+                <li><i class="fab fa-whatsapp"></i> WhatsApp: <a href="https://wa.me/6285810073341" target="_blank">wa.me/6285810073341</a></li>
                 <li><i class="fab fa-instagram"></i> Instagram: <a href="https://www.instagram.com/beentley16?igsh=MW5yZTE5ZjdidXc2Zw==" target="_blank">@beentley16</a></li>
                 <li><i class="fab fa-telegram-plane"></i> Telegram: <a href="https://t.me/bentley160" target="_blank">@bentley160</a></li>
-                <li><i class="fas fa-envelope"></i> Email: <a href="mailto:your.email@example.com">your.email@example.com</a> (Ganti dengan email Anda)</li>
+                <li><i class="fas fa-envelope"></i> Email: <a href="mailto:bentleygayabebas@gmail.com">bentleygayabebas@gmail.com</a></li>
             </ul>
             <a href="index.html" class="back-home-btn">Kembali ke Pemutar Musik</a>
         </div>
     </div>
 
     <script>
-        // Copy-paste theme toggle logic from main script.js for consistency
         document.addEventListener('DOMContentLoaded', () => {
             const toggleThemeBtn = document.getElementById('toggle-theme-btn');
-            const backgroundVideo = document.getElementById('background-video'); // Get video element
+            const backgroundVideo = document.getElementById('background-video');
 
             function toggleTheme() {
                 document.body.classList.toggle('light-mode');
@@ -160,7 +210,6 @@
                 toggleThemeBtn.setAttribute('aria-label', 'Switch to Light Mode');
             }
 
-            // Ensure video plays and loops on contact page too
             if (backgroundVideo) {
                 backgroundVideo.play().catch(error => {
                     console.log('Autoplay was prevented on contact page. User interaction might be needed.', error);
