@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarOverlay = document.getElementById('sidebar-overlay');
     const backgroundVideo = document.getElementById('background-video');
 
+    // Global Message Display elements
+    const globalMessageDisplay = document.getElementById('global-message-display');
+    const globalMessageText = document.getElementById('global-message-text');
+
     // Elemen baru untuk UI yang ditingkatkan
     const sleepTimerDisplay = document.getElementById('sleep-timer-display');
     const openSleepTimerModalBtn = document.getElementById('open-sleep-timer-modal');
@@ -393,14 +397,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (playlist.length > 0) {
                 loadSong(0);
             } else {
-                // If playlist is still empty and no default song is loaded, we can't play.
                 const defaultSong = JSON.parse(localStorage.getItem('defaultMelodyVerseSong'));
                 if (defaultSong && defaultSong.src) {
-                    // If a default song is available, ensure it's loaded before attempting to play.
-                    // The loadSong function handles displaying the default song details.
-                    loadSong(-1); // Pass invalid index to trigger default song logic within loadSong
+                    loadSong(-1);
                 } else {
-                    // No songs to play at all
                     return;
                 }
             }
@@ -1030,33 +1030,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Listener untuk perubahan localStorage
+    // Fungsi untuk menampilkan pesan global
+    function displayGlobalMessage() {
+        // Ambil pesan langsung dari elemen HTML global-message-text
+        // Pesan ini diasumsikan sudah ditempelkan admin secara manual ke index.html
+        const message = globalMessageText.textContent.trim(); 
+        if (message) {
+            globalMessageDisplay.style.display = 'block'; // Tampilkan container pesan
+            globalMessageText.textContent = message; // Pastikan teksnya diset (redundant jika sudah di HTML)
+        } else {
+            globalMessageDisplay.style.display = 'none'; // Sembunyikan jika tidak ada pesan
+        }
+    }
+
+    // Panggil saat DOMContentLoaded
+    displayGlobalMessage();
+
+
+    // Listener untuk perubahan localStorage (hanya memantau musicPlaylist dan default song)
     window.addEventListener('storage', (event) => {
         if (event.key === 'musicPlaylist' || event.key === 'defaultMelodyVerseSong') {
             console.log('Perubahan playlist atau lagu default terdeteksi dari localStorage, memuat ulang playlist.');
             const newPlaylist = JSON.parse(localStorage.getItem('musicPlaylist')) || [];
             
-            // Hanya perbarui jika konten playlist benar-benar berubah
             if (JSON.stringify(playlist) !== JSON.stringify(newPlaylist)) {
                 playlist = newPlaylist;
                 originalPlaylistOrder = [...playlist];
                 
-                // Atur ulang currentSongIndex jika lagu saat ini tidak ada di playlist baru
                 if (playlist.length > 0) {
                     let foundCurrentSong = false;
-                    if (currentSongIndex < playlist.length && playlist[currentSongIndex]) {
-                        // Coba pertahankan lagu yang sedang diputar jika masih ada
-                        const currentlyPlayingSrc = audioPlayer.src.split('/').pop();
-                        if (currentlyPlayingSrc && playlist[currentSongIndex].src === currentlyPlayingSrc) {
+                    const currentlyPlayingSrc = audioPlayer.src.split('/').pop();
+                    if (currentlyPlayingSrc) {
+                        const newCurrentIndex = playlist.findIndex(song => song.src === currentlyPlayingSrc);
+                        if (newCurrentIndex !== -1) {
+                            currentSongIndex = newCurrentIndex;
                             foundCurrentSong = true;
                         }
                     }
                     if (!foundCurrentSong) {
-                         // Jika lagu saat ini tidak ditemukan, atau index tidak valid, kembali ke lagu pertama
-                        currentSongIndex = 0; 
+                         currentSongIndex = 0; 
                     }
                 } else {
-                    currentSongIndex = 0; // Jika playlist kosong, reset index
+                    currentSongIndex = 0;
                 }
                 
                 loadSong(currentSongIndex);
@@ -1065,7 +1080,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     playSong();
                 } else if (playlist.length === 0) {
                     pauseSong();
-                    // Load default fallback if playlist becomes empty
                     const defaultFallbackSong = JSON.parse(localStorage.getItem('defaultMelodyVerseSong'));
                     if (defaultFallbackSong) {
                         audioPlayer.src = defaultFallbackSong.src;
@@ -1077,9 +1091,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             } else if (event.key === 'defaultMelodyVerseSong' && playlist.length === 0) {
-                // Jika hanya lagu default yang berubah dan playlist utama kosong, muat ulang default
-                loadSong(currentSongIndex); // Ini akan memicu logika pemuatan lagu default
+                loadSong(currentSongIndex);
             }
+        }
+        // Tambahan: Jika ada perubahan pada global message di localStorage dari panel admin yang sama (hanya untuk sinkronisasi lokal)
+        if (event.key === 'globalMelodyVerseMessage') {
+            displayGlobalMessage();
         }
     });
 });
