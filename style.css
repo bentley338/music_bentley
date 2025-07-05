@@ -49,10 +49,10 @@ body {
     margin: 0;
     font-family: 'Roboto', sans-serif;
     color: var(--primary-text);
-    overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+    overflow-x: hidden; /* Mencegah scroll horizontal di mobile */
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Align content to top */
+    justify-content: flex-start; /* Mengatur konten ke atas */
     align-items: center;
     min-height: 100vh;
     background-color: var(--bg-dark);
@@ -62,7 +62,7 @@ body {
     transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-/* Glassmorphism Effect */
+/* Efek Glassmorphism */
 .glass-effect {
     background: var(--player-bg-dark);
     backdrop-filter: blur(var(--blur-intensity)) saturate(150%);
@@ -73,7 +73,7 @@ body {
     transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 }
 
-/* Video Background */
+/* Latar Belakang Video */
 .video-background {
     position: fixed;
     top: 0;
@@ -130,8 +130,8 @@ body.light-mode .video-overlay {
     max-width: 600px;
     padding: 20px;
     box-sizing: border-box;
-    margin-top: 100px; /* Space for fixed header */
-    margin-bottom: 20px; /* Space from bottom */
+    margin-top: 100px; /* Ruang untuk header tetap */
+    margin-bottom: 20px; /* Ruang dari bawah */
 }
 
 /* HEADER APLIKASI (Judul dan Tombol Daftar Putar) */
@@ -224,14 +224,14 @@ header {
 }
 
 
-/* New: Top Links Section (Admin/Contact) */
+/* Bagian Link Atas (Admin/Kontak) */
 .top-links-section {
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 15px;
-    margin-bottom: 20px; /* Space below links */
+    margin-bottom: 20px; /* Ruang di bawah link */
     font-size: 1.1em;
 }
 
@@ -260,7 +260,7 @@ header {
 }
 
 
-/* Sleep Timer Display */
+/* Tampilan Timer Tidur */
 .sleep-timer-display {
     width: 100%;
     padding: 15px 20px;
@@ -289,7 +289,7 @@ header {
 }
 
 
-/* Music Player */
+/* Pemutar Musik */
 .music-player {
     padding: 30px 40px;
     display: flex;
@@ -408,27 +408,27 @@ body.light-mode .header-player {
     transition: color 0.5s ease;
 }
 
-/* Lirik - Mirip dengan gambar */
-.lyrics-section {
+/* Bagian Info (menggantikan Lirik) */
+.info-section {
     width: 90%;
-    text-align: center;
+    text-align: left; /* Teks rata kiri untuk info */
     margin-top: 20px;
     padding: 15px;
     background: rgba(0, 0, 0, 0.2);
     border-radius: var(--border-radius-sm);
-    max-height: 120px;
+    max-height: 120px; /* Tetap pertahankan tinggi untuk scroll */
     overflow-y: auto;
     border: 1px solid rgba(255, 255, 255, 0.05);
     scroll-behavior: smooth;
     transition: background 0.5s ease, border-color 0.5s ease;
 }
-body.light-mode .lyrics-section {
+body.light-mode .info-section {
     background: rgba(0, 0, 0, 0.05);
     border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 
-.lyrics-text p {
+.info-text {
     font-size: 0.95em;
     color: rgba(255, 255, 255, 0.8);
     line-height: 1.6;
@@ -436,34 +436,27 @@ body.light-mode .lyrics-section {
     padding: 2px 0;
     transition: color 0.5s ease;
 }
-body.light-mode .lyrics-text p {
+body.light-mode .info-text {
     color: rgba(0, 0, 0, 0.7);
 }
 
 
-.lyrics-text p.active-lyric {
-    color: var(--accent-red);
-    font-weight: 700;
-    transition: color 0.3s ease;
-}
-
-
-/* Scrollbar untuk Lirik */
-.lyrics-section::-webkit-scrollbar {
+/* Scrollbar untuk Bagian Info */
+.info-section::-webkit-scrollbar {
     width: 6px;
 }
-.lyrics-section::-webkit-scrollbar-track {
+.info-section::-webkit-scrollbar-track {
     background: rgba(0,0,0,0.1);
     border-radius: 3px;
 }
-.lyrics-section::-webkit-scrollbar-thumb {
+.info-section::-webkit-scrollbar-thumb {
     background: var(--accent-purple);
     border-radius: 3px;
 }
-body.light-mode .lyrics-section::-webkit-scrollbar-track {
+body.light-mode .info-section::-webkit-scrollbar-track {
     background: rgba(0,0,0,0.05);
 }
-body.light-mode .lyrics-section::-webkit-scrollbar-thumb {
+body.light-mode .info-section::-webkit-scrollbar-thumb {
     background: var(--accent-red);
 }
 
@@ -533,11 +526,11 @@ body.light-mode .progress-slider {
 /* Kontrol */
 .controls-section {
     display: flex;
-    gap: 20px; /* Reduced gap for more buttons */
+    gap: 20px; /* Jarak antar tombol dikurangi */
     margin-top: 30px;
     align-items: center;
-    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
-    justify-content: center; /* Center buttons when wrapped */
+    flex-wrap: wrap; /* Izinkan tombol untuk melipat di layar kecil */
+    justify-content: center; /* Pusatkan tombol saat melipat */
 }
 
 .control-btn {
@@ -604,7 +597,7 @@ body.light-mode .control-btn.active {
 }
 
 
-/* Playlist Sidebar */
+/* Sidebar Daftar Putar */
 .playlist-sidebar {
     padding: 25px;
     width: 100%;
@@ -678,7 +671,7 @@ body.light-mode #close-playlist-btn {
 }
 
 .search-input {
-    width: calc(100% - 20px); /* Adjust for padding */
+    width: calc(100% - 20px); /* Menyesuaikan untuk padding */
     padding: 10px 10px 10px 40px; /* Padding kiri untuk ikon */
     background: var(--input-bg);
     border: 1px solid var(--input-border);
@@ -784,7 +777,7 @@ body.light-mode .playlist-items li.active {
     transition: color 0.5s ease;
 }
 
-/* Scrollbar for Playlists */
+/* Scrollbar untuk Daftar Putar */
 .playlist-sidebar::-webkit-scrollbar {
     width: 8px;
 }
@@ -803,17 +796,17 @@ body.light-mode .playlist-sidebar::-webkit-scrollbar-thumb {
     background: var(--accent-red);
 }
 
-/* Modal Styling */
+/* Gaya Modal */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 101; /* Sit on top */
+    display: none; /* Sembunyikan secara default */
+    position: fixed; /* Tetap di tempat */
+    z-index: 101; /* Di atas semua */
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+    width: 100%; /* Lebar penuh */
+    height: 100%; /* Tinggi penuh */
+    overflow: auto; /* Aktifkan scroll jika perlu */
+    background-color: rgba(0,0,0,0.8); /* Hitam transparan */
     justify-content: center;
     align-items: center;
     animation: fadeInModal 0.3s ease-out forwards;
@@ -873,7 +866,7 @@ body.light-mode .playlist-sidebar::-webkit-scrollbar-thumb {
     text-decoration: none;
 }
 
-/* Timer Modal Specifics */
+/* Spesifik Modal Timer */
 .modal-options {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -931,9 +924,9 @@ body.light-mode .timer-option-btn.active {
     border-color: var(--accent-purple);
     box-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
 }
-.custom-timer-group .admin-btn { /* Reusing admin-btn style */
+.custom-timer-group .admin-btn { /* Menggunakan kembali gaya admin-btn */
     padding: 10px 15px;
-    margin-top: 0; /* Override default margin */
+    margin-top: 0; /* Mengabaikan margin default */
     font-size: 0.9em;
 }
 
@@ -942,7 +935,7 @@ body.light-mode .timer-option-btn.active {
     font-size: 1.1em;
 }
 
-/* Audio Controls Modal Specifics */
+/* Spesifik Modal Kontrol Audio */
 .control-group {
     margin-bottom: 20px;
 }
@@ -952,6 +945,7 @@ body.light-mode .timer-option-btn.active {
     font-size: 1em;
     margin-bottom: 8px;
     color: var(--secondary-text);
+    text-align: left;
     transition: color 0.5s ease;
 }
 
@@ -995,7 +989,7 @@ body.light-mode .volume-slider::-webkit-slider-thumb:hover,
 body.light-mode .eq-slider::-webkit-slider-thumb:hover {
     box-shadow: 0 0 15px rgba(255, 69, 0, 1);
 }
-#volume-value, #treble-value, #bass-value {
+#volume-value, #treble-value, #bass-value, #effect-level-value {
     display: block;
     text-align: right;
     font-size: 0.9em;
@@ -1024,12 +1018,12 @@ body.light-mode .eq-slider::-webkit-slider-thumb:hover {
 }
 
 
-/* Responsive Design */
+/* Desain Responsif */
 @media (max-width: 768px) {
     .container {
         padding: 15px;
         max-width: 95%;
-        margin-top: 70px; /* Adjust for fixed header */
+        margin-top: 70px; /* Menyesuaikan untuk header tetap */
         margin-bottom: 15px;
     }
 
@@ -1090,7 +1084,7 @@ body.light-mode .eq-slider::-webkit-slider-thumb:hover {
         font-size: 1em;
     }
 
-    .lyrics-section {
+    .info-section { /* Menggantikan lyrics-section */
         margin-top: 15px;
         padding: 10px;
         font-size: 0.9em;
@@ -1214,14 +1208,14 @@ body.light-mode .eq-slider::-webkit-slider-thumb:hover {
         font-size: 0.9em;
     }
 
-    .lyrics-section {
+    .info-section {
         font-size: 0.8em;
         max-height: 100px;
     }
 
     .controls-section {
         gap: 10px;
-        /* Ensure main play/pause button remains larger */
+        /* Pastikan tombol play/pause utama tetap lebih besar */
         justify-content: center;
     }
 
@@ -1262,14 +1256,14 @@ body.light-mode .eq-slider::-webkit-slider-thumb:hover {
         gap: 8px;
     }
     .custom-timer-group input {
-        width: 80%; /* Full width in column */
+        width: 80%; /* Lebar penuh dalam kolom */
     }
     .custom-timer-group .admin-btn {
         width: 100%;
     }
 }
 
-/* Adjust for even smaller mobile devices if needed */
+/* Menyesuaikan untuk perangkat seluler yang lebih kecil jika diperlukan */
 @media (max-width: 320px) {
     .app-title-new {
         font-size: 1.3em;
