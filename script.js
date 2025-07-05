@@ -69,14 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let repeatMode = 'off'; // 'off', 'one', 'all'
     let originalPlaylistOrder = []; // Untuk menyimpan urutan asli playlist
 
-    // --- BASE URL UNTUK FILE MEDIA (SANGAT PENTING!) ---
-    // GANTI INI DENGAN URL DASAR GITHUB PAGES ANDA!
-    // Contoh: 'https://yourusername.github.io/your-repository-name/'
-    const BASE_URL = 'https://bentley338.github.io/music_bentley/'; //
-
     // --- DATA LAGU (LOAD DARI LOCALSTORAGE ATAU DEFAULT) ---
-    // Lagu-lagu default akan menyimpan HANYA nama file.
-    // URL lengkap akan dibangun menggunakan BASE_URL.
+    // LAGU DEFAULT ASUMSIKAN SEMUA FILE ADA DI FOLDER YANG SAMA DENGAN INDEX.HTML
     let playlist = JSON.parse(localStorage.getItem('musicPlaylist')) || [
         {
             title: "Back to Friends",
@@ -172,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
             src: "tarot.mp3",
             albumArt: "album_art_tarot.jpg",
             info: `<b>🎶 Tarot – .Feast</b><br><br>
-                "Tarot" oleh .Feast adalah eksplorasi tentang takdir, pilihan, dan rahasia kehidupan yang terungkap melalui kartu tarot. Lagu ini mengajak pendengar untuk membuka mata terhadap petunjuk yang tersembunyi, memahami bahwa takdir bukanlah garis tangan semata, melainkan hasil dari keberanian menghadapi persimpangan dan badai. Dengan melodi yang misterius, lagu ini merenungkan bagaimana setiap simbol dan pilihan membentuk kisah hidup kita yang abadi.`
+                "Tarot" oleh .Feast adalah eksplorasi tentang takdir, pilihan, dan rahasia kehidupan yang terungkap melalui kartu tarot. Lagu ini mengajak pendengar untuk membuka mata terhadap petunjuk yang tersembunyi, memahami bahwa takdir bukanlah garis tangan semata, melainkan hasil dari keberanian menghadapi persimpangan dan badai. Dengan melodi yang misterius, lagu ini merenungkan bagaimana setiap simbol dan pilihan membentuk kisah kita yang abadi.`
         },
         {
             title: "O, Tuan",
@@ -223,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn("Playlist kosong. Tidak ada lagu untuk dimuat.");
             currentSongTitle.textContent = "Tidak ada lagu";
             currentArtistName.textContent = "Tambahkan lagu di panel admin";
-            infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album di-deploy di GitHub Pages Anda.</p>";
+            infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album ada di folder yang sama dengan file HTML utama Anda di GitHub Pages.</p>";
             audioPlayer.src = "";
             currentAlbumArt.src = "album_art_default.jpg";
             pauseSong();
@@ -242,10 +236,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const song = playlist[songIndex];
-        // Bangun URL lengkap menggunakan BASE_URL
-        audioPlayer.src = BASE_URL + song.src; //
+        // LANGSUNG GUNAKAN NAMA FILE, ASUMSIKAN SEMUA DI FOLDER YANG SAMA
+        audioPlayer.src = song.src;
         audioPlayer.load();
-        currentAlbumArt.src = BASE_URL + song.albumArt; //
+        currentAlbumArt.src = song.albumArt;
         currentSongTitle.textContent = song.title;
         currentArtistName.textContent = song.artist;
         infoText.innerHTML = song.info;
@@ -270,12 +264,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 artist: song.artist,
                 album: 'Custom Playlist',
                 artwork: [
-                    { src: BASE_URL + song.albumArt, sizes: '96x96', type: 'image/jpeg' }, //
-                    { src: BASE_URL + song.albumArt, sizes: '128x128', type: 'image/jpeg' }, //
-                    { src: BASE_URL + song.albumArt, sizes: '192x192', type: 'image/jpeg' }, //
-                    { src: BASE_URL + song.albumArt, sizes: '256x256', type: 'image/jpeg' }, //
-                    { src: BASE_URL + song.albumArt, sizes: '384x384', type: 'image/jpeg' }, //
-                    { src: BASE_URL + song.albumArt, sizes: '512x512', type: 'image/jpeg' }, //
+                    { src: song.albumArt, sizes: '96x96', type: 'image/jpeg' },
+                    { src: song.albumArt, sizes: '128x128', type: 'image/jpeg' },
+                    { src: song.albumArt, sizes: '192x192', type: 'image/jpeg' },
+                    { src: song.albumArt, sizes: '256x256', type: 'image/jpeg' },
+                    { src: song.albumArt, sizes: '384x384', type: 'image/jpeg' },
+                    { src: song.albumArt, sizes: '512x512', type: 'image/jpeg' },
                 ]
             });
 
@@ -690,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
             li.setAttribute('data-original-index', originalPlaylistOrder.indexOf(song)); // Simpan indeks asli untuk referensi
             li.setAttribute('data-current-playlist-index', actualIndexInCurrentPlaylist); // Simpan indeks dalam playlist aktif saat ini
             li.innerHTML = `
-                <img src="${BASE_URL + song.albumArt}" alt="${song.title} Album Art">
+                <img src="${song.albumArt}" alt="${song.title} Album Art">
                 <div class="playlist-song-info">
                     <h3>${song.title}</h3>
                     <p>${song.artist}</p>
@@ -778,8 +772,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Inisialisasi Aplikasi ---
     // Muat data playlist dari localStorage jika tersedia, jika tidak gunakan default
-    // Perhatikan bahwa di sini kita memuat ke `playlist` dan menyalinnya ke `originalPlaylistOrder`
-    // untuk memastikan bahwa shuffle/restore berfungsi dengan benar
     if (localStorage.getItem('musicPlaylist')) {
         playlist = JSON.parse(localStorage.getItem('musicPlaylist'));
         originalPlaylistOrder = [...playlist]; // Salin ke originalPlaylistOrder
@@ -792,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn("Tidak ada lagu ditemukan di array 'playlist'.");
         currentSongTitle.textContent = "Tidak ada lagu";
         currentArtistName.textContent = "Silakan tambahkan lagu di panel admin";
-        infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album di-deploy di GitHub Pages Anda.</p>";
+        infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album ada di folder yang sama dengan file HTML utama Anda di GitHub Pages.</p>";
     }
 
     // Inisialisasi Web Audio API setelah gesture pengguna (putar pertama kali)
@@ -811,7 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  // Handle empty playlist scenario
                 currentSongTitle.textContent = "Tidak ada lagu";
                 currentArtistName.textContent = "Tambahkan lagu di panel admin";
-                infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album di-deploy di GitHub Pages Anda.</p>";
+                infoText.innerHTML = "<p>Playlist kosong. Silakan tambahkan lagu baru melalui panel admin. Pastikan file MP3 dan gambar album ada di folder yang sama dengan file HTML utama Anda di GitHub Pages.</p>";
                 audioPlayer.src = "";
                 currentAlbumArt.src = "album_art_default.jpg";
                 pauseSong();
