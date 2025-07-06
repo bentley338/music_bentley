@@ -92,12 +92,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Untuk mengubahnya, Anda harus mengedit file script.js ini secara langsung.
     let playlist = [
         {
-            title: "Guilty as Sin",
+            title: "Guilty as Sin?",
             artist: "Taylor Swift",
             src: "guilty_as_sin.mp3",
             albumArt: "album_art_guilty_as_sin.jpg",
-            info: `<b>🎶 Guilty as Sin – Taylor Swift</b><br><br>
+            info: `<b>🎶 Guilty as Sin? – Taylor Swift</b><br><br>
                 Lagu ini mengeksplorasi nuansa moral dan godaan dalam sebuah hubungan. Taylor Swift merenungkan garis tipis antara keinginan yang bersalah dan kesetiaan yang tak tergoyahkan. Dengan lirik yang introspektif dan melodi yang memikat, lagu ini menggambarkan pergulatan batin saat menghadapi pertanyaan tentang loyalitas dan batas-batas emosional, membuat pendengar bertanya: apakah keinginan saja sudah cukup untuk merasa bersalah seperti dosa?`
+        },
+        { // Lagu baru ditambahkan di sini
+            title: "About You",
+            artist: "The 1975",
+            src: "about_you.mp3",
+            albumArt: "album_art_about_you.jpg",
+            info: `<b>🎶 About You – The 1975</b><br><br>
+                Lagu ini adalah balada melankolis yang menangkap perasaan kerinduan dan nostalgia akan hubungan masa lalu yang belum sepenuhnya usai. Dengan lirik yang menghantui dan vokal yang mengharukan, lagu ini berbicara tentang ingatan yang terus kembali kepada seseorang, bahkan ketika hidup terus berjalan. "About You" adalah gambaran universal tentang cinta yang tak terlupakan dan bayang-bayang yang ditinggalkannya.`
         },
         {
             title: "Back to Friends",
@@ -201,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
             src: "o_tuan.mp3",
             albumArt: "album_art_o_tuan.jpg",
             info: `<b>🎶 O, Tuan – .Feast</b><br><br>
-                "O, Tuan" adalah lagu dengan nuansa kritik sosial dan pencarian kebenbenaran di tengah hiruk pikuk dunia. .Feast menyuarakan rintihan hati yang resah, mencari makna di balik janji-janji kosong dan kemunafikan kekuasaan. Lagu ini adalah seruan untuk bimbingan, mengingatkan bahwa meskipun harta dan kekuasaan bisa membutakan, keadilan akan selalu hidup dan menjadi tumpuan sampai akhir.`
+                "O, Tuan" adalah lagu dengan nuansa kritik sosial dan pencarian kebenaran di tengah hiruk pikuk dunia. .Feast menyuarakan rintihan hati yang resah, mencari makna di balik janji-janji kosong dan kemunafikan kekuasaan. Lagu ini adalah seruan untuk bimbingan, mengingatkan bahwa meskipun harta dan kekuasaan bisa membutakan, keadilan akan selalu hidup dan menjadi tumpuan sampai akhir.`
         },
         {
             title: "Ramai Sepi Bersama",
@@ -759,14 +767,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function shufflePlaylist() {
-        // Karena playlist sekarang statis, kita bisa langsung mengacaknya
-        // atau membuat salinan acak jika ingin mempertahankan urutan asli sementara
+        // Untuk aplikasi statis, mode shuffle biasanya hanya mengacak current view
+        // Jika ingin mengembalikan ke urutan default, Anda perlu refresh halaman.
+        // Atau, jika Anda benar-benar ingin mode "restore" tanpa refresh,
+        // Anda perlu menyimpan salinan playlist default saat startup
+        originalPlaylistOrder = [...playlist]; // Simpan salinan urutan saat ini sebelum diacak
         for (let i = playlist.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
         }
         // Temukan indeks baru dari lagu yang sedang diputar (jika ada)
-        // Jika playlist diacak, currentSongIndex akan merujuk ke posisi baru lagu yang sama
         const currentSongSource = audioPlayer.src.split('/').pop();
         if(currentSongSource) {
             const newIndex = playlist.findIndex(song => song.src === currentSongSource);
@@ -781,13 +791,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function restoreOriginalPlaylist() {
-        // Karena playlist statis, "original" berarti playlist awal yang hardcoded
-        // Namun, jika sudah diacak, kita tidak punya salinan "original" lagi setelah itu
-        // Untuk aplikasi statis, mode shuffle biasanya hanya mengacak current view
-        // Jika ingin mengembalikan ke urutan default, Anda perlu refresh halaman.
-        // Atau, jika Anda benar-benar ingin mode "restore" tanpa refresh,
-        // Anda perlu menyimpan salinan playlist default saat startup
-        playlist = [ // Ini harus sama persis dengan daftar playlist di atas saat inisialisasi
+        // Mengembalikan ke playlist awal yang hardcoded
+        playlist = [
             {
                 title: "Guilty as Sin?",
                 artist: "Taylor Swift",
@@ -795,6 +800,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 albumArt: "album_art_guilty_as_sin.jpg",
                 info: `<b>🎶 Guilty as Sin? – Taylor Swift</b><br><br>
                     Lagu ini mengeksplorasi nuansa moral dan godaan dalam sebuah hubungan. Taylor Swift merenungkan garis tipis antara keinginan yang bersalah dan kesetiaan yang tak tergoyahkan. Dengan lirik yang introspektif dan melodi yang memikat, lagu ini menggambarkan pergulatan batin saat menghadapi pertanyaan tentang loyalitas dan batas-batas emosional, membuat pendengar bertanya: apakah keinginan saja sudah cukup untuk merasa bersalah seperti dosa?`
+            },
+            { // Lagu baru ditambahkan di sini
+                title: "About You",
+                artist: "The 1975",
+                src: "about_you.mp3",
+                albumArt: "album_art_about_you.jpg",
+                info: `<b>🎶 About You – The 1975</b><br><br>
+                    Lagu ini adalah balada melankolis yang menangkap perasaan kerinduan dan nostalgia akan hubungan masa lalu yang belum sepenuhnya usai. Dengan lirik yang menghantui dan vokal yang mengharukan, lagu ini berbicara tentang ingatan yang terus kembali kepada seseorang, bahkan ketika hidup terus berjalan. "About You" adalah gambaran universal tentang cinta yang tak terlupakan dan bayang-bayang yang ditinggalkannya.`
             },
             {
                 title: "Back to Friends",
@@ -917,17 +930,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     "Everything U Are" adalah lagu cinta yang mendalam, merayakan esensi sejati seseorang yang menjadi segalanya bagi pembicara. Hindia menggambarkan bagaimana kehadiran orang tersebut membawa kedamaian dan menjadi bintang penuntun yang menanamkan harapan. Setiap momen bersama terasa ilahi, dan lagu ini adalah pengakuan bahwa keindahan sejati ada dalam setiap sisi dan detail dari orang yang dicintai, sebuah mahakarya yang tak terlukiskan.`
             }
         ];
-        const currentSongSource = audioPlayer.src.split('/').pop();
-        if(currentSongSource) {
-            const newIndex = playlist.findIndex(song => song.src === currentSongSource);
-            if (newIndex !== -1) {
-                currentSongIndex = newIndex;
-            } else {
-                currentSongIndex = 0; // Fallback jika lagu tidak ditemukan (mis. playlist berubah)
-            }
-        } else {
-            currentSongIndex = 0; // Jika tidak ada lagu yang diputar, mulai dari awal
-        }
+        // currentSongIndex akan direset ke 0 jika halaman direfresh, karena tidak ada persistence
+        currentSongIndex = 0; 
     }
 
 
@@ -1088,7 +1092,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Inisialisasi Aplikasi ---
-    // Inisialisasi playlist saat startup
     // Karena tidak ada admin panel, playlist selalu diambil dari daftar hardcoded.
     // Jika playlist kosong, tampilkan pesan error yang sesuai.
     if (playlist.length > 0) {
