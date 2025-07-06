@@ -87,6 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let originalPlaylistOrder = []; // Akan sama dengan playlist karena tidak ada admin panel
     let autoplayBlocked = false;
 
+    // Variabel untuk Notifikasi
+    let lastNotification = null;
+
     // --- DATA LAGU (SEKARANG HANYA HARDCODED DI SINI) ---
     // Aplikasi ini akan selalu menggunakan daftar lagu ini.
     // Untuk mengubahnya, Anda harus mengedit file script.js ini secara langsung.
@@ -99,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             info: `<b>🎶 Guilty as Sin – Taylor Swift</b><br><br>
                 Lagu ini mengeksplorasi nuansa moral dan godaan dalam sebuah hubungan. Taylor Swift merenungkan garis tipis antara keinginan yang bersalah dan kesetiaan yang tak tergoyahkan. Dengan lirik yang introspektif dan melodi yang memikat, lagu ini menggambarkan pergulatan batin saat menghadapi pertanyaan tentang loyalitas dan batas-batas emosional, membuat pendengar bertanya: apakah keinginan saja sudah cukup untuk merasa bersalah seperti dosa?`
         },
-        {
+        { 
             title: "About You",
             artist: "The 1975",
             src: "about_you.mp3",
@@ -107,13 +110,13 @@ document.addEventListener('DOMContentLoaded', () => {
             info: `<b>🎶 About You – The 1975</b><br><br>
                 Lagu ini adalah balada melankolis yang menangkap perasaan kerinduan dan nostalgia akan hubungan masa lalu yang belum sepenuhnya usai. Dengan lirik yang menghantui dan vokal yang mengharukan, lagu ini berbicara tentang ingatan yang terus kembali kepada seseorang, bahkan ketika hidup terus berjalan. "About You" adalah gambaran universal tentang cinta yang tak terlupakan dan bayang-bayang yang ditinggalkannya.`
         },
-        { // Lagu baru ditambahkan di sini
+        { 
             title: "Iris",
             artist: "Goo Goo Dolls",
             src: "iris.mp3",
             albumArt: "album_art_iris.jpg",
             info: `<b>🎶 Iris – Goo Goo Dolls</b><br><br>
-                Versi "Iris" dari Go goo Dols mungkin memberikan sentuhan unik pada lagu klasik ini, mempertahankan esensi emosional aslinya sambil menambahkan gaya mereka sendiri. Lagu ini sering dikaitkan dengan perasaan kerentanan, harapan, dan keinginan untuk dilihat sepenuhnya oleh orang yang dicintai, dengan lirik yang kuat dan melodi yang membangun emosi. Ini adalah lagu yang berbicara tentang kedalaman cinta dan kerinduan untuk koneksi yang tulus.`
+                Versi "Iris" dari Goo Goo Dolls mungkin memberikan sentuhan unik pada lagu klasik ini, mempertahankan esensi emosional aslinya sambil menambahkan gaya mereka sendiri. Lagu ini sering dikaitkan dengan perasaan kerentanan, harapan, dan keinginan untuk dilihat sepenuhnya oleh orang yang dicintai, dengan lirik yang kuat dan melodi yang membangun emosi. Ini adalah lagu yang berbicara tentang kedalaman cinta dan kerinduan untuk koneksi yang tulus.`
         },
         {
             title: "Back to Friends",
@@ -337,6 +340,24 @@ document.addEventListener('DOMContentLoaded', () => {
         durationSpan.textContent = '0:00';
 
 
+        // --- Browser Notifications ---
+        if (Notification.permission === 'granted' && currentSongTitle.textContent !== "Tidak ada lagu") {
+            if (lastNotification) {
+                lastNotification.close(); // Close previous notification
+            }
+            try {
+                lastNotification = new Notification(`MelodyVerse: ${currentSongTitle.textContent}`, {
+                    body: currentArtistName.textContent,
+                    icon: currentAlbumArt.src,
+                    tag: 'melodyverse-now-playing',
+                    renotify: true
+                });
+            } catch (e) {
+                console.error("Error displaying notification:", e);
+            }
+        }
+
+
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song.title,
@@ -376,10 +397,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (audioContext.state === 'suspended') {
             setupAudioContext();
             audioContext.resume().then(() => {
-                attemptPlay();
+                requestNotificationPermissionAndPlay(); // Panggil fungsi bantu baru
             }).catch(e => {
                 console.error("Failed to resume AudioContext:", e);
                 displayAutoplayBlockedMessage();
+            });
+        } else {
+            requestNotificationPermissionAndPlay(); // Panggil fungsi bantu baru
+        }
+    }
+
+    // Fungsi bantu untuk meminta izin notifikasi sebelum memutar
+    function requestNotificationPermissionAndPlay() {
+        if (Notification.permission === 'default') {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    attemptPlay();
+                } else {
+                    console.warn('Notification permission denied. Notifications will not be shown.');
+                    attemptPlay(); // Tetap coba memutar audio meskipun izin ditolak
+                }
             });
         } else {
             attemptPlay();
@@ -387,13 +424,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function attemptPlay() {
+        if (playlist.length === 0) { // Menangani kasus playlist kosong
+            console.warn("Audio source not loaded or invalid. Playlist is empty.");
+            return;
+        }
+
         if (!audioPlayer.src || audioPlayer.src === window.location.href) {
             console.warn("Audio source not loaded or invalid. Attempting to load first song.");
-            if (playlist.length > 0) {
-                loadSong(0); // Load the first song if no current source
-            } else {
-                return; // Cannot play if playlist is empty
-            }
+            loadSong(0); // Load the first song if no current source
         }
 
         audioPlayer.play().then(() => {
@@ -775,10 +813,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function shufflePlaylist() {
-        // Untuk aplikasi statis, mode shuffle biasanya hanya mengacak current view
-        // Jika ingin mengembalikan ke urutan default, Anda perlu refresh halaman.
-        // Atau, jika Anda benar-benar ingin mode "restore" tanpa refresh,
-        // Anda perlu menyimpan salinan playlist default saat startup
         originalPlaylistOrder = [...playlist]; // Simpan salinan urutan saat ini sebelum diacak
         for (let i = playlist.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -809,7 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 info: `<b>🎶 Guilty as Sin? – Taylor Swift</b><br><br>
                     Lagu ini mengeksplorasi nuansa moral dan godaan dalam sebuah hubungan. Taylor Swift merenungkan garis tipis antara keinginan yang bersalah dan kesetiaan yang tak tergoyahkan. Dengan lirik yang introspektif dan melodi yang memikat, lagu ini menggambarkan pergulatan batin saat menghadapi pertanyaan tentang loyalitas dan batas-batas emosional, membuat pendengar bertanya: apakah keinginan saja sudah cukup untuk merasa bersalah seperti dosa?`
             },
-            { // Lagu baru ditambahkan di sini
+            {
                 title: "About You",
                 artist: "The 1975",
                 src: "about_you.mp3",
@@ -817,7 +851,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 info: `<b>🎶 About You – The 1975</b><br><br>
                     Lagu ini adalah balada melankolis yang menangkap perasaan kerinduan dan nostalgia akan hubungan masa lalu yang belum sepenuhnya usai. Dengan lirik yang menghantui dan vokal yang mengharukan, lagu ini berbicara tentang ingatan yang terus kembali kepada seseorang, bahkan ketika hidup terus berjalan. "About You" adalah gambaran universal tentang cinta yang tak terlupakan dan bayang-bayang yang ditinggalkannya.`
             },
-            { // Lagu baru ditambahkan di sini
+            {
                 title: "Iris",
                 artist: "Go goo Dols",
                 src: "iris.mp3",
