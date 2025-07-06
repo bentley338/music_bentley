@@ -92,11 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Untuk mengubahnya, Anda harus mengedit file script.js ini secara langsung.
     let playlist = [
         {
-            title: "Guilty as Sin?",
+            title: "Guilty as Sin",
             artist: "Taylor Swift",
             src: "guilty_as_sin.mp3",
             albumArt: "album_art_guilty_as_sin.jpg",
-            info: `<b>🎶 Guilty as Sin? – Taylor Swift</b><br><br>
+            info: `<b>🎶 Guilty as Sin – Taylor Swift</b><br><br>
                 Lagu ini mengeksplorasi nuansa moral dan godaan dalam sebuah hubungan. Taylor Swift merenungkan garis tipis antara keinginan yang bersalah dan kesetiaan yang tak tergoyahkan. Dengan lirik yang introspektif dan melodi yang memikat, lagu ini menggambarkan pergulatan batin saat menghadapi pertanyaan tentang loyalitas dan batas-batas emosional, membuat pendengar bertanya: apakah keinginan saja sudah cukup untuk merasa bersalah seperti dosa?`
         },
         { // Lagu baru ditambahkan di sini
