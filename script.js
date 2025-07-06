@@ -99,13 +99,21 @@ document.addEventListener('DOMContentLoaded', () => {
             info: `<b>🎶 Guilty as Sin – Taylor Swift</b><br><br>
                 Lagu ini mengeksplorasi nuansa moral dan godaan dalam sebuah hubungan. Taylor Swift merenungkan garis tipis antara keinginan yang bersalah dan kesetiaan yang tak tergoyahkan. Dengan lirik yang introspektif dan melodi yang memikat, lagu ini menggambarkan pergulatan batin saat menghadapi pertanyaan tentang loyalitas dan batas-batas emosional, membuat pendengar bertanya: apakah keinginan saja sudah cukup untuk merasa bersalah seperti dosa?`
         },
-        { // Lagu baru ditambahkan di sini
+        {
             title: "About You",
             artist: "The 1975",
             src: "about_you.mp3",
             albumArt: "album_art_about_you.jpg",
             info: `<b>🎶 About You – The 1975</b><br><br>
                 Lagu ini adalah balada melankolis yang menangkap perasaan kerinduan dan nostalgia akan hubungan masa lalu yang belum sepenuhnya usai. Dengan lirik yang menghantui dan vokal yang mengharukan, lagu ini berbicara tentang ingatan yang terus kembali kepada seseorang, bahkan ketika hidup terus berjalan. "About You" adalah gambaran universal tentang cinta yang tak terlupakan dan bayang-bayang yang ditinggalkannya.`
+        },
+        { // Lagu baru ditambahkan di sini
+            title: "Iris",
+            artist: "Goo Goo Dolls",
+            src: "iris.mp3",
+            albumArt: "album_art_iris.jpg",
+            info: `<b>🎶 Iris – Goo Goo Dolls</b><br><br>
+                Versi "Iris" dari Go goo Dols mungkin memberikan sentuhan unik pada lagu klasik ini, mempertahankan esensi emosional aslinya sambil menambahkan gaya mereka sendiri. Lagu ini sering dikaitkan dengan perasaan kerentanan, harapan, dan keinginan untuk dilihat sepenuhnya oleh orang yang dicintai, dengan lirik yang kuat dan melodi yang membangun emosi. Ini adalah lagu yang berbicara tentang kedalaman cinta dan kerinduan untuk koneksi yang tulus.`
         },
         {
             title: "Back to Friends",
@@ -808,6 +816,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 albumArt: "album_art_about_you.jpg",
                 info: `<b>🎶 About You – The 1975</b><br><br>
                     Lagu ini adalah balada melankolis yang menangkap perasaan kerinduan dan nostalgia akan hubungan masa lalu yang belum sepenuhnya usai. Dengan lirik yang menghantui dan vokal yang mengharukan, lagu ini berbicara tentang ingatan yang terus kembali kepada seseorang, bahkan ketika hidup terus berjalan. "About You" adalah gambaran universal tentang cinta yang tak terlupakan dan bayang-bayang yang ditinggalkannya.`
+            },
+            { // Lagu baru ditambahkan di sini
+                title: "Iris",
+                artist: "Go goo Dols",
+                src: "iris.mp3",
+                albumArt: "album_art_iris.jpg",
+                info: `<b>🎶 Iris – Go goo Dols</b><br><br>
+                    Versi "Iris" dari Go goo Dols mungkin memberikan sentuhan unik pada lagu klasik ini, mempertahankan esensi emosional aslinya sambil menambahkan gaya mereka sendiri. Lagu ini sering dikaitkan dengan perasaan kerentanan, harapan, dan keinginan untuk dilihat sepenuhnya oleh orang yang dicintai, dengan lirik yang kuat dan melodi yang membangun emosi. Ini adalah lagu yang berbicara tentang kedalaman cinta dan kerinduan untuk koneksi yang tulus.`
             },
             {
                 title: "Back to Friends",
