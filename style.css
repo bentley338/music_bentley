@@ -589,6 +589,13 @@ body.light-mode .control-btn:hover {
 }
 
 
+.control-btn.large-btn:hover {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(255, 69, 0, 0.8);
+}
+
 .control-btn.active {
     background-color: var(--accent-purple);
     border-color: var(--accent-purple);
@@ -716,45 +723,6 @@ body.light-mode .search-input:focus {
     transition: color 0.5s ease;
 }
 
-/* Playlist Tabs */
-.playlist-tabs {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--player-border);
-    padding-bottom: 10px;
-}
-
-.playlist-tab-btn {
-    background: none;
-    border: none;
-    color: var(--secondary-text);
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1em;
-    font-weight: 600;
-    padding: 8px 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: var(--border-radius-sm);
-}
-
-.playlist-tab-btn:hover {
-    color: var(--primary-text);
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.playlist-tab-btn.active {
-    color: var(--accent-red);
-    background: rgba(255, 69, 0, 0.1);
-    box-shadow: 0 0 8px rgba(255, 69, 0, 0.4);
-}
-body.light-mode .playlist-tab-btn.active {
-    color: var(--accent-purple);
-    background: rgba(138, 43, 226, 0.1);
-    box-shadow: 0 0 8px rgba(138, 43, 226, 0.4);
-}
-
 
 .playlist-items {
     list-style: none;
@@ -772,7 +740,6 @@ body.light-mode .playlist-tab-btn.active {
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.2s ease, border-left-color 0.2s ease;
     border-left: 5px solid transparent;
-    position: relative; /* For favorite icon positioning */
 }
 body.light-mode .playlist-items li {
     background-color: rgba(0, 0, 0, 0.03);
@@ -807,9 +774,6 @@ body.light-mode .playlist-items li.active {
     object-fit: cover;
 }
 
-.playlist-items li .playlist-song-info {
-    flex-grow: 1; /* Allows info to take available space */
-}
 .playlist-items li .playlist-song-info h3 {
     margin: 0;
     font-size: 1.1em;
@@ -823,49 +787,6 @@ body.light-mode .playlist-items li.active {
     color: var(--secondary-text);
     transition: color 0.5s ease;
 }
-
-/* Favorite Icon in Playlist */
-.playlist-items li .favorite-icon {
-    font-size: 1.2em;
-    color: var(--secondary-text); /* Default color */
-    cursor: pointer;
-    margin-left: 10px; /* Space from song info */
-    transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.playlist-items li .favorite-icon.active {
-    color: var(--accent-red); /* Filled color when active */
-    transform: scale(1.1);
-}
-body.light-mode .playlist-items li .favorite-icon.active {
-    color: var(--accent-purple);
-}
-
-.playlist-items li .favorite-icon:hover {
-    transform: scale(1.2);
-}
-
-/* Add to Queue Button */
-.playlist-items li .add-to-queue-btn {
-    background: none;
-    border: none;
-    color: var(--secondary-text);
-    font-size: 1.2em;
-    cursor: pointer;
-    margin-left: 10px;
-    padding: 5px;
-    border-radius: 50%;
-    transition: color 0.2s ease, background-color 0.2s ease;
-}
-.playlist-items li .add-to-queue-btn:hover {
-    color: var(--accent-purple);
-    background-color: rgba(255, 255, 255, 0.1);
-}
-body.light-mode .playlist-items li .add-to-queue-btn:hover {
-    color: var(--accent-red);
-    background-color: rgba(0, 0, 0, 0.05);
-}
-
 
 /* Scrollbar untuk Daftar Putar */
 .playlist-sidebar::-webkit-scrollbar {
@@ -933,9 +854,10 @@ body.light-mode .playlist-sidebar::-webkit-scrollbar-thumb {
 
 .modal-content h3 {
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.8em;
+    color: var(--primary-text);
     margin-top: 0;
     margin-bottom: 25px;
+    font-size: 1.8em;
 }
 
 .close-button {
@@ -1013,7 +935,7 @@ body.light-mode .timer-option-btn.active {
     border-color: var(--accent-purple);
     box-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
 }
-.custom-timer-group .btn.admin-btn { /* Menggunakan kembali gaya admin-btn */
+.custom-timer-group .admin-btn { /* Menggunakan kembali gaya admin-btn */
     padding: 10px 15px;
     margin-top: 0; /* Mengabaikan margin default */
     font-size: 0.9em;
@@ -1085,6 +1007,7 @@ body.light-mode .eq-slider::-webkit-slider-thumb:hover {
     color: var(--secondary-text);
     margin-top: 5px;
 }
+
 
 /* Overlay untuk sidebar & modal */
 .sidebar-overlay {
@@ -1216,33 +1139,6 @@ body.light-mode .eq-slider::-webkit-slider-thumb:hover {
         width: 90%;
         max-width: none;
     }
-    .playlist-tabs {
-        flex-wrap: wrap;
-        justify-content: space-around;
-    }
-    .playlist-tab-btn {
-        padding: 8px 10px;
-        font-size: 0.9em;
-    }
-
-    .playlist-items li {
-        flex-wrap: wrap; /* allow wrapping for icons */
-        justify-content: space-between;
-    }
-    .playlist-items li .playlist-song-info {
-        flex-basis: 70%; /* give info more space */
-        order: 1;
-    }
-    .playlist-items li .favorite-icon,
-    .playlist-items li .add-to-queue-btn {
-        order: 2; /* icons after info */
-        margin-top: 5px;
-    }
-    .playlist-items li img {
-        margin-right: 10px;
-        margin-bottom: 5px;
-    }
-
 
     .modal-content {
         padding: 25px;
@@ -1263,7 +1159,7 @@ body.light-mode .eq-slider::-webkit-slider-thumb:hover {
         width: 100px;
         font-size: 0.9em;
     }
-    .custom-timer-group .btn.admin-btn {
+    .custom-timer-group .admin-btn {
         padding: 8px 12px;
         font-size: 0.8em;
     }
@@ -1357,30 +1253,6 @@ body.light-mode .eq-slider::-webkit-slider-thumb:hover {
     .playlist-sidebar {
         width: 95%;
     }
-    .playlist-tab-btn {
-        font-size: 0.8em;
-        padding: 6px 8px;
-    }
-
-    .playlist-items li {
-        padding: 10px;
-    }
-    .playlist-items li img {
-        width: 50px;
-        height: 50px;
-        margin-right: 10px;
-    }
-    .playlist-items li .playlist-song-info h3 {
-        font-size: 1em;
-    }
-    .playlist-items li .playlist-song-info p {
-        font-size: 0.8em;
-    }
-    .playlist-items li .favorite-icon,
-    .playlist-items li .add-to-queue-btn {
-        font-size: 1em;
-    }
-
 
     .modal-content {
         padding: 20px;
@@ -1405,7 +1277,41 @@ body.light-mode .eq-slider::-webkit-slider-thumb:hover {
     .custom-timer-group input {
         width: 80%; /* Lebar penuh dalam kolom */
     }
-    .custom-timer-group .btn.admin-btn {
+    .custom-timer-group .admin-btn {
         width: 100%;
+    }
+}
+
+/* Menyesuaikan untuk perangkat seluler yang lebih kecil jika diperlukan */
+@media (max-width: 320px) {
+    .app-title-new {
+        font-size: 1.3em;
+    }
+    .btn-playlist {
+        font-size: 0.7em;
+    }
+    .music-player {
+        padding: 15px 20px;
+    }
+    .album-art-section {
+        width: 140px;
+        height: 140px;
+    }
+    #audio-visualizer {
+        width: 140px;
+        height: 140px;
+    }
+    .song-title {
+        font-size: 1.4em;
+    }
+    .control-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 1em;
+    }
+    .control-btn.large-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5em;
     }
 }
