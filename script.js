@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
             info: `<b>🎶 Guilty as Sin? – Taylor Swift</b><br><br>
                 Lagu ini mengeksplorasi nuansa moral dan godaan dalam sebuah hubungan. Taylor Swift merenungkan garis tipis antara keinginan yang bersalah dan kesetiaan yang tak tergoyahkan. Dengan lirik yang introspektif dan melodi yang memikat, lagu ini menggambarkan pergulatan batin saat menghadapi pertanyaan tentang loyalitas dan batas-batas emosional, membuat pendengar bertanya: apakah keinginan saja sudah cukup untuk merasa bersalah seperti dosa?`
         },
-        {
+        { 
             title: "About You",
             artist: "The 1975",
             src: "about_you.mp3",
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             info: `<b>🎶 About You – The 1975</b><br><br>
                 Lagu ini adalah balada melankolis yang menangkap perasaan kerinduan dan nostalgia akan hubungan masa lalu yang belum sepenuhnya usai. Dengan lirik yang menghantui dan vokal yang mengharukan, lagu ini berbicara tentang ingatan yang terus kembali kepada seseorang, bahkan ketika hidup terus berjalan. "About You" adalah gambaran universal tentang cinta yang tak terlupakan dan bayang-bayang yang ditinggalkannya.`
         },
-        {
+        { 
             title: "Iris",
             artist: "Go goo Dols",
             src: "iris.mp3",
@@ -333,7 +333,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadSong(songIndex) {
         if (playlist.length === 0) {
-            // Jika playlist kosong, tampilkan pesan tanpa mencoba memuat lagu
             currentSongTitle.textContent = "Tidak ada lagu";
             currentArtistName.textContent = "Daftar putar kosong.";
             infoText.innerHTML = "<p>Daftar putar kosong. Mohon tambahkan lagu ke file `script.js` Anda dan perbarui GitHub Pages.</p>";
@@ -345,9 +344,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (songIndex < 0 || songIndex >= playlist.length) {
             console.error("Error: songIndex di luar batas array playlist. Index:", songIndex, "Ukuran array:", playlist.length);
-            // Kembali ke lagu pertama jika index tidak valid
             currentSongIndex = 0;
-            const song = playlist[currentSongIndex]; // Coba load lagu pertama
+            const song = playlist[currentSongIndex];
             audioPlayer.src = song.src;
             currentAlbumArt.src = song.albumArt;
             currentSongTitle.textContent = song.title;
@@ -355,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
             infoText.innerHTML = song.info;
             audioPlayer.load();
             updatePlaylistActiveState(currentSongIndex);
-            pauseSong(); // Jangan otomatis putar
+            pauseSong();
             return;
         }
 
@@ -1477,8 +1475,9 @@ document.addEventListener('DOMContentLoaded', () => {
         infoText.innerHTML = initialSong.info;
         infoText.scrollTop = 0;
 
-        audioPlayer.src = initialSong.src; // Hanya set source, audioPlayer.load() akan dipanggil saat play/next
-        
+        audioPlayer.src = initialSong.src; // Hanya set source
+        audioPlayer.load(); // Paksa memuat metadata untuk lagu pertama
+
         // Reset waktu dan progress bar
         currentTimeSpan.textContent = '0:00';
         durationSpan.textContent = '0:00';
