@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
             info: `<b>🎶 Guilty as Sin? – Taylor Swift</b><br><br>
                 Lagu ini mengeksplorasi nuansa moral dan godaan dalam sebuah hubungan. Taylor Swift merenungkan garis tipis antara keinginan yang bersalah dan kesetiaan yang tak tergoyahkan. Dengan lirik yang introspektif dan melodi yang memikat, lagu ini menggambarkan pergulatan batin saat menghadapi pertanyaan tentang loyalitas dan batas-batas emosional, membuat pendengar bertanya: apakah keinginan saja sudah cukup untuk merasa bersalah seperti dosa?`
         },
-        { 
+        {
             title: "About You",
             artist: "The 1975",
             src: "about_you.mp3",
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             info: `<b>🎶 About You – The 1975</b><br><br>
                 Lagu ini adalah balada melankolis yang menangkap perasaan kerinduan dan nostalgia akan hubungan masa lalu yang belum sepenuhnya usai. Dengan lirik yang menghantui dan vokal yang mengharukan, lagu ini berbicara tentang ingatan yang terus kembali kepada seseorang, bahkan ketika hidup terus berjalan. "About You" adalah gambaran universal tentang cinta yang tak terlupakan dan bayang-bayang yang ditinggalkannya.`
         },
-        { 
+        {
             title: "Iris",
             artist: "Go goo Dols",
             src: "iris.mp3",
@@ -1467,8 +1467,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Inisialisasi Aplikasi ---
     // Pastikan playlist tidak kosong. Jika kosong, tampilkan pesan error.
     if (playlist.length > 0) {
-        loadSong(currentSongIndex);
-        buildPlaylist(playlistSearchInput.value, 'all'); // Membangun playlist awal
+        currentSongIndex = 0; // Pastikan dimulai dari lagu pertama
+        const initialSong = playlist[currentSongIndex]; // Dapatkan lagu pertama
+        
+        // Langsung set tampilan awal agar tidak "Memuat..."
+        currentAlbumArt.src = initialSong.albumArt;
+        currentSongTitle.textContent = initialSong.title;
+        currentArtistName.textContent = initialSong.artist;
+        infoText.innerHTML = initialSong.info;
+        infoText.scrollTop = 0;
+
+        audioPlayer.src = initialSong.src; // Hanya set source, audioPlayer.load() akan dipanggil saat play/next
+        
+        // Reset waktu dan progress bar
+        currentTimeSpan.textContent = '0:00';
+        durationSpan.textContent = '0:00';
+        progressBar.value = 0;
+
+        buildPlaylist('', 'all'); // Membangun playlist awal
     } else {
         console.warn("Playlist kosong di defaultInitialPlaylist. Tidak ada lagu untuk dimuat.");
         currentSongTitle.textContent = "Tidak ada lagu";
@@ -1494,4 +1510,5 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Autoplay video dicegah. Interaksi pengguna mungkin diperlukan.', error);
         });
     }
+
 });
