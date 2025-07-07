@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Aplikasi ini akan selalu menggunakan daftar lagu ini.
     // Untuk mengubahnya, Anda harus mengedit file script.js ini secara langsung.
     let playlist = [
-        { // Lagu baru ditambahkan di sini
+        {
             title: "Lesung Pipi",
             artist: "Raim Laode",
             src: "lesung_pipi.mp3",
@@ -117,11 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 Lagu ini adalah ode manis untuk fitur wajah yang menawan, lesung pipi. Dengan gaya Raim Laode yang khas, lagu ini kemungkinan besar dibawakan dengan sentuhan humor dan kehangatan, menceritakan tentang daya tarik sederhana namun luar biasa dari seseorang yang memiliki lesung pipi. Liriknya mungkin dipenuhi dengan pujian dan pengamatan yang lucu, membuat pendengar tersenyum dan mengangguk setuju.`
         },
         {
-            title: "Guilty as Sin",
+            title: "Guilty as Sin?",
             artist: "Taylor Swift",
             src: "guilty_as_sin.mp3",
             albumArt: "album_art_guilty_as_sin.jpg",
-            info: `<b>🎶 Guilty as Sin – Taylor Swift</b><br><br>
+            info: `<b>🎶 Guilty as Sin? – Taylor Swift</b><br><br>
                 Lagu ini mengeksplorasi nuansa moral dan godaan dalam sebuah hubungan. Taylor Swift merenungkan garis tipis antara keinginan yang bersalah dan kesetiaan yang tak tergoyahkan. Dengan lirik yang introspektif dan melodi yang memikat, lagu ini menggambarkan pergulatan batin saat menghadapi pertanyaan tentang loyalitas dan batas-batas emosional, membuat pendengar bertanya: apakah keinginan saja sudah cukup untuk merasa bersalah seperti dosa?`
         },
         { 
@@ -134,11 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         { 
             title: "Iris",
-            artist: "Goo Goo Dolls",
+            artist: "Go goo Dols",
             src: "iris.mp3",
             albumArt: "album_art_iris.jpg",
-            info: `<b>🎶 Iris – Goo Goo Dolls</b><br><br>
-                Versi "Iris" dari Goo Goo Dolls mungkin memberikan sentuhan unik pada lagu klasik ini, mempertahankan esensi emosional aslinya sambil menambahkan gaya mereka sendiri. Lagu ini sering dikaitkan dengan perasaan kerentanan, harapan, dan keinginan untuk dilihat sepenuhnya oleh orang yang dicintai, dengan lirik yang kuat dan melodi yang membangun emosi. Ini adalah lagu yang berbicara tentang kedalaman cinta dan kerinduan untuk koneksi yang tulus.`
+            info: `<b>🎶 Iris – Go goo Dols</b><br><br>
+                Versi "Iris" dari Go goo Dols mungkin memberikan sentuhan unik pada lagu klasik ini, mempertahankan esensi emosional aslinya sambil menambahkan gaya mereka sendiri. Lagu ini sering dikaitkan dengan perasaan kerentanan, harapan, dan keinginan untuk dilihat sepenuhnya oleh orang yang dicintai, dengan lirik yang kuat dan melodi yang membangun emosi. Ini adalah lagu yang berbicara tentang kedalaman cinta dan kerinduan untuk koneksi yang tulus.`
         },
         {
             title: "Back to Friends",
@@ -873,6 +873,8 @@ document.addEventListener('DOMContentLoaded', () => {
         visualizerCtx.clearRect(0, 0, audioVisualizer.width, audioVisualizer.height); // Clear canvas on mode change
         if (currentVisualizerMode !== 'none' && isPlaying) {
             drawVisualizer(); // Restart drawing if not none and playing
+        } else if (currentVisualizerMode === 'none') {
+            visualizerCtx.clearRect(0, 0, audioVisualizer.width, audioVisualizer.height); // Clear completely if mode is none
         }
     });
     // Set initial visualizer mode from localStorage or default
@@ -956,9 +958,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             currentSongIndex = 0;
         }
-        // originalPlaylistOrder is not really used for "restore" in this static context after a shuffle,
-        // as restoreOriginalPlaylist re-initializes from hardcoded list.
-        // It's mostly kept as a philosophical concept or if we wanted a more complex undo.
     }
 
     function restoreOriginalPlaylist() {
@@ -1117,6 +1116,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     "Everything U Are" adalah lagu cinta yang mendalam, merayakan esensi sejati seseorang yang menjadi segalanya bagi pembicara. Hindia menggambarkan bagaimana kehadiran orang tersebut membawa kedamaian dan menjadi bintang penuntun yang menanamkan harapan. Setiap momen bersama terasa ilahi, dan lagu ini adalah pengakuan bahwa keindahan sejati ada dalam setiap sisi dan detail dari orang yang dicintai, sebuah mahakarya yang tak terlukiskan.`
             }
         ];
+
         // currentSongIndex akan direset ke 0 jika halaman direfresh, karena tidak ada persistence
         currentSongIndex = 0; 
     }
@@ -1465,8 +1465,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Inisialisasi Aplikasi ---
-    // Karena tidak ada admin panel, playlist selalu diambil dari daftar hardcoded.
-    // Jika playlist kosong, tampilkan pesan error yang sesuai.
+    // Pastikan playlist tidak kosong. Jika kosong, tampilkan pesan error.
     if (playlist.length > 0) {
         loadSong(currentSongIndex);
         buildPlaylist(playlistSearchInput.value, 'all'); // Membangun playlist awal
