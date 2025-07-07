@@ -87,7 +87,7 @@
                     <i class="fas fa-sliders"></i> </button>
             </div>
 
-            <audio id="audio-player" preload="metadata"></audio>
+            <audio id="audio-player"></audio>
         </main>
 
         <aside id="playlist-sidebar" class="playlist-sidebar glass-effect">
@@ -101,19 +101,7 @@
                 <input type="text" id="playlist-search" placeholder="Cari lagu..." class="search-input">
                 <i class="fas fa-magnifying-glass search-icon"></i>
             </div>
-
-            <div class="playlist-tabs">
-                <button class="playlist-tab-btn active" data-tab="all-songs">Semua Lagu</button>
-                <button class="playlist-tab-btn" data-tab="favorites">Favorit</button>
-                <button class="playlist-tab-btn" data-tab="queue">Antrean <span id="queue-count"> (0)</span></button>
-            </div>
-
             <ul id="playlist" class="playlist-items">
-            </ul>
-            <ul id="favorite-list" class="playlist-items" style="display:none;">
-            </ul>
-            <ul id="queue-list" class="playlist-items" style="display:none;">
-                <li id="empty-queue-message" style="display: flex; justify-content: center; color: var(--secondary-text); background: none; border: none; cursor: default;">Antrean kosong.</li>
             </ul>
         </aside>
 
@@ -130,7 +118,7 @@
                 </div>
                 <div class="custom-timer-group">
                     <input type="number" id="custom-timer-input" min="1" max="120" placeholder="Kustom (menit)">
-                    <button id="set-custom-timer-btn" class="btn admin-btn">Atur</button>
+                    <button id="set-custom-timer-btn" class="admin-btn">Atur</button>
                 </div>
                 <p id="modal-timer-countdown" class="countdown-text"></p>
             </div>
@@ -169,14 +157,6 @@
                     <label for="effect-level-control">Effect Level (Output):</label>
                     <input type="range" id="effect-level-control" min="0" max="2" step="0.01" value="1" class="eq-slider">
                     <span id="effect-level-value">100%</span>
-                </div>
-                <div class="control-group">
-                    <label for="visualizer-mode-select">Mode Visualizer:</label>
-                    <select id="visualizer-mode-select" class="eq-slider">
-                        <option value="none">Mati</option>
-                        <option value="bars">Batang</option>
-                        <option value="circles">Lingkaran</option>
-                    </select>
                 </div>
             </div>
         </div>
