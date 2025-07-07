@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const bassValueSpan = document.getElementById('bass-value');
     const effectLevelControl = document.getElementById('effect-level-control');
     const effectLevelValueSpan = document.getElementById('effect-level-value');
-    const visualizerModeSelect = document.getElementById('visualizer-mode-select'); // New: Visualizer mode select
 
     const toggleThemeBtn = document.getElementById('toggle-theme-btn');
     const shuffleBtn = document.getElementById('shuffle-btn');
@@ -109,6 +108,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Aplikasi ini akan selalu menggunakan daftar lagu ini.
     // Untuk mengubahnya, Anda harus mengedit file script.js ini secara langsung.
     let playlist = [
+        { // Lagu baru ditambahkan di sini
+            title: "Lesung Pipi",
+            artist: "Raim Laode",
+            src: "lesung_pipi.mp3",
+            albumArt: "album_art_lesung_pipi.jpg",
+            info: `<b>🎶 Lesung Pipi – Raim Laode</b><br><br>
+                Lagu ini adalah ode manis untuk fitur wajah yang menawan, lesung pipi. Dengan gaya Raim Laode yang khas, lagu ini kemungkinan besar dibawakan dengan sentuhan humor dan kehangatan, menceritakan tentang daya tarik sederhana namun luar biasa dari seseorang yang memiliki lesung pipi. Liriknya mungkin dipenuhi dengan pujian dan pengamatan yang lucu, membuat pendengar tersenyum dan mengangguk setuju.`
+        },
         {
             title: "Guilty as Sin?",
             artist: "Taylor Swift",
@@ -326,6 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadSong(songIndex) {
         if (playlist.length === 0) {
+            // Jika playlist kosong, tampilkan pesan tanpa mencoba memuat lagu
             currentSongTitle.textContent = "Tidak ada lagu";
             currentArtistName.textContent = "Daftar putar kosong.";
             infoText.innerHTML = "<p>Daftar putar kosong. Mohon tambahkan lagu ke file `script.js` Anda dan perbarui GitHub Pages.</p>";
@@ -337,8 +345,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (songIndex < 0 || songIndex >= playlist.length) {
             console.error("Error: songIndex di luar batas array playlist. Index:", songIndex, "Ukuran array:", playlist.length);
+            // Kembali ke lagu pertama jika index tidak valid
             currentSongIndex = 0;
-            const song = playlist[currentSongIndex];
+            const song = playlist[currentSongIndex]; // Coba load lagu pertama
             audioPlayer.src = song.src;
             currentAlbumArt.src = song.albumArt;
             currentSongTitle.textContent = song.title;
@@ -346,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
             infoText.innerHTML = song.info;
             audioPlayer.load();
             updatePlaylistActiveState(currentSongIndex);
-            pauseSong();
+            pauseSong(); // Jangan otomatis putar
             return;
         }
 
@@ -432,13 +441,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (audioContext.state === 'suspended') {
             setupAudioContext();
             audioContext.resume().then(() => {
-                requestNotificationPermissionAndPlay();
+                requestNotificationPermissionAndPlay(); // Panggil fungsi bantu baru
             }).catch(e => {
                 console.error("Failed to resume AudioContext:", e);
                 displayAutoplayBlockedMessage();
             });
         } else {
-            requestNotificationPermissionAndPlay();
+            requestNotificationPermissionAndPlay(); // Panggil fungsi bantu baru
         }
     }
 
@@ -860,6 +869,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Visualizer Mode Control
     visualizerModeSelect.addEventListener('change', (event) => {
         currentVisualizerMode = event.target.value;
+        localStorage.setItem('visualizerMode', currentVisualizerMode); // Save user's preference
         visualizerCtx.clearRect(0, 0, audioVisualizer.width, audioVisualizer.height); // Clear canvas on mode change
         if (currentVisualizerMode !== 'none' && isPlaying) {
             drawVisualizer(); // Restart drawing if not none and playing
@@ -902,7 +912,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             restoreOriginalPlaylist(); // Restore to the initial hardcoded order
         }
-        buildPlaylist(); // Rebuild with current search term and tab
+        buildPlaylist(playlistSearchInput.value, document.querySelector('.playlist-tab-btn.active').dataset.tab); // Rebuild with current search term and tab
         updatePlaylistActiveState(currentSongIndex);
     });
 
@@ -923,31 +933,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function shufflePlaylist() {
-        // Copy the hardcoded original playlist first, then shuffle 'playlist'
-        // This ensures 'restoreOriginalPlaylist' can always go back to true initial state
-        const tempOriginalOrder = [...playlist]; 
-        for (let i = playlist.length - 1; i > 0; i--) {
+        const currentPlayingSongSource = audioPlayer.src.split('/').pop();
+        
+        // Create a temporary shuffled version of the full hardcoded playlist
+        const shuffledList = [...playlist];
+        for (let i = shuffledList.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
+            [shuffledList[i], shuffledList[j]] = [shuffledList[j], shuffledList[i]];
         }
-        // Find index of the currently playing song in the newly shuffled list
-        const currentSongSource = audioPlayer.src.split('/').pop();
-        if(currentSongSource) {
-            const newIndex = playlist.findIndex(song => song.src === currentSongSource);
+        
+        // Replace the main playlist with the shuffled version
+        playlist = shuffledList;
+        
+        // Update currentSongIndex to reflect the new position of the playing song
+        if (currentPlayingSongSource) {
+            const newIndex = playlist.findIndex(song => song.src === currentPlayingSongSource);
             if (newIndex !== -1) {
                 currentSongIndex = newIndex;
             } else {
-                currentSongIndex = 0;
+                currentSongIndex = 0; 
             }
         } else {
-            currentSongIndex = 0; 
+            currentSongIndex = 0;
         }
-        originalPlaylistOrder = tempOriginalOrder; // Update originalPlaylistOrder only after successful shuffle
+        // originalPlaylistOrder is not really used for "restore" in this static context after a shuffle,
+        // as restoreOriginalPlaylist re-initializes from hardcoded list.
+        // It's mostly kept as a philosophical concept or if we wanted a more complex undo.
     }
 
     function restoreOriginalPlaylist() {
-        // Restore to the original hardcoded playlist order
+        // Mengembalikan ke playlist awal yang hardcoded
         playlist = [
+            {
+                title: "Lesung Pipi",
+                artist: "Raim Laode",
+                src: "lesung_pipi.mp3",
+                albumArt: "album_art_lesung_pipi.jpg",
+                info: `<b>🎶 Lesung Pipi – Raim Laode</b><br><br>
+                    Lagu ini adalah ode manis untuk fitur wajah yang menawan, lesung pipi. Dengan gaya Raim Laode yang khas, lagu ini kemungkinan besar dibawakan dengan sentuhan humor dan kehangatan, menceritakan tentang daya tarik sederhana namun luar biasa dari seseorang yang memiliki lesung pipi. Liriknya mungkin dipenuhi dengan pujian dan pengamatan yang lucu, membuat pendengar tersenyum dan mengangguk setuju.`
+            },
             {
                 title: "Guilty as Sin?",
                 artist: "Taylor Swift",
@@ -1100,7 +1124,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Fungsi Playlist ---
     function buildPlaylist(searchTerm = '', displayMode = 'all') { // Added displayMode
-        playlistUl.innerHTML = '';
+        // Sembunyikan semua daftar dulu
+        allSongsList.style.display = 'none';
+        favoriteList.style.display = 'none';
+        queueList.style.display = 'none';
+        allSongsList.innerHTML = ''; // Kosongkan dulu
         favoriteList.innerHTML = '';
         queueList.innerHTML = '';
 
@@ -1108,6 +1136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (displayMode === 'all') {
             songsToDisplay = playlist;
         } else if (displayMode === 'favorites') {
+            // Filter playlist utama berdasarkan lagu favorit yang src-nya ada di favoriteSongs
             songsToDisplay = playlist.filter(song => favoriteSongs.includes(song.src));
         } else if (displayMode === 'queue') {
             songsToDisplay = queue;
@@ -1232,13 +1261,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showPlaylistSidebar() {
         // Build the currently active tab's list
         const activeTab = document.querySelector('.playlist-tab-btn.active').dataset.tab;
-        if (activeTab === 'all-songs') {
-            buildPlaylist(playlistSearchInput.value, 'all');
-        } else if (activeTab === 'favorites') {
-            buildPlaylist(playlistSearchInput.value, 'favorites');
-        } else if (activeTab === 'queue') {
-            renderQueueList(playlistSearchInput.value); // Use a dedicated queue render
-        }
+        buildPlaylist(playlistSearchInput.value, activeTab);
 
         playlistSidebar.classList.add('visible');
         sidebarOverlay.classList.add('visible');
@@ -1283,13 +1306,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.add('active');
 
             const selectedTab = button.dataset.tab;
-            if (selectedTab === 'all-songs') {
-                buildPlaylist(playlistSearchInput.value, 'all');
-            } else if (selectedTab === 'favorites') {
-                buildPlaylist(playlistSearchInput.value, 'favorites');
-            } else if (selectedTab === 'queue') {
-                renderQueueList(playlistSearchInput.value);
-            }
+            buildPlaylist(playlistSearchInput.value, selectedTab);
             updatePlaylistActiveState(currentSongIndex); // Perbarui status aktif setelah tab berubah
         });
     });
@@ -1311,11 +1328,11 @@ document.addEventListener('DOMContentLoaded', () => {
             favoriteSongs.splice(index, 1);
         }
         saveFavorites();
-        // Update icons in all relevant lists
+        // Update icons in all relevant lists (all-songs and favorites tab if visible)
         document.querySelectorAll(`.favorite-icon[data-song-src="${songSrc}"]`).forEach(icon => {
             icon.classList.toggle('active', favoriteSongs.includes(songSrc));
         });
-        // If 'Favorites' tab is active, re-render it
+        // If 'Favorites' tab is active, re-render it to show/hide the song
         if (document.querySelector('.playlist-tab-btn.active').dataset.tab === 'favorites') {
             buildPlaylist(playlistSearchInput.value, 'favorites');
         }
@@ -1338,12 +1355,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderQueueList(searchTerm = '') {
-        queueList.innerHTML = '';
-        emptyQueueMessage.style.display = 'none'; // Sembunyikan pesan kosong secara default
+        queueList.innerHTML = ''; // Clear existing items
+        emptyQueueMessage.style.display = 'none'; // Hide empty message by default
 
         if (queue.length === 0) {
-            emptyQueueMessage.style.display = 'flex'; // Tampilkan pesan kosong jika antrean benar-benar kosong
+            emptyQueueMessage.style.display = 'flex'; // Show empty message if queue is truly empty
             queueList.appendChild(emptyQueueMessage);
+            queueCountSpan.textContent = ` (0)`;
             return;
         }
 
@@ -1352,7 +1370,7 @@ document.addEventListener('DOMContentLoaded', () => {
             song.artist.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
-        if (filteredQueue.length === 0 && searchTerm) { // If filtered queue is empty because of search, not because queue is actually empty
+        if (filteredQueue.length === 0 && searchTerm) { 
             const noResultsLi = document.createElement('li');
             noResultsLi.textContent = "Tidak ada lagu antrean ditemukan.";
             noResultsLi.style.justifyContent = 'center';
@@ -1363,8 +1381,7 @@ document.addEventListener('DOMContentLoaded', () => {
             queueList.appendChild(noResultsLi);
             return;
         }
-
-
+        
         filteredQueue.forEach((song, index) => {
             const li = document.createElement('li');
             li.setAttribute('data-queue-index', index); // Index dalam antrean
@@ -1375,9 +1392,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>${song.artist}</p>
                 </div>
                 <i class="fas fa-heart favorite-icon ${favoriteSongs.includes(song.src) ? 'active' : ''}" data-song-src="${song.src}"></i>
-                <button class="add-to-queue-btn" style="display:none;"></button> `;
+                <button class="add-to-queue-btn" style="display:none;"></button>
+            `;
             li.addEventListener('click', (event) => {
-                if (event.target.closest('.favorite-icon')) { // Allow favorite toggle in queue view
+                if (event.target.closest('.favorite-icon')) { 
+                    event.stopPropagation();
+                    toggleFavorite(song.src);
+                    // Re-render queue after favorite toggle, in case it changes filtering/appearance
+                    buildPlaylist(playlistSearchInput.value, 'queue');
                     return;
                 }
                 // Play song directly from queue, and remove it from queue
@@ -1393,11 +1415,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     alert('Lagu ini tidak ditemukan di playlist utama.');
                 }
-            });
-
-            li.querySelector('.favorite-icon').addEventListener('click', (event) => {
-                event.stopPropagation();
-                toggleFavorite(song.src);
             });
 
             queueList.appendChild(li);
@@ -1448,6 +1465,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Inisialisasi Aplikasi ---
+    // Karena tidak ada admin panel, playlist selalu diambil dari daftar hardcoded.
+    // Jika playlist kosong, tampilkan pesan error yang sesuai.
     if (playlist.length > 0) {
         loadSong(currentSongIndex);
         buildPlaylist(playlistSearchInput.value, 'all'); // Membangun playlist awal
@@ -1476,7 +1495,4 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Autoplay video dicegah. Interaksi pengguna mungkin diperlukan.', error);
         });
     }
-
-    // Tidak ada lagi memantau perubahan localStorage dari admin panel, karena sudah dihapus
-    // window.addEventListener('storage', ...) dihapus.
 });
