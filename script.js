@@ -117,11 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 Lagu ini adalah ode manis untuk fitur wajah yang menawan, lesung pipi. Dengan gaya Raim Laode yang khas, lagu ini kemungkinan besar dibawakan dengan sentuhan humor dan kehangatan, menceritakan tentang daya tarik sederhana namun luar biasa dari seseorang yang memiliki lesung pipi. Liriknya mungkin dipenuhi dengan pujian dan pengamatan yang lucu, membuat pendengar tersenyum dan mengangguk setuju.`
         },
         {
-            title: "Guilty as Sin?",
+            title: "Guilty as Sin",
             artist: "Taylor Swift",
             src: "guilty_as_sin.mp3",
             albumArt: "album_art_guilty_as_sin.jpg",
-            info: `<b>🎶 Guilty as Sin? – Taylor Swift</b><br><br>
+            info: `<b>🎶 Guilty as Sin – Taylor Swift</b><br><br>
                 Lagu ini mengeksplorasi nuansa moral dan godaan dalam sebuah hubungan. Taylor Swift merenungkan garis tipis antara keinginan yang bersalah dan kesetiaan yang tak tergoyahkan. Dengan lirik yang introspektif dan melodi yang memikat, lagu ini menggambarkan pergulatan batin saat menghadapi pertanyaan tentang loyalitas dan batas-batas emosional, membuat pendengar bertanya: apakah keinginan saja sudah cukup untuk merasa bersalah seperti dosa?`
         },
         { 
@@ -134,11 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         { 
             title: "Iris",
-            artist: "Go goo Dols",
+            artist: "Goo Goo Dolls",
             src: "iris.mp3",
             albumArt: "album_art_iris.jpg",
-            info: `<b>🎶 Iris – Go goo Dols</b><br><br>
-                Versi "Iris" dari Go goo Dols mungkin memberikan sentuhan unik pada lagu klasik ini, mempertahankan esensi emosional aslinya sambil menambahkan gaya mereka sendiri. Lagu ini sering dikaitkan dengan perasaan kerentanan, harapan, dan keinginan untuk dilihat sepenuhnya oleh orang yang dicintai, dengan lirik yang kuat dan melodi yang membangun emosi. Ini adalah lagu yang berbicara tentang kedalaman cinta dan kerinduan untuk koneksi yang tulus.`
+            info: `<b>🎶 Iris – Goo Goo Dolls</b><br><br>
+                Versi "Iris" dari Goo Goo Dolls mungkin memberikan sentuhan unik pada lagu klasik ini, mempertahankan esensi emosional aslinya sambil menambahkan gaya mereka sendiri. Lagu ini sering dikaitkan dengan perasaan kerentanan, harapan, dan keinginan untuk dilihat sepenuhnya oleh orang yang dicintai, dengan lirik yang kuat dan melodi yang membangun emosi. Ini adalah lagu yang berbicara tentang kedalaman cinta dan kerinduan untuk koneksi yang tulus.`
         },
         {
             title: "Back to Friends",
