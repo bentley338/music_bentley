@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
             src: "message_in_a_bottle.mp3",
             albumArt: "album_art_message_in_a_bottle.jpg",
             info: `<b>🎶 Message In A Bottle – Taylor Swift</b><br><br>
-                Terinspirasi dari perasaan kerinduan dan harapan, "Message In A Bottle" adalah lagu yang menggambarkan upaya untuk menjaga kenangan dan cinta tetap hidup, meskipun terpisah jarak. Seperti pesan dalam botol yang dilemparkan ke lautan, lagu ini adalah doa agar suatu hari pesan cinta dan kenangan akan menemukan jalannya kembali kepada orang yang dituju. Melodinya yang menyentuh hati mencerminkan emosi mendalam tentang kehilangan dan harapan.`
+                    Terinspirasi dari perasaan kerinduan dan harapan, "Message In A Bottle" adalah lagu yang menggambarkan upaya untuk menjaga kenangan dan cinta tetap hidup, meskipun terpisah jarak. Seperti pesan dalam botol yang dilemparkan ke lautan, lagu ini adalah doa agar suatu hari pesan cinta dan kenangan akan menemukan jalannya kembali kepada orang yang dituju. Melodinya yang menyentuh hati mencerminkan emosi mendalam tentang kehilangan dan harapan.`
         },
         {
             title: "Supernatural",
@@ -238,7 +238,6 @@ document.addEventListener('DOMContentLoaded', () => {
             info: `<b>🎶 Everything U Are – Hindia</b><br><br>
                 "Everything U Are" adalah lagu cinta yang mendalam, merayakan esensi sejati seseorang yang menjadi segalanya bagi pembicara. Hindia menggambarkan bagaimana kehadiran orang tersebut membawa kedamaian dan menjadi bintang penuntun yang menanamkan harapan. Setiap momen bersama terasa ilahi, dan lagu ini adalah pengakuan bahwa keindahan sejati ada dalam setiap sisi dan detail dari orang yang dicintai, sebuah mahakarya yang tak terlukiskan.`
         },
-        // --- LAGU BARU DITAMBAHKAN DI BAWAH INI ---
         {
             title: "Lesung Pipi",
             artist: "Raim Laode",
@@ -246,6 +245,15 @@ document.addEventListener('DOMContentLoaded', () => {
             albumArt: "album_art_lesung_pipi.jpg",
             info: `<b>🎶 Lesung Pipi – Raim Laode</b><br><br>
                 Lagu ini kemungkinan besar adalah lagu yang ringan dan ceria, mungkin tentang pesona seseorang dengan lesung pipi. Raim Laode dikenal dengan liriknya yang jujur dan seringkali humoris, jadi lagu ini bisa jadi eksplorasi manis tentang ketertarikan pada detail kecil yang unik dari seseorang. Atau mungkin juga tentang kenangan dan rasa rindu terhadap senyum manis yang dihiasi lesung pipi, yang selalu bisa menghangatkan hati.`
+        },
+        // --- LAGU BARU DITAMBAHKAN DI BAWAH INI ---
+        {
+            title: "Closed Doors",
+            artist: "Ismail",
+            src: "closed_doors.mp3",
+            albumArt: "album_art_closed_doors.jpg", // Pastikan ada file ini
+            info: `<b>🎶 Closed Doors – Ismail</b><br><br>
+                "Closed Doors" oleh Ismail kemungkinan besar mengeksplorasi tema introspeksi, isolasi, atau akhir dari sebuah fase. Lagu ini mungkin menggambarkan perasaan terjebak atau terhalang di balik "pintu tertutup," baik secara metaforis maupun literal. Melalui liriknya, Ismail bisa menyuarakan refleksi tentang peluang yang hilang, perubahan yang sulit, atau proses menemukan kekuatan batin saat menghadapi batasan.`
         }
     ];
 
@@ -967,7 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 title: "O, Tuan",
                 artist: ".Feast",
-                src: "o_tuan.mp3", // Dikembalikan ke .mp3 karena ini adalah yang ada di file asli Anda
+                src: "o_tuan.mp4",
                 albumArt: "album_art_o_tuan.jpg",
                 info: `<b>🎶 O, Tuan – .Feast</b><br><br>
                     "O, Tuan" adalah lagu dengan nuansa kritik sosial dan pencarian kebenaran di tengah hiruk pikuk dunia. .Feast menyuarakan rintihan hati yang resah, mencari makna di balik janji-janji kosong dan kemunafikan kekuasaan. Lagu ini adalah seruan untuk bimbingan, mengingatkan bahwa meskipun harta dan kekuasaan bisa membutakan, keadilan akan selalu hidup dan menjadi tumpuan sampai akhir.`
@@ -995,17 +1003,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 albumArt: "album_art_lesung_pipi.jpg",
                 info: `<b>🎶 Lesung Pipi – Raim Laode</b><br><br>
                     Lagu ini kemungkinan besar adalah lagu yang ringan dan ceria, mungkin tentang pesona seseorang dengan lesung pipi. Raim Laode dikenal dengan liriknya yang jujur dan seringkali humoris, jadi lagu ini bisa jadi eksplorasi manis tentang ketertarikan pada detail kecil yang unik dari seseorang. Atau mungkin juga tentang kenangan dan rasa rindu terhadap senyum manis yang dihiasi lesung pipi, yang selalu bisa menghangatkan hati.`
+            },
+            {
+                title: "Closed Doors",
+                artist: "Ismail",
+                src: "closed_doors.mp3",
+                albumArt: "album_art_closed_doors.jpg",
+                info: `<b>🎶 Closed Doors – Ismail</b><br><br>
+                    "Closed Doors" oleh Ismail kemungkinan besar mengeksplorasi tema introspeksi, isolasi, atau akhir dari sebuah fase. Lagu ini mungkin menggambarkan perasaan terjebak atau terhalang di balik "pintu tertutup," baik secara metaforis maupun literal. Melalui liriknya, Ismail bisa menyuarakan refleksi tentang peluang yang hilang, perubahan yang sulit, atau proses menemukan kekuatan batin saat menghadapi batasan.`
             }
         ];
-        // currentSongIndex akan direset ke 0 jika halaman direfresh, karena tidak ada persistence
-        currentSongIndex = 0;
+        // Temukan indeks baru dari lagu yang sedang diputar (jika ada) di playlist yang telah dikembalikan
+        const currentSongSource = audioPlayer.src.split('/').pop();
+        if(currentSongSource) {
+            const newIndex = playlist.findIndex(song => song.src === currentSongSource);
+            if (newIndex !== -1) {
+                currentSongIndex = newIndex;
+            } else {
+                currentSongIndex = 0; // Fallback jika lagu tidak ditemukan
+            }
+        } else {
+            currentSongIndex = 0; // Jika tidak ada lagu yang diputar, kembali ke awal
+        }
     }
 
-
-    // --- Fungsi Playlist ---
+    // --- Playlist Tampilan dan Pencarian ---
     function buildPlaylist(searchTerm = '') {
-        playlistUl.innerHTML = '';
-        // Karena playlist sekarang hardcoded, originalPlaylistOrder akan selalu sama dengan playlist
+        playlistUl.innerHTML = ''; // Kosongkan daftar putar saat ini
+
         const filteredPlaylist = playlist.filter(song =>
             song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             song.artist.toLowerCase().includes(searchTerm.toLowerCase())
@@ -1013,181 +1038,147 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (filteredPlaylist.length === 0) {
             const noResultsLi = document.createElement('li');
-            noResultsLi.textContent = "Tidak ada lagu ditemukan.";
-            noResultsLi.style.justifyContent = 'center';
-            noResultsLi.style.cursor = 'default';
-            noResultsLi.style.backgroundColor = 'transparent';
-            noResultsLi.style.transform = 'none';
-            noResultsLi.style.borderLeft = 'none';
-            noResultsLi.style.color = 'var(--secondary-text)';
+            noResultsLi.classList.add('no-results');
+            noResultsLi.textContent = "Tidak ada hasil ditemukan.";
             playlistUl.appendChild(noResultsLi);
             return;
         }
 
         filteredPlaylist.forEach((song, index) => {
             const li = document.createElement('li');
-            // actualIndexInCurrentPlaylist akan merujuk ke index di playlist yang saat ini diacak
-            const actualIndexInCurrentPlaylist = playlist.indexOf(song);
+            li.setAttribute('data-index', playlist.indexOf(song)); // Simpan indeks asli di playlist
+            li.classList.add('playlist-item');
+            if (playlist.indexOf(song) === currentSongIndex) {
+                li.classList.add('active');
+            }
 
-            li.setAttribute('data-current-playlist-index', actualIndexInCurrentPlaylist);
-            li.innerHTML = `
-                <img src="${song.albumArt}" alt="${song.title} Album Art">
-                <div class="playlist-song-info">
-                    <h3>${song.title}</h3>
-                    <p>${song.artist}</p>
-                </div>
-            `;
+            const albumArtDiv = document.createElement('div');
+            albumArtDiv.classList.add('playlist-album-art');
+            const albumArt = document.createElement('img');
+            albumArt.src = song.albumArt;
+            albumArt.alt = `Album art for ${song.title}`;
+            albumArtDiv.appendChild(albumArt);
+            li.appendChild(albumArtDiv);
+
+            const songDetails = document.createElement('div');
+            songDetails.classList.add('playlist-song-details');
+            const title = document.createElement('h4');
+            title.textContent = song.title;
+            const artist = document.createElement('p');
+            artist.textContent = song.artist;
+            songDetails.appendChild(title);
+            songDetails.appendChild(artist);
+            li.appendChild(songDetails);
+
             li.addEventListener('click', () => {
-                currentSongIndex = parseInt(li.getAttribute('data-current-playlist-index'));
-                loadSong(currentSongIndex);
-                playSong();
-                hidePlaylistSidebar();
+                const clickedIndex = parseInt(li.dataset.index);
+                if (clickedIndex === currentSongIndex && isPlaying) {
+                    pauseSong();
+                } else if (clickedIndex === currentSongIndex && !isPlaying) {
+                    playSong();
+                } else {
+                    currentSongIndex = clickedIndex;
+                    loadSong(currentSongIndex);
+                    playSong();
+                }
             });
             playlistUl.appendChild(li);
         });
-        updatePlaylistActiveState(currentSongIndex);
+        scrollPlaylistToActive(); // Panggil setelah playlist dibangun
     }
 
-    function updatePlaylistActiveState(activeIndexInCurrentPlaylist) {
-        const playlistItems = playlistUl.querySelectorAll('li');
-        if (!playlistItems.length) return;
 
-        playlistItems.forEach(item => item.classList.remove('active'));
+    function updatePlaylistActiveState(newIndex) {
+        document.querySelectorAll('.playlist-item').forEach(item => {
+            item.classList.remove('active');
+            item.querySelector('h4').classList.remove('playing-animation');
+        });
 
-        const currentPlayingSong = playlist[activeIndexInCurrentPlaylist];
-        if (currentPlayingSong) {
-            const activeItem = Array.from(playlistItems).find(item =>
-                item.querySelector('h3').textContent === currentPlayingSong.title &&
-                item.querySelector('p').textContent === currentPlayingSong.artist
-            );
+        const activeItem = document.querySelector(`.playlist-item[data-index="${newIndex}"]`);
+        if (activeItem) {
+            activeItem.classList.add('active');
+            activeItem.querySelector('h4').classList.add('playing-animation');
+            scrollPlaylistToActive(); // Gulir ke elemen aktif
+        }
+    }
 
-            if (activeItem) {
-                activeItem.classList.add('active');
 
-                const containerHeight = playlistUl.clientHeight;
-                const itemHeight = activeItem.offsetHeight;
-                const itemTop = activeItem.offsetTop;
+    function scrollPlaylistToActive() {
+        const activeItem = playlistUl.querySelector('.playlist-item.active');
+        if (activeItem) {
+            // Hitung posisi scroll yang dibutuhkan
+            const playlistHeight = playlistUl.clientHeight;
+            const itemTop = activeItem.offsetTop;
+            const itemHeight = activeItem.clientHeight;
 
-                const scrollTo = itemTop - (containerHeight / 2) + (itemHeight / 2);
-
-                if (playlistUl.scrollHeight > playlistUl.clientHeight) {
-                    playlistUl.scrollTo({
-                        top: scrollTo,
-                        behavior: 'smooth'
-                    });
-                }
+            // Jika item tidak sepenuhnya terlihat (di atas atau di bawah area pandang)
+            if (itemTop < playlistUl.scrollTop || (itemTop + itemHeight) > (playlistUl.scrollTop + playlistHeight)) {
+                playlistUl.scrollTop = itemTop - (playlistHeight / 2) + (itemHeight / 2);
             }
         }
     }
 
-
-    function showPlaylistSidebar() {
-        buildPlaylist(playlistSearchInput.value);
+    // Toggle Sidebar Playlist
+    togglePlaylistBtn.addEventListener('click', () => {
         playlistSidebar.classList.add('visible');
         sidebarOverlay.classList.add('visible');
-        audioControlsModal.classList.remove('visible');
-        sleepTimerModal.classList.remove('visible');
-    }
-
-    function hidePlaylistSidebar() {
-        playlistSidebar.classList.remove('visible');
-        sidebarOverlay.classList.remove('visible');
-    }
-
-    sidebarOverlay.addEventListener('click', () => {
-        hidePlaylistSidebar();
-        audioControlsModal.classList.remove('visible');
-        sleepTimerModal.classList.remove('visible');
-        sidebarOverlay.classList.remove('visible');
-    });
-
-    togglePlaylistBtn.addEventListener('click', () => {
-        if (playlistSidebar.classList.contains('visible')) {
-            hidePlaylistSidebar();
-        } else {
-            showPlaylistSidebar();
-        }
+        scrollPlaylistToActive(); // Gulir saat sidebar dibuka
     });
 
     closePlaylistBtn.addEventListener('click', () => {
-        hidePlaylistSidebar();
+        playlistSidebar.classList.remove('visible');
+        sidebarOverlay.classList.remove('visible');
     });
 
+    sidebarOverlay.addEventListener('click', () => {
+        playlistSidebar.classList.remove('visible');
+        sleepTimerModal.classList.remove('visible');
+        audioControlsModal.classList.remove('visible');
+        sidebarOverlay.classList.remove('visible');
+    });
+
+    // Pencarian Playlist
     playlistSearchInput.addEventListener('input', (event) => {
         buildPlaylist(event.target.value);
     });
 
-    // --- Pintasan Keyboard ---
-    document.addEventListener('keydown', (event) => {
-        if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
-            return;
-        }
-
-        switch (event.key) {
-            case ' ':
-                event.preventDefault();
-                playPauseToggle();
-                break;
-            case 'ArrowRight':
-                playNextSong();
-                break;
-            case 'ArrowLeft':
-                playPrevSong();
-                break;
-            case 'm':
-                if (audioPlayer.volume > 0) {
-                    audioPlayer.dataset.previousVolume = audioPlayer.volume;
-                    audioPlayer.volume = 0;
-                    masterVolumeControl.value = 0;
-                } else {
-                    audioPlayer.volume = parseFloat(audioPlayer.dataset.previousVolume || 0.7);
-                    masterVolumeControl.value = audioPlayer.volume;
-                }
-                gainNode.gain.setValueAtTime(audioPlayer.volume, audioContext.currentTime);
-                volumeValueSpan.textContent = `${Math.round(audioPlayer.volume * 100)}%`;
-                break;
-            case 'l':
-                event.preventDefault();
-                togglePlaylistBtn.click();
-                break;
-            case 'o':
-                event.preventDefault();
-                openAudioModalBtn.click();
-                break;
-        }
-    });
-
 
     // --- Inisialisasi Aplikasi ---
-    // Karena tidak ada admin panel, playlist selalu diambil dari daftar hardcoded.
-    // Jika playlist kosong, tampilkan pesan error yang sesuai.
-    if (playlist.length > 0) {
-        loadSong(currentSongIndex);
-        buildPlaylist();
-    } else {
-        console.warn("Playlist kosong di defaultInitialPlaylist. Tidak ada lagu untuk dimuat.");
-        currentSongTitle.textContent = "Tidak ada lagu";
-        currentArtistName.textContent = "Daftar putar kosong.";
-        infoText.innerHTML = "<p>Daftar putar kosong. Mohon tambahkan lagu ke file `script.js` Anda dan perbarui GitHub Pages.</p>";
-        audioPlayer.src = "";
-        currentAlbumArt.src = "album_art_default.jpg";
-        pauseSong();
-    }
-
-
-    audioPlayer.addEventListener('play', () => {
+    function initializePlayer() {
+        // Inisialisasi Web Audio API
         setupAudioContext();
         drawVisualizer();
-        gainNode.gain.setValueAtTime(masterVolumeControl.value, audioContext.currentTime);
-    }, { once: true });
 
-    if (backgroundVideo) {
-        backgroundVideo.play().catch(error => {
-            console.log('Autoplay video dicegah. Interaksi pengguna mungkin diperlukan.', error);
-        });
+        // Muat lagu pertama di playlist saat aplikasi dimuat
+        loadSong(currentSongIndex);
+        // Pastikan tombol play/pause menunjukkan ikon putar saat dimuat pertama kali
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        playPauseBtn.setAttribute('aria-label', 'Putar');
+
+        // Pastikan playlist ditampilkan dengan lagu pertama sebagai aktif
+        buildPlaylist();
+        updatePlaylistActiveState(currentSongIndex);
+
+        // Jika ada timer yang berjalan sebelumnya (misal dari refresh halaman), lanjutkan
+        if (sleepTimerEndTime > Date.now()) {
+            updateSleepTimerCountdownDisplay();
+            sleepTimerId = setInterval(updateSleepTimerCountdownDisplay, 1000);
+        } else {
+            sleepTimerCountdown.textContent = '';
+        }
+
+        // Meminta izin notifikasi saat inisialisasi awal (pengguna klik sesuatu)
+        // Ini tidak akan langsung memicu popup jika sudah diberikan atau ditolak
+        if (Notification.permission === 'default') {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    console.log('Notification permission granted.');
+                } else {
+                    console.warn('Notification permission denied.');
+                }
+            });
+        }
     }
 
-    // Karena tidak ada admin panel dan semua data hardcoded, tidak perlu lagi
-    // memantau perubahan localStorage untuk playlist atau pesan global.
-    // window.addEventListener('storage', ...) dihapus.
+    initializePlayer(); // Panggil fungsi inisialisasi saat DOM siap
 });
